@@ -27,6 +27,7 @@ class DirectoryController : Gtk.Widget {
 
         view.button_press_event.connect(on_button_press);
         view.entry_activated.connect(on_entry_activated);
+        view.navigate_up_requested.connect(on_navigate_up_request);
         
         load_path(".");
     }
@@ -55,6 +56,17 @@ class DirectoryController : Gtk.Widget {
             view.select_first_row();
         } catch (Error e) {
             error(e.message);
+        }
+    }
+    
+    private void on_navigate_up_request() {
+        var file = File.new_for_path(current_path);
+        if (file.has_parent(null)) {
+            var parent = file.get_parent();
+            var parent_path = parent.get_path();
+            load_path(parent_path);
+            
+            view.select_first_row();
         }
     }
     

@@ -14,6 +14,7 @@ class DirectoryView : TreeView {
     }
     
     public signal void entry_activated(Entry entry);
+    public signal void navigate_up_requested();
     
     private ListStore store;
     private HashMap<string, Entry> name_entry_map = new HashMap<string, Entry>();
@@ -56,11 +57,14 @@ class DirectoryView : TreeView {
     
     private bool on_key_press(EventKey e) {
         string key = Gdk.keyval_name(e.keyval);
-        //debug("%s\n", key);
+//~         debug("%s\n", key);
     
         switch (key) {
             case "Return":
                 on_return_pressed();
+                return true;
+            case "BackSpace":
+                on_backspace_pressed();
                 return true;
             default:
                 return false;
@@ -70,6 +74,10 @@ class DirectoryView : TreeView {
     private void on_return_pressed() {
         var entry = get_current_entry();
         entry_activated(entry);
+    }
+    
+    private void on_backspace_pressed() {
+        navigate_up_requested();
     }
     
     private Entry get_current_entry() {
