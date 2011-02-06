@@ -6,7 +6,7 @@ class MainWindow : Window {
 
     public MainWindow() {
         title = "Ginko File Manager";
-        set_default_size (400, 300);
+        set_default_size (800, 600);
         
         var hpaned = new HPaned();
         
