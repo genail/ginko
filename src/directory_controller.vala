@@ -2,6 +2,13 @@ using Gdk;
 using Gtk;
 
 class DirectoryController : Gtk.Widget {
+    private const string DEFAULT_FILE_QUERY_ATTR =
+                FILE_ATTRIBUTE_STANDARD_TYPE + "," +
+                FILE_ATTRIBUTE_STANDARD_NAME + "," +
+                FILE_ATTRIBUTE_STANDARD_SIZE + "," +
+                FILE_ATTRIBUTE_TIME_MODIFIED + "," +
+                FILE_ATTRIBUTE_UNIX_MODE;
+
     private DirectoryView view;
     private string current_path;
 
@@ -66,31 +73,25 @@ class DirectoryController : Gtk.Widget {
         view.clear();
         
         try {
+            FileInfo fileinfo;
+        
             var directory = File.new_for_path(path);
+            if (directory.has_parent(null)) {
+                // put ".." entry at top
+                var parent = directory.get_parent();
+                
+                fileinfo = File.new_for_path(parent.get_path()).query_info(
+                    DEFAULT_FILE_QUERY_ATTR, 0);
+                    
+                fileinfo.set_name("..");
+                load_file_info(directory, fileinfo);
+            }
+            
             var fullpath = directory.get_path();
             
-            var enumerator = directory.enumerate_children(
-                FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-                FILE_ATTRIBUTE_STANDARD_NAME + "," +
-                FILE_ATTRIBUTE_STANDARD_SIZE + "," +
-                FILE_ATTRIBUTE_TIME_MODIFIED + "," +
-                FILE_ATTRIBUTE_UNIX_MODE,
-                0);
-            
-            FileInfo file_info;
-            file_info = File.new_for_path("..").query_info(
-                FILE_ATTRIBUTE_STANDARD_TYPE + "," +
-                FILE_ATTRIBUTE_STANDARD_NAME + "," +
-                FILE_ATTRIBUTE_STANDARD_SIZE + "," +
-                FILE_ATTRIBUTE_TIME_MODIFIED + "," +
-                FILE_ATTRIBUTE_UNIX_MODE,
-                0);
-                
-            file_info.set_name("..");
-            load_file_info(directory, file_info);
-            
-            while ((file_info = enumerator.next_file()) != null) {
-                load_file_info(directory, file_info);
+            var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
+            while ((fileinfo = enumerator.next_file()) != null) {
+                load_file_info(directory, fileinfo);
             }
             
             current_path = fullpath;
@@ -100,21 +101,21 @@ class DirectoryController : Gtk.Widget {
         }
     }
     
-    private void load_file_info(File parent, FileInfo file_info) {
+    private void load_file_info(File parent, FileInfo fileinfo) {
         var entry = DirectoryView.Entry();
         
         
-        entry.icon = load_file_icon(parent, file_info);
-        entry.name = format_file_name(file_info);
-        entry.extension = format_file_extension(file_info);
-        entry.size = format_file_size(file_info);
-        entry.mod_time = format_time(file_info);
+        entry.icon = load_file_icon(parent, fileinfo);
+        entry.name = format_file_name(fileinfo);
+        entry.extension = format_file_extension(fileinfo);
+        entry.size = format_file_size(fileinfo);
+        entry.mod_time = format_time(fileinfo);
         
         view.add_entry(entry);
     }
     
-    private Pixbuf load_file_icon(File parent, FileInfo file_info) {
-        string uri = parent.get_path() + "/" + file_info.get_name();
+    private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
+        string uri = parent.get_path() + "/" + fileinfo.get_name();
         unowned string mime_type = GnomeVFS.get_mime_type(uri);
         
         var icon_theme = IconTheme.get_default();
@@ -137,14 +138,14 @@ class DirectoryController : Gtk.Widget {
         return (Gdk.Pixbuf) null;
     }
     
-    private string format_file_name(FileInfo file_info) {
-        var filename = file_info.get_name();
+    private string format_file_name(FileInfo fileinfo) {
+        var filename = fileinfo.get_name();
         var parts = split_extension(filename);
         return parts[0];
     }
     
-    private string format_file_extension(FileInfo file_info) {
-        var filename = file_info.get_name();
+    private string format_file_extension(FileInfo fileinfo) {
+        var filename = fileinfo.get_name();
         var parts = split_extension(filename);
         return parts[1];
     }
@@ -155,7 +156,7 @@ class DirectoryController : Gtk.Widget {
         string shortname;
         string extension;
         
-        if (parts.length >= 2 && parts[parts.length-1].length > 0) {
+        if (has_extension(filename)) {
             var shortname_arr = parts[0:parts.length-1];
             shortname = string.joinv(".", shortname_arr);
             extension = parts[parts.length - 1];
@@ -167,10 +168,30 @@ class DirectoryController : Gtk.Widget {
         return new string[] {shortname, extension};
     }
     
-    private string format_file_size(FileInfo file_info) {
-        int64 file_size = file_info.get_size();
+    private bool has_extension(string filename) {
+        var parts = filename.split(".");
         
-        FileType file_type = file_info.get_file_type();
+        if (parts.length < 2) {
+            return false;
+        }
+        
+        if (parts.length == 2 && filename[0] == '.') { // hidden file
+            return false;
+        }
+        
+        if (parts.length >= 2 && filename[filename.length - 1] == '.') { // dot at the end? oh well...
+            debug(filename[filename.length - 1].to_string());
+            return false;
+        }
+        
+        return true;
+    }
+    
+    
+    private string format_file_size(FileInfo fileinfo) {
+        int64 file_size = fileinfo.get_size();
+        
+        FileType file_type = fileinfo.get_file_type();
         if (file_type == FileType.DIRECTORY) {
             return "<DIR>";
         }
@@ -195,9 +216,9 @@ class DirectoryController : Gtk.Widget {
         return result;
     }
     
-    private string format_time(FileInfo file_info) {
+    private string format_time(FileInfo fileinfo) {
         TimeVal time;
-        file_info.get_modification_time(out time);
+        fileinfo.get_modification_time(out time);
         return time.tv_sec.to_string();
     }
 }
