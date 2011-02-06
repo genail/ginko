@@ -108,6 +108,15 @@ class DirectoryView : TreeView {
         store.set(iter, 5, entry.attr, -1);
         
         name_entry_map[entry.name] = entry;
-        expand_all();
+    }
+    
+    public void select_first_row() {
+        var model = get_model();
+        
+        TreeIter first;
+        model.get_iter_first(out first);
+        
+        var path = model.get_path(first);
+        set_cursor(path, null, false);
     }
 }

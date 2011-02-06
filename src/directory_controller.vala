@@ -16,7 +16,6 @@ class DirectoryController : Gtk.Widget {
         this.view = view;
 
         view.button_press_event.connect(on_button_press);
-        
         view.entry_activated.connect(on_entry_activated);
         
         load_path(".");
@@ -42,6 +41,8 @@ class DirectoryController : Gtk.Widget {
                     load_path(file.get_path());
                 }
             }
+            
+            view.select_first_row();
         } catch (Error e) {
             error(e.message);
         }
@@ -158,7 +159,6 @@ class DirectoryController : Gtk.Widget {
         }
         
         if (parts.length >= 2 && filename[filename.length - 1] == '.') { // dot at the end? oh well...
-            debug(filename[filename.length - 1].to_string());
             return false;
         }
         
