@@ -11,6 +11,8 @@ class DirectoryController : Gtk.Widget {
                 FILE_ATTRIBUTE_UNIX_MODE;
 
     private DirectoryView view;
+    private BreadCrumbs breadcrumbs;
+    
     private string current_path;
     
     private IconTheme default_icon_theme = IconTheme.get_default();
@@ -19,8 +21,9 @@ class DirectoryController : Gtk.Widget {
     private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();
         
 
-    public DirectoryController(DirectoryView view) {
+    public DirectoryController(DirectoryView view, BreadCrumbs breadcrumbs) {
         this.view = view;
+        this.breadcrumbs = breadcrumbs;
 
         view.button_press_event.connect(on_button_press);
         view.entry_activated.connect(on_entry_activated);
@@ -81,9 +84,9 @@ class DirectoryController : Gtk.Widget {
             }
             
             current_path = fullpath;
-            stdout.printf("%s\n", current_path);
+            breadcrumbs.set_path(current_path);
         } catch (Error e) {
-            error(e.message);
+            debug(e.message);
         }
     }
     

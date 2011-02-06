@@ -36,10 +36,11 @@ link_directories(
 )
 
 vala_precompile(VALA_C
+    "src/breadcrumbs.vala"
+    "src/directory_controller.vala"
+    "src/directory_view.vala"
     "src/main.vala"
     "src/main_window.vala"
-    "src/directory_view.vala"
-    "src/directory_controller.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0
