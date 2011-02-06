@@ -5,6 +5,7 @@ int main(string[] args) {
     Gtk.init (ref args);
 
     var window = new MainWindow();
+    window.set_title("Ginko File Manager");
     window.destroy.connect (Gtk.main_quit);
     window.show_all();
 

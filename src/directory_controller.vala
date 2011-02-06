@@ -2,16 +2,6 @@ using Gdk;
 using Gtk;
 
 class DirectoryController : Gtk.Widget {
-//~     private const int64 KILOBYTE = 1024;
-//~     private const int64 MEGABYTE = KILOBYTE * 1024;
-//~     private const int64 GIGABYTE = MEGABYTE * 1024;
-//~     private const int64 TERABYTE = GIGABYTE * 1024;
-//~     
-//~     private const string KILOBYTE_POSTFIX = "K";
-//~     private const string MEGABYTE_POSTFIX = "M";
-//~     private const string GIGABYTE_POSTFIX = "G";
-//~     private const string TERABYTE_POSTFIX = "T";
-
     private DirectoryView view;
     private string current_path;
 
