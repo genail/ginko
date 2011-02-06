@@ -39,6 +39,11 @@ class DirectoryView : TreeView {
         insert_column_with_attributes(-1, "Size", size_renderer, "text", 3, null);
         insert_column_with_attributes(-1, "Date", new CellRendererText(), "text", 4, null);
         insert_column_with_attributes(-1, "Attr", new CellRendererText(), "text", 5, null);
+
+        for (var i = 1; i <= 5; ++i) {
+            unowned TreeViewColumn column = get_column(i);
+            column.set_sizing(TreeViewColumnSizing.AUTOSIZE);
+        }
         
         row_activated.connect(on_row_activated);
         key_press_event.connect(on_key_press);

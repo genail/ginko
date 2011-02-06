@@ -30,7 +30,7 @@ class DirectoryController : Gtk.Widget {
     }
     
     private void on_entry_activated(DirectoryView.Entry entry) {
-        try{
+        try {
             var file = File.new_for_path(current_path + "/" + entry.name);
             
             if (file.query_exists()) {
