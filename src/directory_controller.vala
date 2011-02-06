@@ -197,6 +197,9 @@ class DirectoryController : Gtk.Widget {
     private string format_time(FileInfo fileinfo) {
         TimeVal time;
         fileinfo.get_modification_time(out time);
-        return time.tv_sec.to_string();
+        
+        var datetime = new DateTime.from_unix_utc(time.tv_sec);
+        
+        return datetime.format("%d.%m.%Y %H:%M");
     }
 }
