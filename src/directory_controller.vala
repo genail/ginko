@@ -1,5 +1,6 @@
 using Gdk;
 using Gtk;
+using Gee;
 
 class DirectoryController : Gtk.Widget {
     private const string DEFAULT_FILE_QUERY_ATTR =
@@ -11,6 +12,12 @@ class DirectoryController : Gtk.Widget {
 
     private DirectoryView view;
     private string current_path;
+    
+    private IconTheme default_icon_theme = IconTheme.get_default();
+    private Gnome.ThumbnailFactory thumbnail_factory =
+        new Gnome.ThumbnailFactory(Gnome.ThumbnailSize.NORMAL);
+    private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();
+        
 
     public DirectoryController(DirectoryView view) {
         this.view = view;
@@ -31,7 +38,7 @@ class DirectoryController : Gtk.Widget {
     
     private void on_entry_activated(DirectoryView.Entry entry) {
         try {
-            var file = File.new_for_path(current_path + "/" + entry.name);
+            var file = File.new_for_path(to_uri(current_path, entry.name));
             
             if (file.query_exists()) {
                 var info = file.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
@@ -94,27 +101,43 @@ class DirectoryController : Gtk.Widget {
     }
     
     private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
-        string uri = parent.get_path() + "/" + fileinfo.get_name();
+        string uri = to_uri(parent.get_path(), fileinfo.get_name());
         unowned string mime_type = GnomeVFS.get_mime_type(uri);
         
-        var icon_theme = IconTheme.get_default();
-        GnomeVFS.FileInfo gvfs_file_info = new GnomeVFS.FileInfo();
-        GnomeVFS.get_file_info(uri, gvfs_file_info, 0);
-        var thumbnail_factory = new Gnome.ThumbnailFactory(Gnome.ThumbnailSize.NORMAL);
-        unowned string icon_name = Gnome.icon_lookup(
-        icon_theme, thumbnail_factory, uri, "", gvfs_file_info, mime_type, 0, 0);
-        
-        try {
-            bool has_icon = icon_theme.has_icon(icon_name);
-            if (has_icon) {
-                var icon_pixbuf = icon_theme.load_icon(icon_name, 16, 0);
-                return icon_pixbuf;
+        assert(mime_type != null);
+
+        Pixbuf icon_pixbuf = null;
+
+        if (icon_cache.has_key(mime_type)) {
+            icon_pixbuf = icon_cache[mime_type];
+        } else {
+            GnomeVFS.FileInfo gvfs_file_info = new GnomeVFS.FileInfo();
+            GnomeVFS.get_file_info(uri, gvfs_file_info, 0);
+                unowned string icon_name = Gnome.icon_lookup(
+                default_icon_theme, thumbnail_factory, uri, "", gvfs_file_info, mime_type, 0, 0);
+            
+            try {
+                bool has_icon = default_icon_theme.has_icon(icon_name);
+                if (has_icon) {
+                    icon_pixbuf = default_icon_theme.load_icon(icon_name, 16, 0);
+                }
+            } catch (Error e) {
+                error(e.message);
             }
-        } catch (Error e) {
-            error(e.message);
         }
         
-        return (Gdk.Pixbuf) null;
+        return icon_pixbuf;
+    }
+    
+    private string to_uri(string parent, string file) {
+        var uri = parent;
+        
+        if (uri[uri.length-1] != '/') {
+            uri += "/";
+        }
+        
+        uri += file;
+        return uri;
     }
     
     private string format_file_name(FileInfo fileinfo) {

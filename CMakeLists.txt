@@ -46,6 +46,8 @@ PACKAGES
     gee-1.0
     gnome-vfs-2.0
     libgnomeui-2.0
+OPTIONS
+    -g --save-temps
 )
 
 add_executable("ginko" ${VALA_C})
