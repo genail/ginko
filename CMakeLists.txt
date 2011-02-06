@@ -10,16 +10,30 @@ ensure_vala_version("0.7.8" MINIMUM)
 find_package(PkgConfig)
 pkg_check_modules(GTK REQUIRED gtk+-2.0)
 pkg_check_modules(GIO REQUIRED gio-2.0)
+pkg_check_modules(GEE REQUIRED gee-1.0)
 pkg_check_modules(GNOME_VFS REQUIRED gnome-vfs-2.0)
 pkg_check_modules(GNOME_UI REQUIRED libgnomeui-2.0)
 add_definitions(
     ${GTK_CFLAGS} ${GTK_CFLAGS_OTHER}
     ${GIO_CFLAGS} ${GIO_CFLAGS_OTHER}
+    ${GEE_CFLAGS} ${GEE_CFLAGS_OTHER}
     ${GNOME_VFS_CFLAGS} ${GNOME_VFS_CFLAGS_OTHER}
     ${GNOME_UI_CFLAGS} ${GNOME_UI_CFLAGS_OTHER}
 )
-link_libraries(${GTK_LIBRARIES} ${GIO_LIBRARIES} ${GNOME_VFS_LIBRARIES} ${GNOME_UI_LIBRARIES})
-link_directories(${GTK_LIBRARY_DIRS} ${GIO_LIBRARY_DIRS} ${GNOME_VFS_LIBRARY_DIRS} ${GNOME_UI_LIBRARY_DIRS})
+link_libraries(
+    ${GTK_LIBRARIES}
+    ${GIO_LIBRARIES}
+    ${GEE_LIBRARIES}
+    ${GNOME_VFS_LIBRARIES}
+    ${GNOME_UI_LIBRARIES}
+)
+link_directories(
+    ${GTK_LIBRARY_DIRS}
+    ${GIO_LIBRARY_DIRS}
+    ${GEE_LIBRARY_DIRS}
+    ${GNOME_VFS_LIBRARY_DIRS}
+    ${GNOME_UI_LIBRARY_DIRS}
+)
 
 vala_precompile(VALA_C
     "src/main.vala"
@@ -29,6 +43,7 @@ vala_precompile(VALA_C
 PACKAGES
     gtk+-2.0
     gio-2.0
+    gee-1.0
     gnome-vfs-2.0
     libgnomeui-2.0
 )

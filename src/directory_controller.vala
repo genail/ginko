@@ -15,29 +15,24 @@ class DirectoryController : Gtk.Widget {
     public DirectoryController(DirectoryView view) {
         this.view = view;
 
-        view.key_press_event.connect(on_key_press);
+        view.button_press_event.connect(on_button_press);
+        
+        view.entry_activated.connect(on_entry_activated);
         
         load_path(".");
     }
     
-    private bool on_key_press(EventKey e) {
-    
-        string key = Gdk.keyval_name(e.keyval);
-        debug("%s\n", key);
-    
-        switch (key) {
-            case "Return":
-                handle_return();
-                return true;
-            default:
-                return false;
+    private bool on_button_press(EventButton e) {
+        if (e.type == EventType.2BUTTON_PRESS) {
+            return true;
         }
+        
+        return false;
     }
     
-    private void handle_return() {
+    private void on_entry_activated(DirectoryView.Entry entry) {
         try{
-            string entry_name = get_current_entry_name();
-            var file = File.new_for_path(current_path + "/" + entry_name);
+            var file = File.new_for_path(current_path + "/" + entry.name);
             
             if (file.query_exists()) {
                 var info = file.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
@@ -50,23 +45,6 @@ class DirectoryController : Gtk.Widget {
         } catch (Error e) {
             error(e.message);
         }
-    }
-    
-    private string get_current_entry_name() {
-        TreeSelection selection = view.get_selection();
-        
-        var model = view.get_model();
-        List<TreePath> selected_rows = selection.get_selected_rows(out model);
-        TreePath rowPath = selected_rows.nth_data(0);
-        
-        TreeIter iter;
-        model.get_iter(out iter, rowPath);
-        
-        Value value;
-        model.get_value(iter, 1, out value);
-        
-        string entry_name = (string) value;
-        return entry_name;
     }
     
     private void load_path(string path) {
@@ -102,7 +80,7 @@ class DirectoryController : Gtk.Widget {
     }
     
     private void load_file_info(File parent, FileInfo fileinfo) {
-        var entry = DirectoryView.Entry();
+        var entry = new DirectoryView.Entry();
         
         
         entry.icon = load_file_icon(parent, fileinfo);
