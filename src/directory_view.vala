@@ -32,7 +32,11 @@ class DirectoryView : TreeView {
         insert_column_with_attributes(-1, "Icon", new CellRendererPixbuf(), "pixbuf", 0, null);
         insert_column_with_attributes(-1, "Name", new CellRendererText(), "text", 1, null);
         insert_column_with_attributes(-1, "Ext", new CellRendererText(), "text", 2, null);
-        insert_column_with_attributes(-1, "Size", new CellRendererText(), "text", 3, null);
+        
+        var size_renderer = new CellRendererText();
+        size_renderer.xalign = 1.0f;
+        
+        insert_column_with_attributes(-1, "Size", size_renderer, "text", 3, null);
         insert_column_with_attributes(-1, "Date", new CellRendererText(), "text", 4, null);
         insert_column_with_attributes(-1, "Attr", new CellRendererText(), "text", 5, null);
         
