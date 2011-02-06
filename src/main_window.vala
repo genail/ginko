@@ -2,10 +2,13 @@ using Gtk;
 
 class MainWindow : Window {
     private DirectoryController directory_controller_1;
+    private DirectoryController directory_controller_2;
 
     public MainWindow() {
-        title = "File Manager";
+        title = "Ginko File Manager";
         set_default_size (400, 300);
+        
+        var hpaned = new HPaned();
         
         var dir_view1 = new DirectoryView();
         directory_controller_1 = new DirectoryController(dir_view1);
@@ -13,12 +16,14 @@ class MainWindow : Window {
         var scroll1 = new ScrolledWindow(null, null);
         scroll1.add(dir_view1);
         
-        var hpaned = new HPaned();
-        
-        hpaned.add(scroll1);
-        
         var dir_view2 = new DirectoryView();
-        hpaned.add(dir_view2);
+        directory_controller_2 = new DirectoryController(dir_view2);
+        
+        var scroll2 = new ScrolledWindow(null, null);
+        scroll2.add(dir_view2);
+        
+        hpaned.pack1(scroll1, true, true);
+        hpaned.pack2(scroll2, true, true);
         
         add(hpaned);
     }
