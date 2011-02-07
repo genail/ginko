@@ -30,7 +30,7 @@ class DirectoryView : TreeView {
         
         set_model(store);
         
-        insert_column_with_attributes(-1, "Icon", new CellRendererPixbuf(), "pixbuf", 0, null);
+        insert_column_with_attributes(-1, "", new CellRendererPixbuf(), "pixbuf", 0, null);
         insert_column_with_attributes(-1, "Name", new CellRendererText(), "text", 1, null);
         insert_column_with_attributes(-1, "Ext", new CellRendererText(), "text", 2, null);
         
