@@ -13,7 +13,7 @@ class DirectoryController : Gtk.Widget {
     private DirectoryView view;
     private BreadCrumbs breadcrumbs;
     
-    private string current_path;
+    private File current_file;
     
     private IconTheme default_icon_theme = IconTheme.get_default();
     private Gnome.ThumbnailFactory thumbnail_factory =
@@ -42,14 +42,15 @@ class DirectoryController : Gtk.Widget {
     
     private void on_entry_activated(DirectoryView.Entry entry) {
         try {
-            var file = File.new_for_path(to_uri(current_path, entry.name));
+        
+            var child = current_file.get_child(entry.name);
             
-            if (file.query_exists()) {
-                var info = file.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
+            if (child.query_exists()) {
+                var info = child.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
                 var type = info.get_file_type();
                 
                 if (type == FileType.DIRECTORY) {
-                    load_path(file.get_path());
+                    load_path(child.get_path());
                 }
             }
             
@@ -60,9 +61,8 @@ class DirectoryController : Gtk.Widget {
     }
     
     private void on_navigate_up_request() {
-        var file = File.new_for_path(current_path);
-        if (file.has_parent(null)) {
-            var parent = file.get_parent();
+        if (current_file.has_parent(null)) {
+            var parent = current_file.get_parent();
             var parent_path = parent.get_path();
             load_path(parent_path);
             
@@ -88,15 +88,13 @@ class DirectoryController : Gtk.Widget {
                 load_file_info(directory, fileinfo);
             }
             
-            var fullpath = directory.get_path();
-            
             var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
             while ((fileinfo = enumerator.next_file()) != null) {
                 load_file_info(directory, fileinfo);
             }
             
-            current_path = fullpath;
-            breadcrumbs.set_path(current_path);
+            current_file = directory;
+            breadcrumbs.set_path(current_file.get_path());
         } catch (Error e) {
             debug(e.message);
         }
@@ -116,8 +114,11 @@ class DirectoryController : Gtk.Widget {
     }
     
     private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
-        string uri = to_uri(parent.get_path(), fileinfo.get_name());
-        unowned string mime_type = GnomeVFS.get_mime_type(uri);
+        var child_base_name = fileinfo.get_name();
+        var child = parent.get_child(child_base_name);
+        var child_path = child.get_path();
+    
+        unowned string mime_type = GnomeVFS.get_mime_type(child_path);
         
         assert(mime_type != null);
 
@@ -127,9 +128,9 @@ class DirectoryController : Gtk.Widget {
             icon_pixbuf = icon_cache[mime_type];
         } else {
             GnomeVFS.FileInfo gvfs_file_info = new GnomeVFS.FileInfo();
-            GnomeVFS.get_file_info(uri, gvfs_file_info, 0);
+            GnomeVFS.get_file_info(child_path, gvfs_file_info, 0);
                 unowned string icon_name = Gnome.icon_lookup(
-                default_icon_theme, thumbnail_factory, uri, "", gvfs_file_info, mime_type, 0, 0);
+                default_icon_theme, thumbnail_factory, child_path, "", gvfs_file_info, mime_type, 0, 0);
             
             try {
                 bool has_icon = default_icon_theme.has_icon(icon_name);
@@ -142,17 +143,6 @@ class DirectoryController : Gtk.Widget {
         }
         
         return icon_pixbuf;
-    }
-    
-    private string to_uri(string parent, string file) {
-        var uri = parent;
-        
-        if (uri[uri.length-1] != '/') {
-            uri += "/";
-        }
-        
-        uri += file;
-        return uri;
     }
     
     private string format_file_name(FileInfo fileinfo) {
