@@ -44,6 +44,8 @@ class DirectoryView : TreeView {
         for (var i = 1; i <= 5; ++i) {
             unowned TreeViewColumn column = get_column(i);
             column.set_sizing(TreeViewColumnSizing.AUTOSIZE);
+            column.set_resizable(true);
+//~             column.set_min_width(50);
         }
         
         row_activated.connect(on_row_activated);
