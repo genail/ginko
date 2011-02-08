@@ -16,8 +16,12 @@ class DirectoryView : TreeView {
     public signal void entry_activated(Entry entry);
     public signal void navigate_up_requested();
     
+    private static const int UNSORTED_SORT_COLUMN_ID = -2;
+    
     private ListStore store;
     private HashMap<string, Entry> name_entry_map = new HashMap<string, Entry>();
+    
+    private bool editing = false;
     
     public DirectoryView() {
         store = new ListStore(6,
@@ -54,7 +58,6 @@ class DirectoryView : TreeView {
         // FIXME: disable sorting when changing the model - it causes many unwantend sort executions
         TreeSortable sortable = (TreeSortable) store;
         sortable.set_sort_func(1, file_name_compare);
-        sortable.set_sort_column_id(1, SortType.ASCENDING);
     }
     
     private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
@@ -123,12 +126,28 @@ class DirectoryView : TreeView {
         return (string) value;
     }
     
+    // (start/stop)_editing makes sure that model is safe to edit
+    // practically it stops sorting to make model editing more effective
+    public void start_editing() {
+        TreeSortable sortable = (TreeSortable) store;
+        sortable.set_sort_column_id(UNSORTED_SORT_COLUMN_ID, SortType.ASCENDING);
+        editing = true;
+    }
+    
+    public void stop_editing() {
+        TreeSortable sortable = (TreeSortable) store;
+        sortable.set_sort_column_id(1, SortType.ASCENDING);
+        editing = false;
+    }
+    
     public void clear() {
+        assert(editing);
         store.clear();
         name_entry_map.clear();
     }
     
     public void add_entry(Entry entry) {
+        assert(editing);
         assert(entry.icon != null);
         assert(entry.name != null);
         

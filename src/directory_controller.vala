@@ -71,8 +71,8 @@ class DirectoryController : Gtk.Widget {
     }
     
     private void load_path(string path) {
+        view.start_editing();
         view.clear();
-        
         try {
             FileInfo fileinfo;
         
@@ -98,6 +98,8 @@ class DirectoryController : Gtk.Widget {
         } catch (Error e) {
             debug(e.message);
         }
+        
+        view.stop_editing();
     }
     
     private void load_file_info(File parent, FileInfo fileinfo) {
@@ -130,7 +132,8 @@ class DirectoryController : Gtk.Widget {
             GnomeVFS.FileInfo gvfs_file_info = new GnomeVFS.FileInfo();
             GnomeVFS.get_file_info(child_path, gvfs_file_info, 0);
                 unowned string icon_name = Gnome.icon_lookup(
-                default_icon_theme, thumbnail_factory, child_path, "", gvfs_file_info, mime_type, 0, 0);
+                default_icon_theme, thumbnail_factory, child_path, "", gvfs_file_info, mime_type,
+                0, 0);
             
             try {
                 bool has_icon = default_icon_theme.has_icon(icon_name);
