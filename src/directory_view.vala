@@ -50,6 +50,18 @@ class DirectoryView : TreeView {
         
         row_activated.connect(on_row_activated);
         key_press_event.connect(on_key_press);
+        
+        // FIXME: disable sorting when changing the model - it causes many unwantend sort executions
+        TreeSortable sortable = (TreeSortable) store;
+        sortable.set_sort_func(1, file_name_compare);
+        sortable.set_sort_column_id(1, SortType.ASCENDING);
+    }
+    
+    private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
+        string entry_name_a = get_entry_name(a);
+        string entry_name_b = get_entry_name(b);
+        
+        return entry_name_a.ascii_casecmp(entry_name_b);
     }
     
     private void on_row_activated(TreePath path, TreeViewColumn column) {
@@ -117,16 +129,21 @@ class DirectoryView : TreeView {
     }
     
     public void add_entry(Entry entry) {
-        TreeIter iter;
-        store.append(out iter);
-        store.set(iter, 0, entry.icon, -1);
-        store.set(iter, 1, entry.name, -1);
-        store.set(iter, 2, entry.extension, -1);
-        store.set(iter, 3, entry.size, -1);
-        store.set(iter, 4, entry.mod_time, -1);
-        store.set(iter, 5, entry.attr, -1);
+        assert(entry.icon != null);
+        assert(entry.name != null);
         
         name_entry_map[entry.name] = entry;
+    
+        TreeIter iter;
+        store.append(out iter);
+        store.set(iter,
+            0, entry.icon,
+            1, entry.name,
+            2, entry.extension,
+            3, entry.size,
+            4, entry.mod_time,
+            5, entry.attr,
+            -1);
     }
     
     public void select_first_row() {
