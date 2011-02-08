@@ -5,14 +5,12 @@ include(ValaPrecompile)
 include(ValaVersion)
 
 find_package(Vala)
-ensure_vala_version("0.7.8" MINIMUM)
+ensure_vala_version("0.11.5" MINIMUM)
 
 find_package(PkgConfig)
 pkg_check_modules(GTK REQUIRED gtk+-2.0)
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(GEE REQUIRED gee-1.0)
-pkg_check_modules(GNOME_VFS REQUIRED gnome-vfs-2.0)
-pkg_check_modules(GNOME_UI REQUIRED libgnomeui-2.0)
 add_definitions(
     ${GTK_CFLAGS} ${GTK_CFLAGS_OTHER}
     ${GIO_CFLAGS} ${GIO_CFLAGS_OTHER}
@@ -39,8 +37,6 @@ PACKAGES
     gtk+-2.0
     gio-2.0
     gee-1.0
-    gnome-vfs-2.0
-    libgnomeui-2.0
 OPTIONS
     -g --save-temps
 )
