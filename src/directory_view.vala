@@ -148,7 +148,7 @@ class DirectoryView : TreeView {
     
     public void add_entry(Entry entry) {
         assert(editing);
-        assert(entry.icon != null);
+        //assert(entry.icon != null);
         assert(entry.name != null);
         
         name_entry_map[entry.name] = entry;

@@ -7,6 +7,8 @@ class DirectoryController : Gtk.Widget {
                 FILE_ATTRIBUTE_STANDARD_TYPE + "," +
                 FILE_ATTRIBUTE_STANDARD_NAME + "," +
                 FILE_ATTRIBUTE_STANDARD_SIZE + "," +
+                FILE_ATTRIBUTE_STANDARD_ICON + "," +
+                FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE + "," +
                 FILE_ATTRIBUTE_TIME_MODIFIED + "," +
                 FILE_ATTRIBUTE_UNIX_MODE;
 
@@ -16,8 +18,6 @@ class DirectoryController : Gtk.Widget {
     private File current_file;
     
     private IconTheme default_icon_theme = IconTheme.get_default();
-    private Gnome.ThumbnailFactory thumbnail_factory =
-        new Gnome.ThumbnailFactory(Gnome.ThumbnailSize.NORMAL);
     private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();
         
 
@@ -116,29 +116,21 @@ class DirectoryController : Gtk.Widget {
     }
     
     private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
-        var child_base_name = fileinfo.get_name();
-        var child = parent.get_child(child_base_name);
-        var child_path = child.get_path();
-    
-        unowned string mime_type = GnomeVFS.get_mime_type(child_path);
+        var content_type = fileinfo.get_content_type();
+        assert(content_type != null);
         
-        assert(mime_type != null);
+        var icon = (ThemedIcon) fileinfo.get_icon();
+        var icon_names = icon.get_names();
 
         Pixbuf icon_pixbuf = null;
 
-        if (icon_cache.has_key(mime_type)) {
-            icon_pixbuf = icon_cache[mime_type];
+        if (icon_cache.has_key(content_type)) {
+            icon_pixbuf = icon_cache[content_type];
         } else {
-            GnomeVFS.FileInfo gvfs_file_info = new GnomeVFS.FileInfo();
-            GnomeVFS.get_file_info(child_path, gvfs_file_info, 0);
-                unowned string icon_name = Gnome.icon_lookup(
-                default_icon_theme, thumbnail_factory, child_path, "", gvfs_file_info, mime_type,
-                0, 0);
-            
             try {
-                bool has_icon = default_icon_theme.has_icon(icon_name);
-                if (has_icon) {
-                    icon_pixbuf = default_icon_theme.load_icon(icon_name, 16, 0);
+                var icon_info = default_icon_theme.choose_icon(icon_names, 16, 0);
+                if (icon_info != null) {
+                    icon_pixbuf = icon_info.load_icon();
                 }
             } catch (Error e) {
                 error(e.message);
