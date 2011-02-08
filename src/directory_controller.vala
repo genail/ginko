@@ -19,6 +19,9 @@ class DirectoryController : Gtk.Widget {
     
     private IconTheme default_icon_theme = IconTheme.get_default();
     private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();
+    
+    // current entry name to file info
+    private HashMap<string, FileInfo> fileinfos = new HashMap<string, FileInfo>();
         
 
     public DirectoryController(DirectoryView view, BreadCrumbs breadcrumbs) {
@@ -42,8 +45,7 @@ class DirectoryController : Gtk.Widget {
     
     private void on_entry_activated(DirectoryView.Entry entry) {
         try {
-        
-            var child = current_file.get_child(entry.name);
+            var child = current_file.get_child(entry.fullname);
             
             if (child.query_exists()) {
                 var info = child.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
@@ -51,12 +53,24 @@ class DirectoryController : Gtk.Widget {
                 
                 if (type == FileType.DIRECTORY) {
                     load_path(child.get_path());
+                    view.select_first_row();
+                } else {
+                    execute_app_on_file(child);
                 }
             }
-            
-            view.select_first_row();
         } catch (Error e) {
             error(e.message);
+        }
+    }
+    
+    private void execute_app_on_file(File file) {
+        try {
+            AppInfo app_info = file.query_default_handler(null);
+            var file_list = new GLib.List<File>();
+            file_list.append(file);
+            app_info.launch(file_list, null);
+        } catch (Error e) {
+            debug(e.message);
         }
     }
     
@@ -74,6 +88,7 @@ class DirectoryController : Gtk.Widget {
         view.start_editing();
         view.clear();
         try {
+            fileinfos.clear();
             FileInfo fileinfo;
         
             var directory = File.new_for_path(path);
@@ -91,6 +106,7 @@ class DirectoryController : Gtk.Widget {
             var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
             while ((fileinfo = enumerator.next_file()) != null) {
                 load_file_info(directory, fileinfo);
+                fileinfos[fileinfo.get_name()] = fileinfo;
             }
             
             current_file = directory;
@@ -105,7 +121,7 @@ class DirectoryController : Gtk.Widget {
     private void load_file_info(File parent, FileInfo fileinfo) {
         var entry = new DirectoryView.Entry();
         
-        
+        entry.fullname = fileinfo.get_name();
         entry.icon = load_file_icon(parent, fileinfo);
         entry.name = format_file_name(fileinfo);
         entry.extension = format_file_extension(fileinfo);

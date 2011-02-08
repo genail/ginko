@@ -6,6 +6,7 @@ class DirectoryView : TreeView {
 
     public class Entry {
         public Gdk.Pixbuf icon;
+        public string fullname;
         public string name;
         public string extension;
         public string size;
@@ -18,13 +19,24 @@ class DirectoryView : TreeView {
     
     private static const int UNSORTED_SORT_COLUMN_ID = -2;
     
+    private static const int STORE_FULLNAME = 0;
+    private static const int STORE_ICON = 1;
+    private static const int STORE_NAME = 2;
+    private static const int STORE_EXT = 3;
+    private static const int STORE_SIZE = 4;
+    private static const int STORE_MOD_TIME = 5;
+    private static const int STORE_ATTR = 6;
+    
     private ListStore store;
+    
+    // entry fullname => Entry
     private HashMap<string, Entry> name_entry_map = new HashMap<string, Entry>();
     
     private bool editing = false;
     
     public DirectoryView() {
-        store = new ListStore(6,
+        store = new ListStore(7,
+            typeof(string), // entry fullname
             typeof(Gdk.Pixbuf),
             typeof(string),
             typeof(string),
@@ -34,16 +46,16 @@ class DirectoryView : TreeView {
         
         set_model(store);
         
-        insert_column_with_attributes(-1, "", new CellRendererPixbuf(), "pixbuf", 0, null);
-        insert_column_with_attributes(-1, "Name", new CellRendererText(), "text", 1, null);
-        insert_column_with_attributes(-1, "Ext", new CellRendererText(), "text", 2, null);
+        insert_column_with_attributes(-1, "", new CellRendererPixbuf(), "pixbuf", STORE_ICON, null);
+        insert_column_with_attributes(-1, "Name", new CellRendererText(), "text", STORE_NAME, null);
+        insert_column_with_attributes(-1, "Ext", new CellRendererText(), "text", STORE_EXT, null);
         
         var size_renderer = new CellRendererText();
         size_renderer.xalign = 1.0f;
         
-        insert_column_with_attributes(-1, "Size", size_renderer, "text", 3, null);
-        insert_column_with_attributes(-1, "Date", new CellRendererText(), "text", 4, null);
-        insert_column_with_attributes(-1, "Attr", new CellRendererText(), "text", 5, null);
+        insert_column_with_attributes(-1, "Size", size_renderer, "text", STORE_SIZE, null);
+        insert_column_with_attributes(-1, "Date", new CellRendererText(), "text", STORE_MOD_TIME, null);
+        insert_column_with_attributes(-1, "Attr", new CellRendererText(), "text", STORE_ATTR, null);
 
         for (var i = 1; i <= 5; ++i) {
             unowned TreeViewColumn column = get_column(i);
@@ -61,8 +73,8 @@ class DirectoryView : TreeView {
     }
     
     private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
-        string entry_name_a = get_entry_name(a);
-        string entry_name_b = get_entry_name(b);
+        string entry_name_a = get_entry_fullname(a);
+        string entry_name_b = get_entry_fullname(b);
         
         return entry_name_a.ascii_casecmp(entry_name_b);
     }
@@ -109,9 +121,9 @@ class DirectoryView : TreeView {
     
     private Entry path_to_entry(TreePath path) {
         var iter = path_to_iter(path);
-        string entry_name = get_entry_name(iter);
+        string entry_fullname = get_entry_fullname(iter);
         
-        return name_entry_map[entry_name];
+        return name_entry_map[entry_fullname];
     }
     
     private TreeIter path_to_iter(TreePath path) {
@@ -120,10 +132,10 @@ class DirectoryView : TreeView {
         return iter;
     }
     
-    private string get_entry_name(TreeIter iter) {
-        Value value;
-        model.get_value(iter, 1, out value);
-        return (string) value;
+    private string get_entry_fullname(TreeIter iter) {
+        Value fullname;
+        model.get_value(iter, STORE_FULLNAME, out fullname);
+        return (string) fullname;
     }
     
     // (start/stop)_editing makes sure that model is safe to edit
@@ -148,20 +160,22 @@ class DirectoryView : TreeView {
     
     public void add_entry(Entry entry) {
         assert(editing);
-        //assert(entry.icon != null);
+        //assert(entry.icon != null); // FIXME: replace null icon with default one
+        assert(entry.fullname != null);
         assert(entry.name != null);
         
-        name_entry_map[entry.name] = entry;
+        name_entry_map[entry.fullname] = entry;
     
         TreeIter iter;
         store.append(out iter);
         store.set(iter,
-            0, entry.icon,
-            1, entry.name,
-            2, entry.extension,
-            3, entry.size,
-            4, entry.mod_time,
-            5, entry.attr,
+            STORE_FULLNAME, entry.fullname,
+            STORE_ICON, entry.icon,
+            STORE_NAME, entry.name,
+            STORE_EXT, entry.extension,
+            STORE_SIZE, entry.size,
+            STORE_MOD_TIME, entry.mod_time,
+            STORE_ATTR, entry.attr,
             -1);
     }
     
