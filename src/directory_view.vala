@@ -28,11 +28,15 @@ class DirectoryView : TreeView {
     private static const int STORE_ATTR = 6;
     
     private ListStore store;
-    
     // entry fullname => Entry
     private HashMap<string, Entry> name_entry_map = new HashMap<string, Entry>();
+    private TreePath cursor_path_last;
+    private bool cursor_hidden = false;
     
     private bool editing = false;
+    
+    
+    
     
     public DirectoryView() {
         store = new ListStore(7,
@@ -66,10 +70,14 @@ class DirectoryView : TreeView {
         
         row_activated.connect(on_row_activated);
         key_press_event.connect(on_key_press);
+        cursor_changed.connect(() => {
+            get_cursor(out cursor_path_last, null);
+        });
         
-        // FIXME: disable sorting when changing the model - it causes many unwantend sort executions
+        // default sorting
         TreeSortable sortable = (TreeSortable) store;
         sortable.set_sort_func(1, file_name_compare);
+        
     }
     
     private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
@@ -179,7 +187,7 @@ class DirectoryView : TreeView {
             -1);
     }
     
-    public void select_first_row() {
+    public void cursor_set_at_top() {
         var model = get_model();
         
         TreeIter first;
@@ -187,5 +195,26 @@ class DirectoryView : TreeView {
         
         var path = model.get_path(first);
         set_cursor(path, null, false);
+    }
+    
+    public void cursor_show() {
+        if (cursor_hidden) {
+            set_cursor(cursor_path_last, null, false);
+            cursor_hidden = false;
+        } else if (cursor_path_last == null) {
+            cursor_set_at_top();
+        }
+    }
+    
+    public void cursor_hide() {
+        if (!cursor_hidden) {
+        
+            get_cursor(out cursor_path_last, null);
+            
+            var selection = get_selection();
+            selection.unselect_all();
+            
+            cursor_hidden = true;
+        }
     }
 }

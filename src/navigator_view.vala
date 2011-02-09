@@ -42,7 +42,8 @@ class NavigatorView {
         var tmp = active;
         active = unactive;
         unactive = tmp;
-        
+
+        unactive.make_unactive();        
         active.make_active();
     }
     

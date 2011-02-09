@@ -53,7 +53,7 @@ class DirectoryController : GLib.Object {
                 
                 if (type == FileType.DIRECTORY) {
                     load_path(child.get_path());
-                    view.select_first_row();
+                    view.cursor_set_at_top();
                 } else {
                     execute_app_on_file(child);
                 }
@@ -80,7 +80,7 @@ class DirectoryController : GLib.Object {
             var parent_path = parent.get_path();
             load_path(parent_path);
             
-            view.select_first_row();
+            view.cursor_set_at_top();
         }
     }
     
@@ -243,7 +243,11 @@ class DirectoryController : GLib.Object {
     }
     
     public void make_active() {
+        view.cursor_show();
         view.grab_focus();
-        debug("grabbing focus");
+    }
+    
+    public void make_unactive() {
+        view.cursor_hide();
     }
 }

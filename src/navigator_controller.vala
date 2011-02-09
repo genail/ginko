@@ -12,7 +12,7 @@ class NavigatorController {
     
     private bool on_key_press(EventKey e) {
         string keystr = Gdk.keyval_name(e.keyval);
-        debug(keystr);
+//~         debug(keystr);
         switch (keystr) {
             case "Tab":
                 on_key_press_tab();
