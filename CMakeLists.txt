@@ -33,6 +33,8 @@ vala_precompile(VALA_C
     "src/directory_view.vala"
     "src/main.vala"
     "src/main_window.vala"
+    "src/navigator_controller.vala"
+    "src/navigator_view.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0

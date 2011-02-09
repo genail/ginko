@@ -5,7 +5,7 @@ class BreadCrumbs : Box {
     
     public BreadCrumbs() {
         entry = new Entry();
-        add(entry);
+        add(entry); 
     }
     
     public void set_path(string path) {

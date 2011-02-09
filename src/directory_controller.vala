@@ -2,7 +2,7 @@ using Gdk;
 using Gtk;
 using Gee;
 
-class DirectoryController : Gtk.Widget {
+class DirectoryController : GLib.Object {
     private const string DEFAULT_FILE_QUERY_ATTR =
                 FILE_ATTRIBUTE_STANDARD_TYPE + "," +
                 FILE_ATTRIBUTE_STANDARD_NAME + "," +
@@ -12,7 +12,8 @@ class DirectoryController : Gtk.Widget {
                 FILE_ATTRIBUTE_TIME_MODIFIED + "," +
                 FILE_ATTRIBUTE_UNIX_MODE;
 
-    private DirectoryView view;
+    public DirectoryView view { get; private set; }
+    
     private BreadCrumbs breadcrumbs;
     
     private File current_file;
@@ -23,10 +24,9 @@ class DirectoryController : Gtk.Widget {
     // current entry name to file info
     private HashMap<string, FileInfo> fileinfos = new HashMap<string, FileInfo>();
         
-
-    public DirectoryController(DirectoryView view, BreadCrumbs breadcrumbs) {
-        this.view = view;
-        this.breadcrumbs = breadcrumbs;
+    public DirectoryController() {
+        this.view = new DirectoryView();
+        this.breadcrumbs = new BreadCrumbs();
 
         view.button_press_event.connect(on_button_press);
         view.entry_activated.connect(on_entry_activated);
@@ -240,5 +240,10 @@ class DirectoryController : Gtk.Widget {
         var datetime = new DateTime.from_unix_utc(time.tv_sec);
         
         return datetime.format("%d.%m.%Y %H:%M");
+    }
+    
+    public void make_active() {
+        view.grab_focus();
+        debug("grabbing focus");
     }
 }
