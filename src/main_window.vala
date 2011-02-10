@@ -54,4 +54,20 @@ class MainWindow : Window {
         
         main_vbox.pack_start(hbox, false);
     }
+    
+    public void register_action_accelerators(ApplicationContext context) {
+    
+        var accel_group = new AccelGroup();
+        
+        foreach (var action in context.actions) {
+            var accel = action.accelerator;
+            
+            var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
+            accel_group.connect(accel.keyval, accel.modifier_type, 0, () =>
+                {action_clos.execute(context.action_context); return true;}
+            );
+        }
+        
+        add_accel_group(accel_group);
+    }
 }

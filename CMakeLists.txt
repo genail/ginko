@@ -28,6 +28,7 @@ link_directories(
 )
 
 vala_precompile(VALA_C
+    "src/application_context.vala"
     "src/breadcrumbs.vala"
     "src/directory_controller.vala"
     "src/directory_view.vala"
@@ -35,6 +36,11 @@ vala_precompile(VALA_C
     "src/main_window.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
+
+    "src/actions/accelerator.vala"
+    "src/actions/action.vala"
+    "src/actions/action_context.vala"
+    "src/actions/copy_file_action.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0
