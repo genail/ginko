@@ -9,7 +9,9 @@ class CopyFileActionConfigureDialog : Dialog {
     private CheckButton follow_symlinks_check;
     
     public CopyFileActionConfigureDialog(ActionContext context) {
-        add_buttons(Stock.OK, RESPONSE_OK, Stock.CANCEL, RESPONSE_CANCEL, 0);
+        set_size_request(Stock.SUGGESTED_DIALOG_WIDTH, -1);
+        
+        add_buttons(Gtk.Stock.OK, RESPONSE_OK, Gtk.Stock.CANCEL, RESPONSE_CANCEL, 0);
         
         var box = new VBox(false, 0);
         (get_content_area() as Container).add(box);
@@ -18,6 +20,7 @@ class CopyFileActionConfigureDialog : Dialog {
         copy_files_label.set_alignment(0, 0);
         
         destination_entry = new Entry();
+        
         var target_path = context.target_dir.get_path() + "/";
         destination_entry.set_text(target_path);
         

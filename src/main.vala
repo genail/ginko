@@ -8,7 +8,6 @@ int main(string[] args) {
     context.actions.append(copy_action);
     
     var accel = copy_action.accelerator;
-    debug("%u", accel.keyval);
 
     var window = new MainWindow(context);
     window.register_action_accelerators();
