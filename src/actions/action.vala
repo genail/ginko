@@ -9,7 +9,5 @@ abstract class Action : Object {
         this.accelerator = accelerator;
     }
     
-    public void execute(ActionContext context) {
-        debug("action execute: %s", name);
-    }
+    public abstract void execute(ActionContext context);
 }

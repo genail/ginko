@@ -25,4 +25,15 @@ class NavigatorController {
     private void on_key_press_tab() {
         view.switch_active_pane();
     }
+    
+    public ActionContext create_action_context() {
+        var c = new ActionContext();
+        var active_controller = view.active_controller;
+        var unactive_controller = view.unactive_controller;
+        
+        c.source_dir = active_controller.current_file;
+        c.target_dir = unactive_controller.current_file;
+        
+        return c;
+    }
 }

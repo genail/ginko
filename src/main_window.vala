@@ -4,8 +4,11 @@ class MainWindow : Window {
     private NavigatorController navigator_controller;
     
     private VBox main_vbox;
+    private ApplicationContext app_context;
 
-    public MainWindow() {
+    public MainWindow(ApplicationContext app_context) {
+        this.app_context = app_context;
+    
         title = "Ginko File Manager";
         set_default_size (800, 600);
         
@@ -55,17 +58,16 @@ class MainWindow : Window {
         main_vbox.pack_start(hbox, false);
     }
     
-    public void register_action_accelerators(ApplicationContext context) {
-    
+    public void register_action_accelerators() {
         var accel_group = new AccelGroup();
         
-        foreach (var action in context.actions) {
+        foreach (var action in app_context.actions) {
             var accel = action.accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
                                       //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133
             accel_group.connect(accel.keyval, accel.modifier_type, 0, () =>
-                {action_clos.execute(context.action_context); return true;}
+                {action_clos.execute(navigator_controller.create_action_context()); return true;}
             );
         }
         

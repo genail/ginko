@@ -41,6 +41,7 @@ vala_precompile(VALA_C
     "src/actions/action.vala"
     "src/actions/action_context.vala"
     "src/actions/copy_file_action.vala"
+    "src/actions/copy_file_action_configure_dialog.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0

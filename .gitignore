@@ -3,6 +3,6 @@ CMakeCache.txt
 cmake_install.cmake
 ginko
 Makefile
-*/*.c
+*.c
 *.proj
 *~

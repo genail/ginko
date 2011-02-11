@@ -16,7 +16,7 @@ class DirectoryController : GLib.Object {
     
     private BreadCrumbs breadcrumbs;
     
-    private File current_file;
+    public File current_file { get; private set; }
     
     private IconTheme default_icon_theme = IconTheme.get_default();
     private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();

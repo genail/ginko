@@ -7,14 +7,14 @@ class NavigatorView {
     private DirectoryController left_controller;
     private DirectoryController right_controller;
     
-    private DirectoryController active;
-    private DirectoryController unactive;
+    public DirectoryController active_controller { get; private set; }
+    public DirectoryController unactive_controller { get; private set; }
     
     public NavigatorView() {
         build_ui();
         
-        active = left_controller;
-        unactive = right_controller;
+        active_controller = left_controller;
+        unactive_controller = right_controller;
     }
     
     private void build_ui() {
@@ -39,12 +39,12 @@ class NavigatorView {
     }
     
     public void switch_active_pane() {
-        var tmp = active;
-        active = unactive;
-        unactive = tmp;
+        var tmp = active_controller;
+        active_controller = unactive_controller;
+        unactive_controller = tmp;
 
-        unactive.make_unactive();        
-        active.make_active();
+        unactive_controller.make_unactive();        
+        active_controller.make_active();
     }
     
 

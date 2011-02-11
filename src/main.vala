@@ -10,8 +10,8 @@ int main(string[] args) {
     var accel = copy_action.accelerator;
     debug("%u", accel.keyval);
 
-    var window = new MainWindow();
-    window.register_action_accelerators(context);
+    var window = new MainWindow(context);
+    window.register_action_accelerators();
     
     window.destroy.connect (Gtk.main_quit);
     window.show_all();
