@@ -36,7 +36,7 @@ vala_precompile(VALA_C
     "src/main_window.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
-    "src/stock.vala"
+    "src/sizes.vala"
 
     "src/actions/accelerator.vala"
     "src/actions/action.vala"
