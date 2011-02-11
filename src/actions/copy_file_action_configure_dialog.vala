@@ -1,17 +1,18 @@
 using Gtk;
 
 class CopyFileActionConfigureDialog : Dialog {
-    public const int RESPONSE_OK = 1;
-    public const int RESPONSE_CANCEL = 2;
-    
+    private const ResponseType DEFAULT_RESPONSE = ResponseType.OK;
+
     private Entry destination_entry;
     private CheckButton preserve_attrs_check;
     private CheckButton follow_symlinks_check;
     
     public CopyFileActionConfigureDialog(ActionContext context) {
+        set_title("Copy files");
         set_size_request(Stock.SUGGESTED_DIALOG_WIDTH, -1);
         
-        add_buttons(Gtk.Stock.OK, RESPONSE_OK, Gtk.Stock.CANCEL, RESPONSE_CANCEL, 0);
+        add_buttons(Gtk.Stock.OK, ResponseType.OK, Gtk.Stock.CANCEL, ResponseType.CANCEL, 0);
+        set_default_response(DEFAULT_RESPONSE);
         
         var box = new VBox(false, 0);
         (get_content_area() as Container).add(box);
@@ -20,6 +21,7 @@ class CopyFileActionConfigureDialog : Dialog {
         copy_files_label.set_alignment(0, 0);
         
         destination_entry = new Entry();
+        prepare_entry(destination_entry);
         
         var target_path = context.target_dir.get_path() + "/";
         destination_entry.set_text(target_path);
@@ -34,5 +36,9 @@ class CopyFileActionConfigureDialog : Dialog {
         box.pack_start(follow_symlinks_check);
         
         show_all();
+    }
+    
+    private void prepare_entry(Entry entry) {
+        entry.activate.connect(() => { response(DEFAULT_RESPONSE); });
     }
 }

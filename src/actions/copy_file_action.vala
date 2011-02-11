@@ -10,6 +10,9 @@ class CopyFileAction : Action {
         debug("copy files executed");
         
         var confdialog = new CopyFileActionConfigureDialog(context);
-        confdialog.run();
+        var return_code = confdialog.run();
+        debug("return code: %d", return_code);
+        
+        confdialog.close();
     }
 }
