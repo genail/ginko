@@ -41,6 +41,7 @@ vala_precompile(VALA_C
     "src/actions/accelerator.vala"
     "src/actions/action.vala"
     "src/actions/action_context.vala"
+    "src/actions/action_progress_dialog.vala"
     "src/actions/copy_file_action.vala"
     "src/actions/copy_file_action_configure_dialog.vala"
 PACKAGES

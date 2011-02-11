@@ -14,5 +14,9 @@ class CopyFileAction : Action {
         debug("return code: %d", return_code);
         
         confdialog.close();
+        
+        var progress_dialog = new ActionProgressDialog();
+        progress_dialog.set_progress(0.5, "Test");
+        progress_dialog.run();
     }
 }
