@@ -63,6 +63,7 @@ class MainWindow : Window {
             var accel = action.accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
+                                      //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133
             accel_group.connect(accel.keyval, accel.modifier_type, 0, () =>
                 {action_clos.execute(context.action_context); return true;}
             );
