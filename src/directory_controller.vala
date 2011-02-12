@@ -63,7 +63,7 @@ class DirectoryController : GLib.Object {
     
     private void on_entry_activated(DirectoryModel.Entry entry) {
         try {
-            var child = current_file.get_child(entry.fullname);
+            var child = entry.file;
             
             if (child.query_exists()) {
                 var info = child.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
@@ -139,7 +139,7 @@ class DirectoryController : GLib.Object {
     private void load_file_info(File parent, FileInfo fileinfo) {
         var entry = new DirectoryModel.Entry();
         
-        entry.fullname = fileinfo.get_name();
+        entry.file = parent.get_child(fileinfo.get_name());
         entry.icon = load_file_icon(parent, fileinfo);
         entry.name = format_file_name(fileinfo);
         entry.extension = format_file_extension(fileinfo);

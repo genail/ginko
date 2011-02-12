@@ -16,7 +16,7 @@ class DirectoryModel  {
     
     public class Entry {
         public Gdk.Pixbuf icon;
-        public string fullname;
+        public File file;
         public string name;
         public string extension;
         public string size;
@@ -26,13 +26,13 @@ class DirectoryModel  {
     
     public ListStore store { get; private set; }
     
-    // entry fullname => Entry
-    private HashMap<string, Entry> name_entry_map = new HashMap<string, Entry>();
+    // entry File => Entry
+    private HashMap<File, Entry> name_entry_map = new HashMap<File, Entry>();
     private bool editing = false;
     
     public DirectoryModel() {
         store = new ListStore(7,
-            typeof(string), // entry fullname
+            typeof(File),
             typeof(Gdk.Pixbuf),
             typeof(string),
             typeof(string),
@@ -62,15 +62,15 @@ class DirectoryModel  {
     public void add_entry(Entry entry) {
         assert(editing);
         //assert(entry.icon != null); // FIXME: replace null icon with default one
-        assert(entry.fullname != null);
+        assert(entry.file != null);
         assert(entry.name != null);
         
-        name_entry_map[entry.fullname] = entry;
+        name_entry_map[entry.file] = entry;
     
         TreeIter iter;
         store.append(out iter);
         store.set(iter,
-            STORE_FULLNAME, entry.fullname,
+            STORE_FULLNAME, entry.file,
             STORE_ICON, entry.icon,
             STORE_NAME, entry.name,
             STORE_EXT, entry.extension,
@@ -88,15 +88,15 @@ class DirectoryModel  {
     
     public Entry path_to_entry(TreePath path) {
         var iter = path_to_iter(path);
-        string entry_fullname = get_entry_fullname(iter);
+        var file = get_entry_file(iter);
         
-        return name_entry_map[entry_fullname];
+        return name_entry_map[file];
     }
     
-    private string get_entry_fullname(TreeIter iter) {
-        Value fullname;
-        store.get_value(iter, DirectoryModel.STORE_FULLNAME, out fullname);
-        return (string) fullname;
+    private File get_entry_file(TreeIter iter) {
+        Value file;
+        store.get_value(iter, DirectoryModel.STORE_FULLNAME, out file);
+        return (File) file;
     }
     
     private TreeIter path_to_iter(TreePath path) {
@@ -106,8 +106,11 @@ class DirectoryModel  {
     }
     
     private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
-        string entry_name_a = get_entry_fullname(a);
-        string entry_name_b = get_entry_fullname(b);
+        var entry_file_a = get_entry_file(a);
+        var entry_file_b = get_entry_file(b);
+        
+        var entry_name_a = entry_file_a.get_basename();
+        var entry_name_b = entry_file_b.get_basename();
         
         return entry_name_a.ascii_casecmp(entry_name_b);
     }
