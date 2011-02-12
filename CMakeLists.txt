@@ -49,7 +49,7 @@ PACKAGES
     gio-2.0
     gee-1.0
 OPTIONS
-    -g --save-temps
+    -g --save-temps --disable-warnings
 )
 
 add_executable("ginko" ${VALA_C})
