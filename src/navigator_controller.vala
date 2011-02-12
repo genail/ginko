@@ -1,6 +1,8 @@
 using Gtk;
 using Gdk;
 
+namespace Ginko {
+
 class NavigatorController {
 
     public NavigatorView view { get; private set; default = new NavigatorView(); }
@@ -37,3 +39,5 @@ class NavigatorController {
         return c;
     }
 }
+
+} // namespace

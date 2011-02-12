@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class CopyFileActionConfigureDialog : Dialog {
     private const ResponseType DEFAULT_RESPONSE = ResponseType.OK;
     
@@ -56,3 +58,5 @@ class CopyFileActionConfigureDialog : Dialog {
         entry.activate.connect(() => { response(DEFAULT_RESPONSE); });
     }
 }
+
+} // namespace

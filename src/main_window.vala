@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class MainWindow : Window {
     private NavigatorController navigator_controller;
     
@@ -74,3 +76,5 @@ class MainWindow : Window {
         add_accel_group(accel_group);
     }
 }
+
+} // namespace

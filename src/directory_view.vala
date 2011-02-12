@@ -2,6 +2,8 @@ using Gtk;
 using Gdk;
 using Gee;
 
+namespace Ginko {
+
 class DirectoryView : TreeView {
 
     public class Entry {
@@ -218,3 +220,5 @@ class DirectoryView : TreeView {
         }
     }
 }
+
+} // namespace

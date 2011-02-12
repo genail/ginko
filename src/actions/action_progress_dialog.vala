@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class ActionProgressDialog : Dialog {
     public static const int RESPONSE_PAUSE = 1;
     
@@ -109,3 +111,5 @@ class ActionProgressDialog : Dialog {
         }
     }
 }
+
+} // namespace

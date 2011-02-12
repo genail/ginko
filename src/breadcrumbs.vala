@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class BreadCrumbs : Box {
     private Entry entry;
     
@@ -12,3 +14,5 @@ class BreadCrumbs : Box {
         entry.set_text(path);
     }
 }
+
+} // namespace

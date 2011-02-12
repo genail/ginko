@@ -1,3 +1,5 @@
+namespace Ginko {
+
 abstract class Action : Object {
     public string name { get; private set; }
     public string[] keywords { get; private set; }
@@ -11,3 +13,5 @@ abstract class Action : Object {
     
     public abstract void execute(ActionContext context);
 }
+
+} // namespace

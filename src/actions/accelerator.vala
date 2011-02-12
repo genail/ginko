@@ -1,6 +1,8 @@
 using Gtk;
 using Gdk;
 
+namespace Ginko {
+
 class Accelerator {
     // FIXME: bind from GDK_VoidSymbol
     private const int VoidSymbol = 0xffffff;
@@ -40,3 +42,5 @@ class Accelerator {
         }
     }
 }
+
+} // namespace

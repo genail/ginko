@@ -2,6 +2,8 @@ using Gdk;
 using Gtk;
 using Gee;
 
+namespace Ginko {
+
 class DirectoryController : GLib.Object {
     private const string DEFAULT_FILE_QUERY_ATTR =
                 FILE_ATTRIBUTE_STANDARD_TYPE + "," +
@@ -251,3 +253,5 @@ class DirectoryController : GLib.Object {
         view.cursor_hide();
     }
 }
+
+} // namespace

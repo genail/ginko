@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class NavigatorView {
 
     public Widget widget { get; private set;}
@@ -49,3 +51,5 @@ class NavigatorView {
     
 
 }
+
+} // namespace

@@ -1,5 +1,7 @@
 using Gtk;
 
+namespace Ginko {
+
 class CopyFileAction : Action {
     
     public class Config {
@@ -31,3 +33,5 @@ class CopyFileAction : Action {
         }
     }
 }
+
+} // namespace
