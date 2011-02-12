@@ -1,4 +1,13 @@
+using Gtk;
+
 class CopyFileAction : Action {
+    
+    public class Config {
+        public string destination;
+        public bool preserve_attrs;
+        public bool follow_symlinks;
+    }
+    
     public CopyFileAction() {
         base(
             "Copy files",
@@ -7,18 +16,18 @@ class CopyFileAction : Action {
     }
     
     public override void execute(ActionContext context) {
-        debug("copy files executed");
+        var config_dialog = new CopyFileActionConfigureDialog(context);
+        var return_code = config_dialog.run();
+        config_dialog.close();
         
-        var confdialog = new CopyFileActionConfigureDialog(context);
-        var return_code = confdialog.run();
-        debug("return code: %d", return_code);
-        
-        confdialog.close();
-        
-        var progress_dialog = new ActionProgressDialog();
-        progress_dialog.set_progress(0.5, "Test");
-        progress_dialog.log_details("first detail");
-        progress_dialog.log_details("second detail");
-        progress_dialog.run();
+        if (return_code == ResponseType.OK) {
+            var config = config_dialog.get_config();
+            
+            var progress_dialog = new ActionProgressDialog();
+            progress_dialog.set_progress(0.5, "Test");
+            progress_dialog.log_details("first detail");
+            progress_dialog.log_details("second detail");
+            progress_dialog.run();
+        }
     }
 }
