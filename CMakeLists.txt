@@ -32,6 +32,7 @@ link_directories(
 vala_precompile(VALA_C
     "src/application_context.vala"
     "src/breadcrumbs.vala"
+    "src/config.vala"
     "src/directory_controller.vala"
     "src/directory_model.vala"
     "src/directory_view.vala"
