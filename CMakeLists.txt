@@ -15,6 +15,8 @@ add_definitions(
     ${GTK_CFLAGS} ${GTK_CFLAGS_OTHER}
     ${GIO_CFLAGS} ${GIO_CFLAGS_OTHER}
     ${GEE_CFLAGS} ${GEE_CFLAGS_OTHER}
+    -DGETTEXT_PACKAGE="ginko"
+#    --include config.h
 )
 link_libraries(
     ${GTK_LIBRARIES}
@@ -49,7 +51,11 @@ PACKAGES
     gio-2.0
     gee-1.0
 OPTIONS
-    -g --save-temps --disable-warnings
+    -g
+    --save-temps
+    --disable-warnings
+CUSTOM_VAPIS
+    "vapi/config.vapi"
 )
 
 add_executable("ginko" ${VALA_C})
