@@ -33,6 +33,7 @@ vala_precompile(VALA_C
     "src/application_context.vala"
     "src/breadcrumbs.vala"
     "src/directory_controller.vala"
+    "src/directory_model.vala"
     "src/directory_view.vala"
     "src/main.vala"
     "src/main_window.vala"
@@ -44,10 +45,12 @@ vala_precompile(VALA_C
     "src/actions/action.vala"
     "src/actions/action_context.vala"
     "src/actions/action_progress_dialog.vala"
+    "src/actions/operation.vala"
 
+    "src/actions/copy_file/copy_file.vala"
     "src/actions/copy_file/copy_file_config.vala"
     "src/actions/copy_file/copy_file_configure_dialog.vala"
-    "src/actions/copy_file/copy_file.vala"
+    "src/actions/copy_file/copy_file_operation.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0

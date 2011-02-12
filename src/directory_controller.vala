@@ -15,6 +15,7 @@ class DirectoryController : GLib.Object {
                 FILE_ATTRIBUTE_UNIX_MODE;
 
     public DirectoryView view { get; private set; }
+    public DirectoryModel model { get; private set; }
     
     private BreadCrumbs breadcrumbs;
     
@@ -27,7 +28,8 @@ class DirectoryController : GLib.Object {
     private HashMap<string, FileInfo> fileinfos = new HashMap<string, FileInfo>();
         
     public DirectoryController() {
-        this.view = new DirectoryView();
+        this.model = new DirectoryModel();
+        this.view = new DirectoryView(model);
         this.breadcrumbs = new BreadCrumbs();
 
         view.button_press_event.connect(on_button_press);
@@ -35,6 +37,20 @@ class DirectoryController : GLib.Object {
         view.navigate_up_requested.connect(on_navigate_up_request);
         
         load_path(".");
+    }
+    
+    public void make_active() {
+        view.cursor_show();
+        view.grab_focus();
+    }
+    
+    public void make_unactive() {
+        view.cursor_hide();
+    }
+    
+    public GLib.List<File> get_selected_files() {
+        var entry = view.get_highlighted_entry();
+        return new GLib.List<File>(); // FIXME 
     }
     
     private bool on_button_press(EventButton e) {
@@ -45,7 +61,7 @@ class DirectoryController : GLib.Object {
         return false;
     }
     
-    private void on_entry_activated(DirectoryView.Entry entry) {
+    private void on_entry_activated(DirectoryModel.Entry entry) {
         try {
             var child = current_file.get_child(entry.fullname);
             
@@ -87,8 +103,8 @@ class DirectoryController : GLib.Object {
     }
     
     private void load_path(string path) {
-        view.start_editing();
-        view.clear();
+        model.start_editing();
+        model.clear();
         try {
             fileinfos.clear();
             FileInfo fileinfo;
@@ -115,13 +131,13 @@ class DirectoryController : GLib.Object {
             breadcrumbs.set_path(current_file.get_path());
         } catch (Error e) {
             debug(e.message);
+        } finally {
+            model.stop_editing();
         }
-        
-        view.stop_editing();
     }
     
     private void load_file_info(File parent, FileInfo fileinfo) {
-        var entry = new DirectoryView.Entry();
+        var entry = new DirectoryModel.Entry();
         
         entry.fullname = fileinfo.get_name();
         entry.icon = load_file_icon(parent, fileinfo);
@@ -130,7 +146,7 @@ class DirectoryController : GLib.Object {
         entry.size = format_file_size(fileinfo);
         entry.mod_time = format_time(fileinfo);
         
-        view.add_entry(entry);
+        model.add_entry(entry);
     }
     
     private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
@@ -242,15 +258,6 @@ class DirectoryController : GLib.Object {
         var datetime = new DateTime.from_unix_utc(time.tv_sec);
         
         return datetime.format("%d.%m.%Y %H:%M");
-    }
-    
-    public void make_active() {
-        view.cursor_show();
-        view.grab_focus();
-    }
-    
-    public void make_unactive() {
-        view.cursor_hide();
     }
 }
 
