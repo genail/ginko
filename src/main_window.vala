@@ -33,29 +33,36 @@ class MainWindow : Window {
     private void build_function_buttons() {
         var hbox = new HBox(true, 0);
         
+        Button[] buttons = {};
+        
         var button_view = new Button.with_label("F3 View");
-        hbox.pack_start(button_view);
+        buttons += button_view;
         
         var button_edit = new Button.with_label("F4 Edit");
-        hbox.pack_start(button_edit);
+        buttons += button_edit;
         
         var button_copy = new Button.with_label("F5 Copy");
-        hbox.pack_start(button_copy);
+        buttons += button_copy;
         
         var button_move = new Button.with_label("F6 Move");
-        hbox.pack_start(button_move);
+        buttons += button_move;
         
         var button_new = new Button.with_label("F7 New Folder");
-        hbox.pack_start(button_new);
+        buttons += button_new;
         
         var button_del = new Button.with_label("F8 Delete");
-        hbox.pack_start(button_del);
+        buttons += button_del;
         
         var button_terminal = new Button.with_label("F9 Terminal");
-        hbox.pack_start(button_terminal);
+        buttons += button_terminal;
         
         var button_exit = new Button.with_label("F10 Exit");
-        hbox.pack_start(button_exit);
+        buttons += button_exit;
+        
+        foreach (var button in buttons) {
+            button.set_relief(ReliefStyle.NONE);
+            hbox.pack_start(button);
+        }
         
         main_vbox.pack_start(hbox, false);
     }
