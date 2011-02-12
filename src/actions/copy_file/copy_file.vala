@@ -1,16 +1,10 @@
 using Gtk;
 
-namespace Ginko {
+namespace Ginko.Actions {
 
-class CopyFileAction : Action {
+class CopyFile : Action {
     
-    public class Config {
-        public string destination;
-        public bool preserve_attrs;
-        public bool follow_symlinks;
-    }
-    
-    public CopyFileAction() {
+    public CopyFile() {
         base(
             "Copy files",
             new string[] { "copy", "file", "files" },
@@ -18,7 +12,7 @@ class CopyFileAction : Action {
     }
     
     public override void execute(ActionContext context) {
-        var config_dialog = new CopyFileActionConfigureDialog(context);
+        var config_dialog = new CopyFileConfigureDialog(context);
         var return_code = config_dialog.run();
         config_dialog.close();
         

@@ -10,7 +10,7 @@ int main(string[] args) {
     
     var context = new ApplicationContext();
     
-    var copy_action = new CopyFileAction();
+    var copy_action = new Actions.CopyFile();
     context.actions.append(copy_action);
     
     var accel = copy_action.accelerator;

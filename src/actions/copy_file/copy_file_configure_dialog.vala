@@ -1,20 +1,20 @@
 using Gtk;
 
-namespace Ginko {
+namespace Ginko.Actions {
 
-class CopyFileActionConfigureDialog : Dialog {
+class CopyFileConfigureDialog : Dialog {
     private const ResponseType DEFAULT_RESPONSE = ResponseType.OK;
     
     private Entry destination_entry;
     private CheckButton preserve_attrs_check;
     private CheckButton follow_symlinks_check;
     
-    public CopyFileActionConfigureDialog(ActionContext context) {
+    public CopyFileConfigureDialog(ActionContext context) {
         build_ui(context);
     }
     
-    public CopyFileAction.Config get_config() {
-        var config = new CopyFileAction.Config();
+    public CopyFileConfig get_config() {
+        var config = new CopyFileConfig();
         
         config.destination = destination_entry.get_text();
         config.preserve_attrs = preserve_attrs_check.get_active();
