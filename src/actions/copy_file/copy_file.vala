@@ -33,11 +33,11 @@ class CopyFile : Action {
                 debug("copy impossible of reason: %d", copy_file_opr.get_fail_reason());
             }
             
-            var progress_dialog = new ActionProgressDialog();
+            /*var progress_dialog = new ActionProgressDialog();
             progress_dialog.set_progress(0.5, "Test");
             progress_dialog.log_details("first detail");
             progress_dialog.log_details("second detail");
-            progress_dialog.run();
+            progress_dialog.run();*/
         }
     }
 }
