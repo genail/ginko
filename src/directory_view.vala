@@ -80,12 +80,17 @@ class DirectoryView : TreeView {
         navigate_up_requested();
     }
     
+    /** @return Highlighted Entry or null if nothing is highlighted here. */
     public DirectoryModel.Entry get_highlighted_entry() {
         TreeSelection selection = get_selection();
         
         var store = get_model();
         GLib.List<TreePath> selected_rows = selection.get_selected_rows(out store);
         TreePath path = selected_rows.nth_data(0);
+        
+        if (path == null) {
+            return null;
+        }
         
         return model.path_to_entry(path);
     }

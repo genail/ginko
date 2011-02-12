@@ -19,6 +19,20 @@ class CopyFile : Action {
         if (return_code == ResponseType.OK) {
             var config = config_dialog.get_config();
             
+            var copy_file_opr = new CopyFileOperation(config);
+            
+            var source_file = context.source_selected_files.data;
+            copy_file_opr.source = source_file;
+            copy_file_opr.destination = context.target_dir.get_child(source_file.get_basename());
+            
+            debug("checking copy operation from %s to %s", copy_file_opr.source.get_path(), copy_file_opr.destination.get_path());
+            
+            if (copy_file_opr.check_if_possible()) {
+                debug("copy possible");
+            } else {
+                debug("copy impossible of reason: %d", copy_file_opr.get_fail_reason());
+            }
+            
             var progress_dialog = new ActionProgressDialog();
             progress_dialog.set_progress(0.5, "Test");
             progress_dialog.log_details("first detail");

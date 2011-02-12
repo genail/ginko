@@ -36,6 +36,9 @@ class NavigatorController {
         c.source_dir = active_controller.current_file;
         c.target_dir = unactive_controller.current_file;
         
+        c.source_selected_files = active_controller.get_selected_files();
+        c.target_selected_files = unactive_controller.get_selected_files();
+        
         return c;
     }
 }

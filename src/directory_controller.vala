@@ -50,7 +50,14 @@ class DirectoryController : GLib.Object {
     
     public GLib.List<File> get_selected_files() {
         var entry = view.get_highlighted_entry();
-        return new GLib.List<File>(); // FIXME 
+        
+        var list = new GLib.List<File>();
+        
+        if (entry != null) {
+            list.append(entry.file);
+        }
+        
+        return list;
     }
     
     private bool on_button_press(EventButton e) {
