@@ -125,7 +125,7 @@ class DirectoryController : GLib.Object {
                     DEFAULT_FILE_QUERY_ATTR, 0);
                     
                 fileinfo.set_name("..");
-                load_file_info(directory, fileinfo);
+                load_file_info(directory, fileinfo, true);
             }
             
             var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
@@ -143,7 +143,7 @@ class DirectoryController : GLib.Object {
         }
     }
     
-    private void load_file_info(File parent, FileInfo fileinfo) {
+    private void load_file_info(File parent, FileInfo fileinfo, bool special=false) {
         var entry = new DirectoryModel.Entry();
         
         entry.file = parent.get_child(fileinfo.get_name());
@@ -152,6 +152,7 @@ class DirectoryController : GLib.Object {
         entry.extension = format_file_extension(fileinfo);
         entry.size = format_file_size(fileinfo);
         entry.mod_time = format_time(fileinfo);
+        entry.special = special;
         
         model.add_entry(entry);
     }

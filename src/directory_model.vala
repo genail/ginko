@@ -14,7 +14,7 @@ class DirectoryModel  {
     
     private static const int UNSORTED_SORT_COLUMN_ID = -2;
     
-    public class Entry {
+    public class Entry : GLib.Object {
         public Gdk.Pixbuf icon;
         public File file;
         public string name;
@@ -22,17 +22,17 @@ class DirectoryModel  {
         public string size;
         public string mod_time;
         public string attr;
+        
+        public bool special; // special entry is visible always at top
     }
     
     public ListStore store { get; private set; }
     
-    // entry File => Entry
-    private HashMap<File, Entry> name_entry_map = new HashMap<File, Entry>();
     private bool editing = false;
     
     public DirectoryModel() {
         store = new ListStore(7,
-            typeof(File),
+            typeof(Entry),
             typeof(Gdk.Pixbuf),
             typeof(string),
             typeof(string),
@@ -62,15 +62,13 @@ class DirectoryModel  {
     public void add_entry(Entry entry) {
         assert(editing);
         //assert(entry.icon != null); // FIXME: replace null icon with default one
-        assert(entry.file != null);
         assert(entry.name != null);
-        
-        name_entry_map[entry.file] = entry;
+        assert(entry.file != null);
     
         TreeIter iter;
         store.append(out iter);
         store.set(iter,
-            STORE_FULLNAME, entry.file,
+            STORE_FULLNAME, entry,
             STORE_ICON, entry.icon,
             STORE_NAME, entry.name,
             STORE_EXT, entry.extension,
@@ -83,20 +81,11 @@ class DirectoryModel  {
     public void clear() {
         assert(editing);
         store.clear();
-        name_entry_map.clear();
     }
     
     public Entry path_to_entry(TreePath path) {
         var iter = path_to_iter(path);
-        var file = get_entry_file(iter);
-        
-        return name_entry_map[file];
-    }
-    
-    private File get_entry_file(TreeIter iter) {
-        Value file;
-        store.get_value(iter, DirectoryModel.STORE_FULLNAME, out file);
-        return (File) file;
+        return iter_to_entry(iter);
     }
     
     private TreeIter path_to_iter(TreePath path) {
@@ -105,12 +94,24 @@ class DirectoryModel  {
         return iter;
     }
     
+    private Entry iter_to_entry(TreeIter iter) {
+        Value entry;
+        store.get_value(iter, DirectoryModel.STORE_FULLNAME, out entry);
+        return (Entry) entry;
+    }
+    
     private int file_name_compare(TreeModel model, TreeIter a, TreeIter b) {
-        var entry_file_a = get_entry_file(a);
-        var entry_file_b = get_entry_file(b);
+        var entry_a = iter_to_entry(a);
+        var entry_b = iter_to_entry(b);
         
-        var entry_name_a = entry_file_a.get_basename();
-        var entry_name_b = entry_file_b.get_basename();
+        if (entry_a.special) {
+            return -1;
+        } else if (entry_b.special) {
+            return 1;
+        }
+        
+        var entry_name_a = entry_a.file.get_basename();
+        var entry_name_b = entry_b.file.get_basename();
         
         return entry_name_a.ascii_casecmp(entry_name_b);
     }
