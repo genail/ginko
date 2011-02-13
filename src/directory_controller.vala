@@ -233,31 +233,14 @@ class DirectoryController : GLib.Object {
     
     
     private string format_file_size(FileInfo fileinfo) {
-        int64 file_size = fileinfo.get_size();
-        
         FileType file_type = fileinfo.get_file_type();
         if (file_type == FileType.DIRECTORY) {
             return "<DIR>";
         }
-
-        if (file_size == 0) {
-            return "0";
-        }
-
-        string result = "";
         
-        while (file_size > 0) {
-            int64 rest = file_size % 1000;
-            
-            if (result.length != 0) {
-                result = " " + result;
-            }
-            
-            result = rest.to_string() + result;
-            file_size /= 1000;
-        }
-        
-        return result;
+        int64 file_size = fileinfo.get_size();
+        var size_formatter = new SizeFormat();
+        return size_formatter.format(file_size);
     }
     
     private string format_time(FileInfo fileinfo) {
