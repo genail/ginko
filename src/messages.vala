@@ -8,6 +8,7 @@ class Messages {
             context.main_window, 0, MessageType.ERROR, ButtonsType.OK, description);
         dialog.set_title(context.name + ": " + title);
         dialog.run();
+        dialog.close();
     }
 }
 

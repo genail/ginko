@@ -12,6 +12,10 @@ class CopyFile : Action {
     }
     
     public override void execute(ActionContext context) {
+        if (!verify(context)) {
+            return;
+        }
+        
         var config_dialog = new CopyFileConfigureDialog(context);
         var return_code = config_dialog.run();
         config_dialog.close();
@@ -49,6 +53,15 @@ class CopyFile : Action {
             progress_dialog.log_details("second detail");
             progress_dialog.run();*/
         }
+    }
+    
+    private bool verify(ActionContext context) {
+        if (context.source_selected_files.length() == 0) {
+            Messages.show_error(context, "Nothing to copy", "You must select at least one file.");
+            return false;
+        }
+        
+        return true;
     }
 }
 
