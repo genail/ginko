@@ -1,6 +1,7 @@
 using Gdk;
 using Gtk;
 using Gee;
+using Ginko.Format;
 
 namespace Ginko {
 
@@ -263,9 +264,8 @@ class DirectoryController : GLib.Object {
         TimeVal time;
         fileinfo.get_modification_time(out time);
         
-        var datetime = new DateTime.from_unix_utc(time.tv_sec);
-        
-        return datetime.format("%d.%m.%Y %H:%M");
+        var formatter = new TimeFormat();
+        return formatter.format(time);
     }
 }
 

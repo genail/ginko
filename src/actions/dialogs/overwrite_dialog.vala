@@ -1,5 +1,6 @@
 using Gtk;
 using Ginko.IO;
+using Ginko.Format;
 
 namespace Ginko.Dialogs {
 
@@ -11,7 +12,7 @@ public class OverwriteDialog : Dialog {
             add(hbox);
             
             var default_icon_theme = IconTheme.get_default();
-            var icon = Files.find_icon_for_file(file, default_icon_theme);
+            var icon = Files.find_icon_for_file(file, default_icon_theme, 48);
             var image_widget = new Image.from_pixbuf(icon);
             hbox.pack_start(image_widget);
             
@@ -25,12 +26,18 @@ public class OverwriteDialog : Dialog {
             vbox.pack_start(name_label);
             
             var size = Files.query_size(file);
-            var size_label = new Label(@"size: $size"); // FIXME: format size
+            var size_formatter = new SizeFormat();
+            size_formatter.method = SizeFormat.Method.HUMAN_READABLE;
+            var formatted_size = size_formatter.format(size);
+            var size_label = new Label(@"size: $formatted_size"); // FIXME: format size
             size_label.set_alignment(0, 0);
             vbox.pack_start(size_label);
             
             // TODO: modification date
-            var moddate_label = new Label("modified: 13.02.2011 16:39");
+            var modtime = Files.query_modification_time(file);
+            var time_formatter = new TimeFormat();
+            var formated_time = time_formatter.format(modtime);
+            var moddate_label = new Label("modified: " + formated_time);
             moddate_label.set_alignment(0, 0);
             vbox.pack_start(moddate_label);
             

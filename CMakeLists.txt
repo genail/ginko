@@ -58,6 +58,9 @@ vala_precompile(VALA_C
 
     "src/actions/dialogs/overwrite_dialog.vala"
 
+    "src/format/size_format.vala"
+    "src/format/time_format.vala"
+
     "src/io/files.vala"
 PACKAGES
     gtk+-2.0
