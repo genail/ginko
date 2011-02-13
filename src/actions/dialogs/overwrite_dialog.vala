@@ -8,7 +8,7 @@ public class OverwriteDialog : Dialog {
     
     private class FileButton : Button {
         public FileButton(File file) {
-            var hbox = new HBox(false, 0);
+            var hbox = new HBox(false, 2);
             add(hbox);
             
             var default_icon_theme = IconTheme.get_default();
