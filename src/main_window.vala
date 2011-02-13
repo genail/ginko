@@ -3,14 +3,13 @@ using Gtk;
 namespace Ginko {
 
 class MainWindow : Window {
-    private NavigatorController navigator_controller;
     
+    public signal void action_invoked(Action action);
+    
+    public NavigatorController navigator_controller {get; private set;}
     private VBox main_vbox;
-    private ApplicationContext app_context;
 
-    public MainWindow(ApplicationContext app_context) {
-        this.app_context = app_context;
-    
+    public MainWindow() {
         title = "Ginko File Manager";
         set_default_size (800, 600);
         
@@ -67,16 +66,16 @@ class MainWindow : Window {
         main_vbox.pack_start(hbox, false);
     }
     
-    public void register_action_accelerators() {
+    public void register_action_accelerators(Action[] actions) {
         var accel_group = new AccelGroup();
         
-        foreach (var action in app_context.actions) {
+        foreach (var action in actions) {
             var accel = action.accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
                                       //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133
             accel_group.connect(accel.keyval, accel.modifier_type, 0, () =>
-                {action_clos.execute(navigator_controller.create_action_context()); return true;}
+                {action_invoked(action_clos); return true;}
             );
         }
         

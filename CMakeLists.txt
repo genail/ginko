@@ -30,14 +30,17 @@ link_directories(
 )
 
 vala_precompile(VALA_C
+    "src/application.vala"
     "src/application_context.vala"
     "src/breadcrumbs.vala"
     "src/config.vala"
+    "src/context.vala"
     "src/directory_controller.vala"
     "src/directory_model.vala"
     "src/directory_view.vala"
     "src/main.vala"
     "src/main_window.vala"
+    "src/messages.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
     "src/sizes.vala"

@@ -28,8 +28,7 @@ class NavigatorController {
         view.switch_active_pane();
     }
     
-    public ActionContext create_action_context() {
-        var c = new ActionContext();
+    public void accept_action_context(ActionContext c) {
         var active_controller = view.active_controller;
         var unactive_controller = view.unactive_controller;
         
@@ -38,8 +37,6 @@ class NavigatorController {
         
         c.source_selected_files = active_controller.get_selected_files();
         c.target_selected_files = unactive_controller.get_selected_files();
-        
-        return c;
     }
 }
 
