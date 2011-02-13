@@ -71,6 +71,11 @@ class CopyFileOperation : Operation {
     }
     
     public bool execute() {
+        if (Config.debug_dry) {
+            // on dry run only run possibilities check
+            return check_if_possible();
+        }
+        
         return false;
     }
     

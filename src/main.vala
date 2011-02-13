@@ -8,6 +8,10 @@ int main(string[] args) {
     
     Gtk.init (ref args);
     
+    if (Config.debug_dry) {
+        debug("!!! Performing dry run - no changes to VFS will be made !!!");
+    }
+    
     var context = new ApplicationContext();
     
     var copy_action = new Actions.CopyFile();

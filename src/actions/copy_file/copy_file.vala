@@ -31,6 +31,16 @@ class CopyFile : Action {
                 debug("copy possible");
             } else {
                 debug("copy impossible of reason: %d", copy_file_opr.get_fail_reason());
+                
+                var fail_reason = copy_file_opr.get_fail_reason();
+                switch (fail_reason) {
+                    case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
+                        // TODO: source is gone?!
+                        break;
+                    case CopyFileOperation.FAIL_REASON_OVERWRITE:
+                        break; // TODO
+                }
+                
             }
             
             /*var progress_dialog = new ActionProgressDialog();
