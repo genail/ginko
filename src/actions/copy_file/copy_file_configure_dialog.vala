@@ -27,7 +27,7 @@ class CopyFileConfigureDialog : Dialog {
         set_title("Copy files");
         set_size_request(Sizes.SUGGESTED_DIALOG_WIDTH, -1);
         
-        add_buttons(Stock.OK, ResponseType.OK, Stock.CANCEL, ResponseType.CANCEL, 0);
+        add_buttons(Stock.OK, ResponseType.OK, Stock.CANCEL, ResponseType.CANCEL); // why this may be not null-terminated?
         set_default_response(DEFAULT_RESPONSE);
         
         var box = new VBox(false, 0);

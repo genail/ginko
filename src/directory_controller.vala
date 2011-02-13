@@ -160,9 +160,6 @@ class DirectoryController : GLib.Object {
     private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
         var content_type = fileinfo.get_content_type();
         assert(content_type != null);
-        
-        var icon = (ThemedIcon) fileinfo.get_icon();
-        var icon_names = icon.get_names();
 
         Pixbuf icon_pixbuf = null;
 
@@ -170,6 +167,9 @@ class DirectoryController : GLib.Object {
             icon_pixbuf = icon_cache[content_type];
         } else {
             try {
+                var icon = (ThemedIcon) fileinfo.get_icon();
+                var icon_names = icon.get_names();
+                
                 var icon_info = default_icon_theme.choose_icon(icon_names, 16, 0);
                 if (icon_info != null) {
                     icon_pixbuf = icon_info.load_icon();

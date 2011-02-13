@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Ginko {
 
-class ActionContext : Context {
+public class ActionContext : Context {
     public File source_dir;
     public List<File> source_selected_files = new List<File>();
     public File target_dir;

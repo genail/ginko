@@ -55,6 +55,10 @@ vala_precompile(VALA_C
     "src/actions/copy_file/copy_file_config.vala"
     "src/actions/copy_file/copy_file_configure_dialog.vala"
     "src/actions/copy_file/copy_file_operation.vala"
+
+    "src/actions/dialogs/overwrite_dialog.vala"
+
+    "src/io/files.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0
