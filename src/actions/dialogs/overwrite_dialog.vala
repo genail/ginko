@@ -14,7 +14,7 @@ public class OverwriteDialog : AbstractDialog {
             add(hbox);
             
             var default_icon_theme = IconTheme.get_default();
-            var icon = Files.find_icon_for_file(file, default_icon_theme, 48);
+            var icon = Files.find_icon_for_file(file, default_icon_theme, 64);
             var image_widget = new Image.from_pixbuf(icon);
             hbox.pack_start(image_widget);
             
@@ -22,26 +22,21 @@ public class OverwriteDialog : AbstractDialog {
             hbox.pack_start(vbox);
             
             var file_path = file.get_path();
-            var name_label = new Label(file.get_path()); // FIXME: simplifier relative name
-            name_label.set_markup(@"<b>$file_path</b>");
-            name_label.set_alignment(0, 0);
-            vbox.pack_start(name_label);
             
             var size = Files.query_size(file);
             var size_formatter = new SizeFormat();
             size_formatter.method = SizeFormat.Method.HUMAN_READABLE;
             var formatted_size = size_formatter.format(size);
-            var size_label = new Label(@"size: $formatted_size"); // FIXME: format size
-            size_label.set_alignment(0, 0);
-            vbox.pack_start(size_label);
             
-            // TODO: modification date
             var modtime = Files.query_modification_time(file);
             var time_formatter = new TimeFormat();
-            var formated_time = time_formatter.format(modtime);
-            var moddate_label = new Label("modified: " + formated_time);
-            moddate_label.set_alignment(0, 0);
-            vbox.pack_start(moddate_label);
+            var formatted_time = time_formatter.format(modtime);
+            
+            var label = new Label("");
+            label.set_markup(@"<b>$file_path</b>\n<i>size:</i> $formatted_size\n"
+                + @"<i>modified:</i> $formatted_time");
+            label.set_alignment(0, 0);
+            vbox.pack_start(label);
             
             show_all();
         }
@@ -77,7 +72,9 @@ public class OverwriteDialog : AbstractDialog {
         content.pack_start(check_button_box);
         
         // why this may be not null-terminated? and crash when it is?
-        add_buttons(Stock.CANCEL, ResponseType.CANCEL, "Rename", 2, "Overwrite", 3); 
+        add_button(Stock.CANCEL, ResponseType.CANCEL);
+        add_button("Rename", 2);
+        add_button("Overwrite", 3).grab_focus();
         
         show_all();
     }

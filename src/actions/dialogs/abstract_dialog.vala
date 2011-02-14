@@ -38,8 +38,6 @@ public abstract class AbstractDialog : Dialog {
         this.vbox.set_spacing(14);
         (get_action_area() as Container).set_border_width(5);
         (get_action_area() as Box).set_spacing(6);
-        
-        show_all();
     }
     
     public void set_primary_label_text(string text) {
