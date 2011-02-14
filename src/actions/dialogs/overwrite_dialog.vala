@@ -4,10 +4,12 @@ using Ginko.Format;
 
 namespace Ginko.Dialogs {
 
-public class OverwriteDialog : Dialog {
+public class OverwriteDialog : AbstractDialog {
     
     private class FileButton : Button {
         public FileButton(File file) {
+            set_relief(ReliefStyle.NONE);
+            
             var hbox = new HBox(false, 2);
             add(hbox);
             
@@ -52,39 +54,30 @@ public class OverwriteDialog : Dialog {
     }
     
     private void build_ui() {
-        var vbox = new VBox(false, 0);
-        (get_content_area() as Container).add(vbox);
         
-        var desc_label = new Label("");
-        desc_label.set_markup(
-            "<span font_desc=\"14\">Overwrite file \"<b>filename.ext</b>\"?</span>");
-        desc_label.set_alignment(0, 0);
-        vbox.add(desc_label);
-        
-        var hbox = new HBox(false, 12);
-        vbox.pack_start(hbox);
+        set_primary_label_text("Overwrite file \"<b>filename.ext</b>\"?");
         
         var file_button_source = new FileButton(File.new_for_path("/var"));
-        hbox.pack_start(file_button_source);
-        
         var arrow = new Arrow(ArrowType.RIGHT, ShadowType.NONE);
-        hbox.pack_start(arrow);
-        
         var file_button_dest = new FileButton(File.new_for_path("/etc"));
-        hbox.pack_start(file_button_dest);
-        
-        //var hseparator = new HSeparator();
-        //vbox.pack_start(hseparator);
         
         var check_button_box = new HButtonBox();
-        check_button_box.set_layout(ButtonBoxStyle.END);
-        vbox.pack_start(check_button_box);
+        check_button_box.set_layout(ButtonBoxStyle.START);
         
         var apply_to_all_check = new CheckButton.with_mnemonic("Apply to _all");
         check_button_box.add(apply_to_all_check);
         
+        var hbox = new HBox(false, 12);
+        content.pack_start(hbox);
         
-        add_buttons(Stock.CANCEL, ResponseType.CANCEL, "Rename", 2, "Overwrite", 3);  // why this may be not null-terminated? and crash when it is?
+        hbox.pack_start(file_button_source);
+        hbox.pack_start(arrow);
+        hbox.pack_start(file_button_dest);
+        
+        content.pack_start(check_button_box);
+        
+        // why this may be not null-terminated? and crash when it is?
+        add_buttons(Stock.CANCEL, ResponseType.CANCEL, "Rename", 2, "Overwrite", 3); 
         
         show_all();
     }

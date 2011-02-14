@@ -56,6 +56,7 @@ vala_precompile(VALA_C
     "src/actions/copy_file/copy_file_configure_dialog.vala"
     "src/actions/copy_file/copy_file_operation.vala"
 
+    "src/actions/dialogs/abstract_dialog.vala"
     "src/actions/dialogs/overwrite_dialog.vala"
 
     "src/format/size_format.vala"
