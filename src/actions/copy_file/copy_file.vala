@@ -1,4 +1,5 @@
 using Gtk;
+using Ginko.IO;
 
 namespace Ginko.Actions {
 
@@ -16,6 +17,7 @@ class CopyFile : Action {
             return;
         }
         
+        // ask for copy configuration
         var config_dialog = new CopyFileConfigureDialog(context);
         var return_code = config_dialog.run();
         config_dialog.close();
@@ -23,29 +25,38 @@ class CopyFile : Action {
         if (return_code == ResponseType.OK) {
             var config = config_dialog.get_config();
             
-            var copy_file_opr = new CopyFileOperation(config);
-            
-            var source_file = context.source_selected_files.data;
-            copy_file_opr.source = source_file;
-            copy_file_opr.destination = context.target_dir.get_child(source_file.get_basename());
-            
-            debug("checking copy operation from %s to %s", copy_file_opr.source.get_path(), copy_file_opr.destination.get_path());
-            
-            if (copy_file_opr.check_if_possible()) {
-                debug("copy possible");
-            } else {
-                debug("copy impossible of reason: %d", copy_file_opr.get_fail_reason());
-                
-                var fail_reason = copy_file_opr.get_fail_reason();
-                switch (fail_reason) {
-                    case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
-                        // TODO: source is gone?!
-                        break;
-                    case CopyFileOperation.FAIL_REASON_OVERWRITE:
-                        break; // TODO
-                }
-                
-            }
+            Files.list_recurse(
+                context.source_selected_files.data, config.follow_symlinks, (file) => {
+                    var copy_file_op = new CopyFileOperation(config);
+                    copy_file_op.source = file;
+                    copy_file_op.destination = Files.rebase(
+                        file, context.source_dir, context.target_dir);
+                    
+                    if (Config.debug) {
+                        debug("dry copy: %s => %s",
+                            copy_file_op.source.get_path(), copy_file_op.destination.get_path());
+                    } else {
+                        
+                        debug("checking copy operation from %s to %s",
+                            copy_file_op.source.get_path(), copy_file_op.destination.get_path());
+                        
+                        if (copy_file_op.check_if_possible()) {
+                            debug("copy possible");
+                        } else {
+                            debug("copy impossible of reason: %d", copy_file_op.get_fail_reason());
+                            
+                            var fail_reason = copy_file_op.get_fail_reason();
+                            switch (fail_reason) {
+                                case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
+                                    //Messages.show_error(context, "Source file \"");
+                                    break;
+                                case CopyFileOperation.FAIL_REASON_OVERWRITE:
+                                    break; // TODO
+                            }
+                            
+                        }
+                    }
+                });
             
             /*var progress_dialog = new ActionProgressDialog();
             progress_dialog.set_progress(0.5, "Test");

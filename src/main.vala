@@ -9,10 +9,6 @@ class Main {
         
         var application = new Application(args);
         
-        if (Config.debug_dry) {
-            debug("!!! Performing dry run - no changes to VFS will be made !!!");
-        }
-        
         application.run();
         
         return 0;

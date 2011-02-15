@@ -5,6 +5,23 @@ public class Application {
     private ApplicationContext context;
     
     public Application(string[] args) {
+        if ("--debug" in args) {
+            stdout.printf("!!! Running in debug mode !!!\n");
+            Config.debug = true;
+            
+            /*try {
+                Ginko.IO.Files.list_children_recurse(
+                    File.new_for_path("/tmp"), false, (file) => {
+                        stdout.printf("file: %s\n", file.get_path());
+                    });
+            } catch (Error e) {
+                stdout.printf("error: %s\n", e.message);
+            }
+            
+            var file = Ginko.IO.Files.rebase(File.new_for_path("/home/chudy/download"), File.new_for_path("/home"), File.new_for_path("/tmp"));
+            stdout.printf("rebase: %s\n", file.get_path());*/
+        }
+        
         Gtk.init (ref args);
         
         main_window = new MainWindow();

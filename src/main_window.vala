@@ -11,6 +11,10 @@ class MainWindow : Window {
 
     public MainWindow() {
         title = "Ginko File Manager";
+        if (Config.debug) {
+            title += " (DEBUG MODE)";
+        }
+        
         set_default_size (800, 600);
         
         main_vbox = new VBox(false, 0);

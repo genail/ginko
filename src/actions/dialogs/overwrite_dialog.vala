@@ -80,4 +80,4 @@ public class OverwriteDialog : AbstractDialog {
     }
 }
     
-}
+} // namespace
