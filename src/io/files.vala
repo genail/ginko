@@ -5,7 +5,19 @@ namespace Ginko.IO {
     
 public class Files {
     
-    public delegate void FileFoundCallback(File file);
+    /** Calculates used space of file/directory with contents in bytes */
+    public static uint64 calculate_space_recurse(File p_file, bool p_follow_symlinks) {
+        var scanner = new TreeScanner();
+        scanner.m_follow_symlinks = p_follow_symlinks;
+        scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
+        
+        uint64 total = 0;
+        scanner.scan(p_file, (file, fileinfo) => {
+                total += fileinfo.get_size();
+        });
+        
+        return total;
+    }
     
     public static Pixbuf find_icon_for_file(File file, IconTheme theme, int size=64) throws Error {
         var info = file.query_info(FILE_ATTRIBUTE_STANDARD_ICON, 0, null);
@@ -38,39 +50,6 @@ public class Files {
         info.get_modification_time(out time);
         
         return time;
-    }
-    
-    public static void list_recurse(File file, bool follow_symlinks, FileFoundCallback callback) {
-        if (file.query_exists()) {
-                callback(file);
-        }
-        
-        var type = file.query_file_type(
-            follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
-        if (type == FileType.DIRECTORY) {
-            list_children_recurse(file, follow_symlinks, callback);
-        }
-    }
-    
-    public static void list_children_recurse(
-        File dir, bool follow_symlinks, FileFoundCallback callback)
-    throws Error {
-        var enumerator = dir.enumerate_children(
-            FILE_ATTRIBUTE_STANDARD_NAME + "," + FILE_ATTRIBUTE_STANDARD_TYPE,
-            follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
-            null);
-        
-        FileInfo fileinfo;
-        while ((fileinfo = enumerator.next_file()) != null) {
-            var file_name = fileinfo.get_name();
-            var child_file = dir.get_child(file_name);
-            callback(child_file);
-            
-            var file_type = fileinfo.get_file_type();
-            if (file_type == FileType.DIRECTORY) {
-                list_children_recurse(child_file, follow_symlinks, callback);
-            }
-        }
     }
     
     /**

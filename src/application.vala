@@ -35,10 +35,6 @@ public class Application {
     private void invoke_action(Action action) {
         var action_context = create_action_context(action);
         action.execute(action_context);
-        
-        // DEBUG
-        var dialog = new Ginko.Dialogs.OverwriteDialog(action_context);
-        dialog.run();
     }
     
     private ActionContext create_action_context(Action action) {

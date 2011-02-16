@@ -1,6 +1,7 @@
 using Gtk;
 using Ginko.IO;
 
+
 namespace Ginko.Actions {
 
 class CopyFile : Action {
@@ -24,9 +25,27 @@ class CopyFile : Action {
         
         if (return_code == ResponseType.OK) {
             var config = config_dialog.get_config();
+            var infile = context.source_selected_files.data;
             
-            Files.list_recurse(
-                context.source_selected_files.data, config.follow_symlinks, (file) => {
+            var progress_dialog = new ActionProgressDialog();
+            double progress_f = 0.0;
+            
+            progress_dialog.set_progress(progress_f, "Preparing...");
+            
+            // calculate used space first
+            uint64 bytes_total = Files.calculate_space_recurse(infile, config.follow_symlinks);
+            uint64 bytes_copied = 0;
+            
+            var scanner = new TreeScanner();
+            scanner.m_follow_symlinks = config.follow_symlinks;
+            
+            if (Config.debug) {
+                scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
+            }
+            
+            scanner.scan(infile, (file, fileinfo) => {
+                    progress_dialog.set_progress(progress_f, "Copying...");
+                    
                     var copy_file_op = new CopyFileOperation(config);
                     copy_file_op.source = file;
                     copy_file_op.destination = Files.rebase(
@@ -35,6 +54,8 @@ class CopyFile : Action {
                     if (Config.debug) {
                         debug("dry copy: %s => %s",
                             copy_file_op.source.get_path(), copy_file_op.destination.get_path());
+                        Posix.sleep(1);
+                        bytes_copied += fileinfo.get_size();
                     } else {
                         
                         debug("checking copy operation from %s to %s",
@@ -42,27 +63,29 @@ class CopyFile : Action {
                         
                         if (copy_file_op.check_if_possible()) {
                             debug("copy possible");
+                            
+                            
+                            
                         } else {
                             debug("copy impossible of reason: %d", copy_file_op.get_fail_reason());
                             
                             var fail_reason = copy_file_op.get_fail_reason();
                             switch (fail_reason) {
                                 case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
-                                    //Messages.show_error(context, "Source file \"");
-                                    break;
+                                    Messages.show_error(context,
+                                        "Source not found!", "Source file doesn't exists!");
+                                    return;
                                 case CopyFileOperation.FAIL_REASON_OVERWRITE:
-                                    break; // TODO
+                                    //var dialog = new Ginko.Dialogs.OverwriteDialog(action_context);
+                                    //dialog.run();
+                                    break;
                             }
                             
                         }
                     }
-                });
-            
-            /*var progress_dialog = new ActionProgressDialog();
-            progress_dialog.set_progress(0.5, "Test");
-            progress_dialog.log_details("first detail");
-            progress_dialog.log_details("second detail");
-            progress_dialog.run();*/
+                    
+                    progress_f = bytes_copied / (double) bytes_total;
+            });
         }
     }
     

@@ -42,19 +42,25 @@ public class OverwriteDialog : AbstractDialog {
         }
     }
     
-    public OverwriteDialog(ActionContext context) {
-        set_title(context.name + ": Overwrite file?");
+    private File source;
+    private File target;
+    
+    public OverwriteDialog(ActionContext context, File source, File target) {
+        this.source = source;
+        this.target = target;
         
+        set_title(context.name + ": Overwrite file?");
         build_ui();
     }
     
     private void build_ui() {
+        var basename = target.get_basename();
         
-        set_primary_label_text("Overwrite file \"<b>filename.ext</b>\"?");
+        set_primary_label_text("Overwrite file \"<b>%s</b>\"?".printf(basename));
         
-        var file_button_source = new FileButton(File.new_for_path("/var"));
+        var file_button_source = new FileButton(source);
         var arrow = new Arrow(ArrowType.RIGHT, ShadowType.NONE);
-        var file_button_dest = new FileButton(File.new_for_path("/etc"));
+        var file_button_dest = new FileButton(target);
         
         var check_button_box = new HButtonBox();
         check_button_box.set_layout(ButtonBoxStyle.START);

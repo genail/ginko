@@ -63,10 +63,12 @@ vala_precompile(VALA_C
     "src/format/time_format.vala"
 
     "src/io/files.vala"
+    "src/io/tree_scanner.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0
     gee-1.0
+    posix
 OPTIONS
     -g
     --save-temps
