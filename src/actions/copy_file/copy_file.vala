@@ -28,13 +28,14 @@ class CopyFile : Action {
             var progress_dialog = new ActionProgressDialog();
             progress_dialog.show();
             
+            // running copy operation as async task
             var async_task = new AsyncTask();
+            
             async_task.push(context);
             async_task.push(config_dialog);
             async_task.push(progress_dialog);
             
             async_task.run(execute_in_new_thread);
-            
         }
     }
     
@@ -42,7 +43,6 @@ class CopyFile : Action {
         var context = async_task.get() as ActionContext;
         var config_dialog = async_task.get() as CopyFileConfigureDialog;
         var progress_dialog = async_task.get() as ActionProgressDialog;
-        async_task.free_parent();
         
         var config = config_dialog.get_config();
         var infile = context.source_selected_files.data;

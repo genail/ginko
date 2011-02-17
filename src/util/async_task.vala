@@ -19,7 +19,7 @@ class AsyncTask {
         return m_storage.pop_head();
     }
     
-    public void free_parent() {
+    private void free_parent() {
         m_free_mutex.lock();
         m_free_cond.broadcast();
         m_free_mutex.unlock();
@@ -41,9 +41,11 @@ class AsyncTask {
     }
     
     private void* thread_func() {
-        stdout.printf("async task\n");
+        var async_task = this;
+        free_parent();
         
-        m_runnable(this);
+        m_runnable(async_task);
+        
         if (!m_parent_freed) {
             warning("Parent not freed until yet. Did you forget to call free_parent()?");
         }
