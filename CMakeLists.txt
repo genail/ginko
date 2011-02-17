@@ -48,7 +48,6 @@ vala_precompile(VALA_C
     "src/actions/accelerator.vala"
     "src/actions/action.vala"
     "src/actions/action_context.vala"
-    "src/actions/action_progress_dialog.vala"
     "src/actions/operation.vala"
 
     "src/actions/copy_file/copy_file.vala"
@@ -58,6 +57,7 @@ vala_precompile(VALA_C
 
     "src/actions/dialogs/abstract_dialog.vala"
     "src/actions/dialogs/overwrite_dialog.vala"
+    "src/actions/dialogs/progress_dialog.vala"
 
     "src/format/size_format.vala"
     "src/format/time_format.vala"

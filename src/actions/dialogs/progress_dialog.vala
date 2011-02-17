@@ -1,8 +1,8 @@
 using Gtk;
 
-namespace Ginko {
+namespace Ginko.Dialogs {
 
-class ActionProgressDialog : Dialog {
+public class ProgressDialog : Dialog {
     public static const int RESPONSE_PAUSE = 1;
     
     private static const int DIALOG_WIDTH = 300;
@@ -22,7 +22,7 @@ class ActionProgressDialog : Dialog {
     
     private bool details_visible = true;
     
-    public ActionProgressDialog() {
+    public ProgressDialog() {
         build_ui();
     }
 

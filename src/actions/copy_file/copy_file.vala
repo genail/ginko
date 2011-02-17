@@ -1,6 +1,7 @@
 using Gtk;
 using Ginko.IO;
 using Ginko.Util;
+using Ginko.Dialogs;
 
 
 namespace Ginko.Actions {
@@ -25,7 +26,7 @@ class CopyFile : Action {
         config_dialog.close();
         
         if (return_code == ResponseType.OK) {
-            var progress_dialog = new ActionProgressDialog();
+            var progress_dialog = new ProgressDialog();
             progress_dialog.show();
             
             // running copy operation as async task
@@ -42,7 +43,7 @@ class CopyFile : Action {
     private void execute_in_new_thread(AsyncTask async_task) {
         var context = async_task.get() as ActionContext;
         var config_dialog = async_task.get() as CopyFileConfigureDialog;
-        var progress_dialog = async_task.get() as ActionProgressDialog;
+        var progress_dialog = async_task.get() as ProgressDialog;
         
         var config = config_dialog.get_config();
         var infile = context.source_selected_files.data;
