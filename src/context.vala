@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Ginko {
 
-public abstract class Context {
+public abstract class Context : GLib.Object {
     public string name {get; private set;}
     public Window main_window {get; private set;}
     

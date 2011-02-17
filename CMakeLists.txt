@@ -64,6 +64,8 @@ vala_precompile(VALA_C
 
     "src/io/files.vala"
     "src/io/tree_scanner.vala"
+
+    "src/util/async_task.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0
@@ -73,6 +75,7 @@ OPTIONS
     -g
     --save-temps
     --disable-warnings
+    --thread
 CUSTOM_VAPIS
     "vapi/config.vapi"
 )
