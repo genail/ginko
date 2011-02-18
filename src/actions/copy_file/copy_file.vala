@@ -27,6 +27,8 @@ class CopyFile : Action {
         
         if (return_code == ResponseType.OK) {
             var progress_dialog = new ProgressDialog();
+            progress_dialog.set_title("Copy operation");
+            progress_dialog.set_status_text("Preparing...");
             progress_dialog.show();
             
             // running copy operation as async task
@@ -51,9 +53,9 @@ class CopyFile : Action {
         
         double progress_f = 0.0;
         
-        Idle.add(() => {
-            progress_dialog.set_progress(progress_f, "Preparing..."); return false;
-        });
+        /*Idle.add(() => {
+            progress_dialog.set_progress(progress_f, ""); return false;
+        });*/
         
         
         // calculate used space first
@@ -69,7 +71,9 @@ class CopyFile : Action {
         
         scanner.scan(infile, (file, fileinfo) => {
                 Idle.add(() => {
-                    progress_dialog.set_progress(progress_f, "Copying..."); return false;
+                    progress_dialog.set_status_text("Copying %s".printf(fileinfo.get_name()));
+                    progress_dialog.set_progress(progress_f, "");
+                    return false;
                 });
                 
                 
@@ -112,6 +116,11 @@ class CopyFile : Action {
                 }
                 
                 progress_f = bytes_copied / (double) bytes_total;
+        });
+        
+        Idle.add(() => {
+            progress_dialog.hide();
+            return false;
         });
     }
     

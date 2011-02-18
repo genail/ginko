@@ -15,7 +15,7 @@ public class ProgressDialog : Dialog {
     private ProgressBar progress_bar;
     
     private Button details_button;
-    private Frame details_frame;
+    private Expander more_expander;
     
     private TreeView details_tree_view;
     private ListStore details_tree_view_store;
@@ -24,6 +24,12 @@ public class ProgressDialog : Dialog {
     
     public ProgressDialog() {
         build_ui();
+        
+        // sizes from GtkMessageDialog
+        set_border_width(5);
+        this.vbox.set_spacing(14);
+        (get_action_area() as Container).set_border_width(5);
+        (get_action_area() as Box).set_spacing(6);
     }
 
     public void log_details(string message) {
@@ -51,19 +57,19 @@ public class ProgressDialog : Dialog {
         
         vbox.pack_start(status_label, false, false);
         vbox.pack_start(progress_bar, false, false);
-        vbox.pack_start(details_frame, true, true);
+        vbox.pack_start(more_expander, true, true);
         
         show_all();
-        toggle_details();
+        //toggle_details();
     }
     
     private void build_ui_buttons() {
         var button_box = get_action_area() as HButtonBox;
         
-        details_button = new Button.with_label(MORE_LABEL);
-        details_button.clicked.connect(toggle_details);
+        //details_button = new Button.with_label(MORE_LABEL);
+        //details_button.clicked.connect(toggle_details);
         
-        button_box.pack_start(details_button);
+        //button_box.pack_start(details_button);
         add_buttons("Pause", RESPONSE_PAUSE, Stock.CANCEL, ResponseType.CANCEL, 0);
     }
     
@@ -80,15 +86,18 @@ public class ProgressDialog : Dialog {
     }
     
     private void build_ui_details() {
-        details_frame = new Frame("Details");
+        more_expander = new Expander.with_mnemonic("M_ore");
+        
+        var details_frame = new Frame("Details");
         details_frame.set_size_request(-1, 150);
         
         var scrolls = new ScrolledWindow(null, null);
-        details_frame.add(scrolls);
-        
         
         details_tree_view = new TreeView();
+        
         scrolls.add(details_tree_view);
+        details_frame.add(scrolls);
+        more_expander.add(details_frame);
         
         // model
         details_tree_view_store = new ListStore(1, typeof(string));
@@ -98,7 +107,7 @@ public class ProgressDialog : Dialog {
             -1, "List", new CellRendererText(), "text", 0, null);
     }
     
-    private void toggle_details() {
+    /*private void toggle_details() {
         if (!details_visible) {
             details_frame.show();
             details_button.set_label(LESS_LABEL);
@@ -109,7 +118,7 @@ public class ProgressDialog : Dialog {
             details_visible = false;
             resize(1, 1);
         }
-    }
+    }*/
 }
 
 } // namespace
