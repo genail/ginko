@@ -46,13 +46,14 @@ vala_precompile(VALA_C
     "src/sizes.vala"
 
     "src/actions/accelerator.vala"
-    "src/actions/action.vala"
+    "src/actions/action_descriptor.vala"
     "src/actions/action_context.vala"
     "src/actions/operation.vala"
 
-    "src/actions/copy_file/copy_file.vala"
+    "src/actions/copy_file/copy_file_action.vala"
     "src/actions/copy_file/copy_file_config.vala"
     "src/actions/copy_file/copy_file_configure_dialog.vala"
+    "src/actions/copy_file/copy_file_descriptor.vala"
     "src/actions/copy_file/copy_file_operation.vala"
 
     "src/actions/dialogs/abstract_dialog.vala"

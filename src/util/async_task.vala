@@ -3,7 +3,10 @@ namespace Ginko.Util {
 class AsyncTask {
     public delegate void Runnable(AsyncTask async_task);
     
+    /** To keep reference to owner object of runnable method. Destruction might cause SIGSEGV */
+    private Object m_runnable_owner;
     private Runnable m_runnable;
+    
     private Queue<Object> m_storage = new Queue<Object>();
     
     private Mutex m_free_mutex = new Mutex();
@@ -11,8 +14,8 @@ class AsyncTask {
     
     private bool m_parent_freed = false;
     
-    public void push(Object variant) {
-        m_storage.push_tail(variant);
+    public void push(Object p_variant) {
+        m_storage.push_tail(p_variant);
     }
     
     public Object get() {
@@ -25,11 +28,12 @@ class AsyncTask {
         m_free_mutex.unlock();
     }
     
-    public void run(Runnable p_runnable) {
+    public void run(Runnable p_runnable, Object p_owner) {
         if (!Thread.supported()) {
             error("Threading not supported!");
         }
         
+        m_runnable_owner = p_owner;
         m_runnable = p_runnable;
         
         Thread.create<void*> (this.thread_func, false);

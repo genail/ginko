@@ -32,13 +32,13 @@ public class Application {
         main_window.show_all();
     }
     
-    private void invoke_action(Action action) {
-        var action_context = create_action_context(action);
-        action.execute(action_context);
+    private void invoke_action(ActionDescriptor action_descriptor) {
+        var action_context = create_action_context(action_descriptor);
+        action_descriptor.execute(action_context);
     }
     
-    private ActionContext create_action_context(Action action) {
-        var context = new ActionContext(action.name, main_window);
+    private ActionContext create_action_context(ActionDescriptor action_descriptor) {
+        var context = new ActionContext(action_descriptor.name, main_window);
         
         main_window.navigator_controller.accept_action_context(context);
         
@@ -51,10 +51,10 @@ public class Application {
     }
     
     private void register_actions() {
-        Action[] actions = {};
-        actions += new Actions.CopyFile();
+        ActionDescriptor[] action_descriptors = {};
+        action_descriptors += new Actions.CopyFileDescriptor();
         
-        main_window.register_action_accelerators(actions);
+        main_window.register_action_accelerators(action_descriptors);
     }
     
     

@@ -6,16 +6,8 @@ using Ginko.Dialogs;
 
 namespace Ginko.Actions {
 
-class CopyFile : Action {
-    
-    public CopyFile() {
-        base(
-            "Copy files",
-            new string[] { "copy", "file", "files" },
-            new Accelerator("F5", null));
-    }
-    
-    public override void execute(ActionContext context) {
+class CopyFileAction : GLib.Object {
+    public void execute(ActionContext context) {
         if (!verify(context)) {
             return;
         }
@@ -24,6 +16,7 @@ class CopyFile : Action {
         var config_dialog = new CopyFileConfigureDialog(context);
         var return_code = config_dialog.run();
         config_dialog.close();
+        
         
         if (return_code == ResponseType.OK) {
             var progress_dialog = new ProgressDialog();
@@ -38,7 +31,7 @@ class CopyFile : Action {
             async_task.push(config_dialog);
             async_task.push(progress_dialog);
             
-            async_task.run(execute_in_new_thread);
+            async_task.run(execute_in_new_thread, this);
         }
     }
     

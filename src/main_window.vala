@@ -4,7 +4,7 @@ namespace Ginko {
 
 class MainWindow : Window {
     
-    public signal void action_invoked(Action action);
+    public signal void action_invoked(ActionDescriptor action_descriptor);
     
     public NavigatorController navigator_controller {get; private set;}
     private VBox main_vbox;
@@ -70,7 +70,7 @@ class MainWindow : Window {
         main_vbox.pack_start(hbox, false);
     }
     
-    public void register_action_accelerators(Action[] actions) {
+    public void register_action_accelerators(ActionDescriptor[] actions) {
         var accel_group = new AccelGroup();
         
         foreach (var action in actions) {

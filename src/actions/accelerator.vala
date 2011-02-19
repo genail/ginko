@@ -3,7 +3,7 @@ using Gdk;
 
 namespace Ginko {
 
-class Accelerator {
+public class Accelerator {
     // FIXME: bind from GDK_VoidSymbol
     private const int VoidSymbol = 0xffffff;
     
