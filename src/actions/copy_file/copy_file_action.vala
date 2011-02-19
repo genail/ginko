@@ -8,69 +8,82 @@ using Ginko.Operations;
 namespace Ginko.Actions {
 
 class CopyFileAction : GLib.Object {
-    public void execute(ActionContext context) {
-        if (!verify(context)) {
+    
+    private ActionContext m_context;
+    private CopyFileConfig m_config;
+    private int m_config_return_code;
+    private ProgressDialog m_progress_dialog;
+    
+    
+    public void execute(ActionContext p_context) {
+        if (!verify(p_context)) {
             return;
         }
         
-        // ask for copy configuration
-        var config_dialog = new CopyFileConfigureDialog(context);
-        var return_code = config_dialog.run();
-        config_dialog.close();
+        m_context = p_context;
         
+        m_progress_dialog = new ProgressDialog();
+        m_progress_dialog.set_title("Copy operation");
         
-        if (return_code == ResponseType.OK) {
-            var progress_dialog = new ProgressDialog();
-            progress_dialog.set_title("Copy operation");
-            progress_dialog.set_status_text_1("Preparing...");
-            progress_dialog.show();
-            
-            // running copy operation as async task
-            var async_task = new AsyncTask();
-            
-            async_task.push(context);
-            async_task.push(config_dialog);
-            async_task.push(progress_dialog);
-            
-            async_task.run(execute_in_new_thread, this);
+        prompt_configuration();
+        if (configuration_done()) {
+            execute_async();
         }
     }
     
-    private void execute_in_new_thread(AsyncTask async_task) {
-        var context = async_task.get() as ActionContext;
-        var config_dialog = async_task.get() as CopyFileConfigureDialog;
-        var progress_dialog = async_task.get() as ProgressDialog;
+    private bool verify(ActionContext context) {
+        if (context.source_selected_files.length() == 0) {
+            Messages.show_error(context, "Nothing to copy", "You must select at least one file.");
+            return false;
+        }
         
-        var config = config_dialog.get_config();
-        var infile = context.source_selected_files.data;
+        return true;
+    }
+    
+    private void prompt_configuration() {
+        var config_dialog = new CopyFileConfigureDialog(m_context);
+        m_config_return_code = config_dialog.run();
+        config_dialog.close();
         
+        m_config = config_dialog.get_config();
+    }
+    
+    private bool configuration_done() {
+        return m_config_return_code == ResponseType.OK;
+    }
+    
+    private void execute_async() {
+        var async_task = new AsyncTask();
+        async_task.run(execute_async_t, this);
+    }
+    
+    // executed in new thread
+    private void execute_async_t(AsyncTask p_async_task) {
+        show_progress_preparing_t();
         
+        var infile = m_context.source_selected_files.data;
         double progress_f = 0.0;
         
-        
         // calculate used space first
-        uint64 bytes_total = Files.calculate_space_recurse(infile, config.follow_symlinks);
+        uint64 bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
         uint64 bytes_copied = 0;
         
         var scanner = new TreeScanner();
-        scanner.m_follow_symlinks = config.follow_symlinks;
+        scanner.m_follow_symlinks = m_config.follow_symlinks;
         
         if (Config.debug) {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
         }
         
         scanner.scan(infile, (file, fileinfo) => {
-                Idle.add(() => {
-                    progress_dialog.set_status_text_1("Copying %s".printf(fileinfo.get_name()));
-                    progress_dialog.set_progress(progress_f);
-                    return false;
-                });
+                var filename = fileinfo.get_name();
+                show_progress_copying_t(filename, progress_f);
                 
                 
                 var copy_file_op = new CopyFileOperation();
                 copy_file_op.source = file;
                 copy_file_op.destination = Files.rebase(
-                    file, context.source_dir, context.target_dir);
+                    file, m_context.source_dir, m_context.target_dir);
                 
                 if (Config.debug) {
                     
@@ -94,11 +107,12 @@ class CopyFileAction : GLib.Object {
                         var fail_reason = copy_file_op.get_fail_reason();
                         switch (fail_reason) {
                             case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
-                                Messages.show_error(context,
+                                Messages.show_error(m_context,
                                     "Source not found!", "Source file doesn't exists!");
                                 return;
                             case CopyFileOperation.FAIL_REASON_OVERWRITE:
-                                var dialog = new Ginko.Dialogs.OverwriteDialog(context, copy_file_op.source, copy_file_op.destination);
+                                var dialog = new Ginko.Dialogs.OverwriteDialog(m_context,
+                                    copy_file_op.source, copy_file_op.destination);
                                 dialog.run();
                                 break;
                         }
@@ -109,21 +123,32 @@ class CopyFileAction : GLib.Object {
                 progress_f = bytes_copied / (double) bytes_total;
         });
         
+        show_progress_finished_t();
+    }
+    
+    private void show_progress_preparing_t() {
         Idle.add(() => {
-            progress_dialog.set_status_text_1("Operation finished!");
-            progress_dialog.set_progress(progress_f);
-            progress_dialog.set_done();
-            return false;
+                m_progress_dialog.set_status_text_1("Preparing...");
+                m_progress_dialog.show_all();
+                return false;
         });
     }
     
-    private bool verify(ActionContext context) {
-        if (context.source_selected_files.length() == 0) {
-            Messages.show_error(context, "Nothing to copy", "You must select at least one file.");
-            return false;
-        }
-        
-        return true;
+    private void show_progress_copying_t(string p_filename, double p_value) {
+        Idle.add(() => {
+                m_progress_dialog.set_status_text_1("Copying %s".printf(p_filename));
+                m_progress_dialog.set_progress(p_value);
+                return false;
+        });
+    }
+    
+    private void show_progress_finished_t() {
+        Idle.add(() => {
+                m_progress_dialog.set_status_text_1("Operation finished!");
+                m_progress_dialog.set_progress(1);
+                m_progress_dialog.set_done();
+                return false;
+        });
     }
 }
 
