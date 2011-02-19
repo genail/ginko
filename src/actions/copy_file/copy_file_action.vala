@@ -82,8 +82,9 @@ class CopyFileAction : GLib.Object {
                 // build copy file configuration
                 var op = new CopyFileOperation();
                 op.m_source = src_file;
-                op.m_destination = Files.rebase(
+                var dst_file = Files.rebase(
                     src_file, m_context.source_dir, m_context.target_dir);
+                op.m_destination = dst_file;
                 
                 progress_log_details_t(
                         "%s => %s".printf(
@@ -101,55 +102,72 @@ class CopyFileAction : GLib.Object {
                     bool cancel = false;
                     
                     do {
-                        try {
-                            op.execute();
-                            succeed = true;
-                        } catch (IOError e) {
-                            if (e is IOError.CANCELLED) {
-                                Messages.show_info_t(m_context,
-                                    "Aborted",
-                                    "Operation aborted by user."
-                                    );
+                        var src_filetype = src_file.query_file_type(
+                            m_config.follow_symlinks ?
+                                FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+                        
+                        if (src_filetype == FileType.DIRECTORY) {
+                            try {
+                                dst_file.make_directory();
+                                succeed = true;
+                            } catch (IOError e) {
+                                Messages.show_error_t(m_context, "Error", e.message);
                                 cancel = true;
-                            } else if (e is IOError.NOT_FOUND) {
-                                debug("file not found");
-                                Messages.show_error_t(m_context,
-                                    "Source not found!",
-                                    "Lost track of source file '%s'. I saw it! I swear!".printf(
-                                        src_filename));
-                                skip_file = true;
-                            } else if (e is IOError.EXISTS) {
-                                var dialog = new OverwriteDialog(m_context,
-                                    op.m_source, op.m_destination);
-                                var response = dialog.run();
-                                
-                                switch (response) {
-                                    case OverwriteDialog.RESPONSE_CANCEL:
-                                        cancel = true;
-                                        break;
-                                    case OverwriteDialog.RESPONSE_RENAME:
-                                        // TODO: rename dialog
-                                        break;
-                                    case OverwriteDialog.RESPONSE_OVERWRITE:
-                                        op.m_overwrite = true;
-                                        break;
-                                    default:
-                                        error("unknown response: %d", response);
+                            }
+                        } else {
+                            try {
+                                op.execute();
+                                succeed = true;
+                            } catch (IOError e) {
+                                if (e is IOError.CANCELLED) {
+                                    Messages.show_info_t(m_context,
+                                        "Aborted",
+                                        "Operation aborted by user."
+                                        );
+                                    cancel = true;
+                                } else if (e is IOError.NOT_FOUND) {
+                                    debug("file not found");
+                                    Messages.show_error_t(m_context,
+                                        "Source not found!",
+                                        "Lost track of source file '%s'. I saw it! I swear!".printf(
+                                            src_filename));
+                                    skip_file = true;
+                                } else if (e is IOError.EXISTS) {
+                                    var dialog = new OverwriteDialog(m_context,
+                                        op.m_source, op.m_destination);
+                                    var response = dialog.run();
+                                    
+                                    switch (response) {
+                                        case OverwriteDialog.RESPONSE_CANCEL:
+                                            cancel = true;
+                                            break;
+                                        case OverwriteDialog.RESPONSE_RENAME:
+                                            // TODO: rename dialog
+                                            break;
+                                        case OverwriteDialog.RESPONSE_OVERWRITE:
+                                            op.m_overwrite = true;
+                                            break;
+                                        default:
+                                            error("unknown response: %d", response);
+                                    }
+                                    
+                                } else if (e is IOError.IS_DIRECTORY) {
+                                    // TODO: tried to overwrite a file over directory
+                                    Messages.show_error_t(m_context, "Error", e.message);
+                                    cancel = true;
+                                } else if (e is IOError.WOULD_MERGE) {
+                                    // TODO: tried to overwrite a directory with a directory
+                                    Messages.show_error_t(m_context, "Error", e.message);
+                                    cancel = true;
+                                } else if (e is IOError.WOULD_RECURSE) {
+                                    // TODO: source is directory and target doesn't exists
+                                    // or m_overwrite = true and target is a file
+                                    Messages.show_error_t(m_context, "Error", e.message);
+                                    cancel = true;
+                                } else {
+                                    Messages.show_error_t(m_context, "Error", e.message);
+                                    cancel = true;
                                 }
-                                
-                            } else if (e is IOError.IS_DIRECTORY) {
-                                // TODO: tried to overwrite a file over directory
-                                Messages.show_error_t(m_context, "Error", e.message);
-                                cancel = true;
-                            } else if (e is IOError.WOULD_MERGE) {
-                                // TODO: tried to overwrite a directory with a directory
-                                Messages.show_error_t(m_context, "Error", e.message);
-                                cancel = true;
-                            } else if (e is IOError.WOULD_RECURSE) {
-                                // TODO: source is directory and target doesn't exists
-                                // or m_overwrite = true and target is a file
-                                Messages.show_error_t(m_context, "Error", e.message);
-                                cancel = true;
                             }
                         }
                         
