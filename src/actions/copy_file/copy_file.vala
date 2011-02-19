@@ -28,7 +28,7 @@ class CopyFile : Action {
         if (return_code == ResponseType.OK) {
             var progress_dialog = new ProgressDialog();
             progress_dialog.set_title("Copy operation");
-            progress_dialog.set_status_text("Preparing...");
+            progress_dialog.set_status_text_1("Preparing...");
             progress_dialog.show();
             
             // running copy operation as async task
@@ -71,8 +71,8 @@ class CopyFile : Action {
         
         scanner.scan(infile, (file, fileinfo) => {
                 Idle.add(() => {
-                    progress_dialog.set_status_text("Copying %s".printf(fileinfo.get_name()));
-                    progress_dialog.set_progress(progress_f, "");
+                    progress_dialog.set_status_text_1("Copying %s".printf(fileinfo.get_name()));
+                    progress_dialog.set_progress(progress_f);
                     return false;
                 });
                 
@@ -107,8 +107,8 @@ class CopyFile : Action {
                                     "Source not found!", "Source file doesn't exists!");
                                 return;
                             case CopyFileOperation.FAIL_REASON_OVERWRITE:
-                                //var dialog = new Ginko.Dialogs.OverwriteDialog(action_context);
-                                //dialog.run();
+                                var dialog = new Ginko.Dialogs.OverwriteDialog(context, copy_file_op.source, copy_file_op.destination);
+                                dialog.run();
                                 break;
                         }
                         
@@ -119,7 +119,9 @@ class CopyFile : Action {
         });
         
         Idle.add(() => {
-            progress_dialog.hide();
+            progress_dialog.set_status_text_1("Operation finished!");
+            progress_dialog.set_progress(progress_f);
+            progress_dialog.set_done();
             return false;
         });
     }

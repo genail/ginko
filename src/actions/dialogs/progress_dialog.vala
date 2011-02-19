@@ -9,12 +9,13 @@ public class ProgressDialog : Dialog {
     private static const string MORE_LABEL = "More ↓";
     private static const string LESS_LABEL = "Less ↑";
 
-    private Label status_label;
+    private Label status_label_1;
+    private Label status_label_2;
     
     private Adjustment progress_bar_adjustment;
     private ProgressBar progress_bar;
     
-    private Button details_button;
+    private Button cancel_button;
     private Expander more_expander;
     
     private TreeView details_tree_view;
@@ -24,27 +25,13 @@ public class ProgressDialog : Dialog {
     
     public ProgressDialog() {
         build_ui();
+        set_position(WindowPosition.NONE);
         
         // sizes from GtkMessageDialog
         set_border_width(5);
-        this.vbox.set_spacing(14);
+        this.vbox.set_spacing(5);
         (get_action_area() as Container).set_border_width(5);
         (get_action_area() as Box).set_spacing(6);
-    }
-
-    public void log_details(string message) {
-        TreeIter iter;
-        details_tree_view_store.append(out iter);
-        details_tree_view_store.set(iter, 0, message, -1);
-    }
-    
-    public void set_progress(double val, string progress_text) {
-        progress_bar_adjustment.set_value(val);
-        progress_bar.set_text(progress_text);
-    }
-    
-    public void set_status_text(string status_text) {
-        status_label.set_text(status_text);
     }
     
     private void build_ui() {
@@ -55,8 +42,9 @@ public class ProgressDialog : Dialog {
         build_ui_statuses();
         build_ui_details();
         
-        vbox.pack_start(status_label, false, false);
+        vbox.pack_start(status_label_1, false, false);
         vbox.pack_start(progress_bar, false, false);
+        vbox.pack_start(status_label_2, false, false);
         vbox.pack_start(more_expander, true, true);
         
         show_all();
@@ -71,18 +59,23 @@ public class ProgressDialog : Dialog {
         
         //button_box.pack_start(details_button);
         add_buttons("Pause", RESPONSE_PAUSE, Stock.CANCEL, ResponseType.CANCEL, 0);
+        
+        cancel_button = get_widget_for_response(ResponseType.CANCEL) as Button;
     }
     
     private void build_ui_statuses() {
         
-        status_label = new Label("set me using set_status_text()");
-        status_label.set_alignment(0, 0);
+        status_label_1 = new Label("use set_status_text_1()");
+        status_label_1.set_alignment(0, 0);
         
         progress_bar_adjustment = new Adjustment(0.0, 0.0, 1.0, 0.1, 1.0, 0.1);
         
         progress_bar = new ProgressBar();
         progress_bar.set_text("set me using set_progress_bar()");
         progress_bar.adjustment = progress_bar_adjustment;
+        
+        status_label_2 = new Label("use set_status_text_2()");
+        status_label_2.set_alignment(1, 0);
     }
     
     private void build_ui_details() {
@@ -106,19 +99,28 @@ public class ProgressDialog : Dialog {
         details_tree_view.insert_column_with_attributes(
             -1, "List", new CellRendererText(), "text", 0, null);
     }
+
+    public void log_details(string message) {
+        TreeIter iter;
+        details_tree_view_store.append(out iter);
+        details_tree_view_store.set(iter, 0, message, -1);
+    }
     
-    /*private void toggle_details() {
-        if (!details_visible) {
-            details_frame.show();
-            details_button.set_label(LESS_LABEL);
-            details_visible = true;
-        } else {
-            details_frame.hide();
-            details_button.set_label(MORE_LABEL);
-            details_visible = false;
-            resize(1, 1);
-        }
-    }*/
+    public void set_progress(double val) {
+        progress_bar_adjustment.set_value(val);
+    }
+    
+    public void set_status_text_1(string status_text) {
+        status_label_1.set_text(status_text);
+    }
+    
+    public void set_status_text_2(string status_text) {
+        status_label_2.set_text(status_text);
+    }
+    
+    public void set_done() {
+        cancel_button.set_label("Close");
+    }
 }
 
 } // namespace
