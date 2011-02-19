@@ -75,52 +75,85 @@ class CopyFileAction : GLib.Object {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
         }
         
-        scanner.scan(infile, (file, fileinfo) => {
-                var filename = fileinfo.get_name();
-                show_progress_copying_t(filename, progress_f);
+        scanner.scan(infile, (src_file, src_fileinfo) => {
+                var src_filename = src_fileinfo.get_name();
+                show_progress_copying_t(src_filename, progress_f);
                 
-                
-                var copy_file_op = new CopyFileOperation();
-                copy_file_op.source = file;
-                copy_file_op.destination = Files.rebase(
-                    file, m_context.source_dir, m_context.target_dir);
+                // build copy file configuration
+                var op = new CopyFileOperation();
+                op.m_source = src_file;
+                op.m_destination = Files.rebase(
+                    src_file, m_context.source_dir, m_context.target_dir);
                 
                 if (Config.debug) {
                     
-                    debug("dry copy: %s => %s",
-                        copy_file_op.source.get_path(), copy_file_op.destination.get_path());
+                    progress_log_details_t(
+                        "dry copy: %s => %s".printf(
+                            op.m_source.get_path(),
+                            op.m_destination.get_path()
+                        ));
+                    
                     Posix.sleep(1);
-                    bytes_copied += fileinfo.get_size();
+                    bytes_copied += src_fileinfo.get_size();
                 } else {
                     
-                    debug("checking copy operation from %s to %s",
-                        copy_file_op.source.get_path(), copy_file_op.destination.get_path());
+                    bool skip_file = false;
+                    bool succeed = false;
+                    bool cancel = false;
                     
-                    if (copy_file_op.check_if_possible()) {
-                        debug("copy possible");
-                        
-                        
-                        
-                    } else {
-                        debug("copy impossible of reason: %d", copy_file_op.get_fail_reason());
-                        
-                        var fail_reason = copy_file_op.get_fail_reason();
-                        switch (fail_reason) {
-                            case CopyFileOperation.FAIL_REASON_NOT_EXISTS:
+                    do {
+                        try {
+                            op.execute();
+                            succeed = true;
+                        } catch (IOError e) {
+                            if (e is IOError.CANCELLED) {
+                                Messages.show_info(m_context,
+                                    "Aborted",
+                                    "Operation aborted by user."
+                                    );
+                                cancel = true;
+                            } else if (e is IOError.NOT_FOUND) {
                                 Messages.show_error(m_context,
-                                    "Source not found!", "Source file doesn't exists!");
-                                return;
-                            case CopyFileOperation.FAIL_REASON_OVERWRITE:
-                                var dialog = new Ginko.Dialogs.OverwriteDialog(m_context,
-                                    copy_file_op.source, copy_file_op.destination);
-                                dialog.run();
-                                break;
+                                    "Source not found!",
+                                    "Lost track of source file '%s'. I saw it! I swear!".printf(
+                                        src_filename));
+                                skip_file = true;
+                            } else if (e is IOError.EXISTS) {
+                                var dialog = new OverwriteDialog(m_context,
+                                    op.m_source, op.m_destination);
+                                var response = dialog.run();
+                                
+                                switch (response) {
+                                    case OverwriteDialog.RESPONSE_CANCEL:
+                                        cancel = true;
+                                        break;
+                                    case OverwriteDialog.RESPONSE_RENAME:
+                                        // TODO: rename dialog
+                                        break;
+                                    case OverwriteDialog.RESPONSE_OVERWRITE:
+                                        op.m_overwrite = true;
+                                        break;
+                                    default:
+                                        error("unknown response: %d", response);
+                                }
+                                
+                            } else if (e is IOError.IS_DIRECTORY) {
+                                // TODO: tried to overwrite a file over directory
+                                Messages.show_error(m_context, "Error", e.message);
+                            } else if (e is IOError.WOULD_MERGE) {
+                                // TODO: tried to overwrite a directory with a directory
+                                Messages.show_error(m_context, "Error", e.message);
+                            } else if (e is IOError.WOULD_RECURSE) {
+                                // TODO: source is directory and target doesn't exists
+                                // or m_overwrite = true and target is a file
+                                Messages.show_error(m_context, "Error", e.message);
+                            }
                         }
-                        
-                    }
+                    } while (!succeed && !skip_file);
                 }
                 
                 progress_f = bytes_copied / (double) bytes_total;
+                return true;
         });
         
         show_progress_finished_t();
@@ -147,6 +180,13 @@ class CopyFileAction : GLib.Object {
                 m_progress_dialog.set_status_text_1("Operation finished!");
                 m_progress_dialog.set_progress(1);
                 m_progress_dialog.set_done();
+                return false;
+        });
+    }
+    
+    private void progress_log_details_t(string p_text) {
+        Idle.add(() => {
+                m_progress_dialog.log_details(p_text);
                 return false;
         });
     }

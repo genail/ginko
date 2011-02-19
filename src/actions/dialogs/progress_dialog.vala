@@ -46,9 +46,6 @@ public class ProgressDialog : Dialog {
         vbox.pack_start(progress_bar, false, false);
         vbox.pack_start(status_label_2, false, false);
         vbox.pack_start(more_expander, true, true);
-        
-        //show_all();
-        //toggle_details();
     }
     
     private void build_ui_buttons() {

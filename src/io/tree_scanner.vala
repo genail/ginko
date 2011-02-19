@@ -1,7 +1,9 @@
 namespace Ginko.IO {
 
 public class TreeScanner {
-    public delegate void FileFoundCallback(File p_file, FileInfo p_file_info);
+    
+    /** @return false if scanning should be stopped */
+    public delegate bool FileFoundCallback(File p_file, FileInfo p_file_info);
     
     private string[] m_attributes;
     public bool m_follow_symlinks {get; set; default = true;}
@@ -30,7 +32,8 @@ public class TreeScanner {
         }
     }
     
-    public void list_children_recurse(File p_dir, FileFoundCallback p_file_found_callback)
+    /** @return false if stop scanning */
+    public bool list_children_recurse(File p_dir, FileFoundCallback p_file_found_callback)
     throws Error {
         var enumerator = p_dir.enumerate_children(
             m_attr_list,
@@ -41,13 +44,19 @@ public class TreeScanner {
         while ((fileinfo = enumerator.next_file()) != null) {
             var file_name = fileinfo.get_name();
             var child_file = p_dir.get_child(file_name);
-            p_file_found_callback(child_file, fileinfo);
+            if (!p_file_found_callback(child_file, fileinfo)) {
+                return false;
+            }
             
             var file_type = fileinfo.get_file_type();
             if (file_type == FileType.DIRECTORY) {
-                list_children_recurse(child_file, p_file_found_callback);
+                if (!list_children_recurse(child_file, p_file_found_callback)) {
+                    return false;
+                }
             }
         }
+        
+        return true;
     }
     
     private void compile_attribute_list() {

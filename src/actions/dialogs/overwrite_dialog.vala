@@ -6,6 +6,10 @@ namespace Ginko.Dialogs {
 
 public class OverwriteDialog : AbstractMessageDialog {
     
+    public const int RESPONSE_CANCEL = ResponseType.CANCEL;
+    public const int RESPONSE_RENAME = 1;
+    public const int RESPONSE_OVERWRITE = 2;
+    
     private class FileButton : Button {
         public FileButton(File file) {
             set_relief(ReliefStyle.NONE);
@@ -78,9 +82,9 @@ public class OverwriteDialog : AbstractMessageDialog {
         m_content.pack_start(check_button_box);
         
         // why this may be not null-terminated? and crash when it is?
-        add_button(Stock.CANCEL, ResponseType.CANCEL);
-        add_button("Rename", 2);
-        add_button("Overwrite", 3).grab_focus();
+        add_button(Stock.CANCEL, RESPONSE_CANCEL);
+        add_button("Rename", RESPONSE_RENAME);
+        add_button("Overwrite", RESPONSE_OVERWRITE).grab_focus();
         
         show_all();
     }

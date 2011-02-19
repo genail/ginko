@@ -6,6 +6,7 @@ namespace Ginko.IO {
 public class Files {
     
     /** Calculates used space of file/directory with contents in bytes */
+    // TODO: add cancellation
     public static uint64 calculate_space_recurse(File p_file, bool p_follow_symlinks) {
         var scanner = new TreeScanner();
         scanner.m_follow_symlinks = p_follow_symlinks;
@@ -14,6 +15,7 @@ public class Files {
         uint64 total = 0;
         scanner.scan(p_file, (file, fileinfo) => {
                 total += fileinfo.get_size();
+                return true;
         });
         
         return total;
