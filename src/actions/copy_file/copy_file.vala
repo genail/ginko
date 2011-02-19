@@ -53,10 +53,6 @@ class CopyFile : Action {
         
         double progress_f = 0.0;
         
-        /*Idle.add(() => {
-            progress_dialog.set_progress(progress_f, ""); return false;
-        });*/
-        
         
         // calculate used space first
         uint64 bytes_total = Files.calculate_space_recurse(infile, config.follow_symlinks);
@@ -83,6 +79,7 @@ class CopyFile : Action {
                     file, context.source_dir, context.target_dir);
                 
                 if (Config.debug) {
+                    
                     debug("dry copy: %s => %s",
                         copy_file_op.source.get_path(), copy_file_op.destination.get_path());
                     Posix.sleep(1);

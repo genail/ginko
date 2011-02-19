@@ -71,10 +71,9 @@ public class ProgressDialog : Dialog {
         progress_bar_adjustment = new Adjustment(0.0, 0.0, 1.0, 0.1, 1.0, 0.1);
         
         progress_bar = new ProgressBar();
-        progress_bar.set_text("set me using set_progress_bar()");
         progress_bar.adjustment = progress_bar_adjustment;
         
-        status_label_2 = new Label("use set_status_text_2()");
+        status_label_2 = new Label("");
         status_label_2.set_alignment(1, 0);
     }
     
