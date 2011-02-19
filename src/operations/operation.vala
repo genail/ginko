@@ -1,4 +1,4 @@
-namespace Ginko {
+namespace Ginko.Operations {
 
 /**
  * Operation defines one single function that can be made on VFS.

@@ -1,4 +1,4 @@
-namespace Ginko.Actions {
+namespace Ginko.Operations {
 
 class CopyFileOperation : Operation {
     public static const int FAIL_REASON_NONE = 0;
@@ -8,17 +8,12 @@ class CopyFileOperation : Operation {
     public static const int FAIL_REASON_MISSING = 4;
     public static const int FAIL_REASON_UNKNOWN = 5;
     
-    public CopyFileConfig config { get; private set; }
     public File source;
     public File destination;
     public bool overwrite;
     
     private int fail_reason;
     private string fail_reason_text;
-    
-    public CopyFileOperation(CopyFileConfig config) {
-        this.config = config;
-    }
     
     public bool check_if_possible() {
         try {

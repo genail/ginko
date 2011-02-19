@@ -48,13 +48,11 @@ vala_precompile(VALA_C
     "src/actions/accelerator.vala"
     "src/actions/action_descriptor.vala"
     "src/actions/action_context.vala"
-    "src/actions/operation.vala"
 
     "src/actions/copy_file/copy_file_action.vala"
     "src/actions/copy_file/copy_file_config.vala"
     "src/actions/copy_file/copy_file_configure_dialog.vala"
     "src/actions/copy_file/copy_file_descriptor.vala"
-    "src/actions/copy_file/copy_file_operation.vala"
 
     "src/actions/dialogs/abstract_dialog.vala"
     "src/actions/dialogs/overwrite_dialog.vala"
@@ -65,6 +63,9 @@ vala_precompile(VALA_C
 
     "src/io/files.vala"
     "src/io/tree_scanner.vala"
+
+    "src/operations/operation.vala"
+    "src/operations/copy_file_operation.vala"
 
     "src/util/async_task.vala"
 PACKAGES

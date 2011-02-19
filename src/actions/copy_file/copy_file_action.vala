@@ -2,6 +2,7 @@ using Gtk;
 using Ginko.IO;
 using Ginko.Util;
 using Ginko.Dialogs;
+using Ginko.Operations;
 
 
 namespace Ginko.Actions {
@@ -66,7 +67,7 @@ class CopyFileAction : GLib.Object {
                 });
                 
                 
-                var copy_file_op = new CopyFileOperation(config);
+                var copy_file_op = new CopyFileOperation();
                 copy_file_op.source = file;
                 copy_file_op.destination = Files.rebase(
                     file, context.source_dir, context.target_dir);
