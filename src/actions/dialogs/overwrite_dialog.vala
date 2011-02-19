@@ -4,7 +4,7 @@ using Ginko.Format;
 
 namespace Ginko.Dialogs {
 
-public class OverwriteDialog : AbstractDialog {
+public class OverwriteDialog : AbstractMessageDialog {
     
     private class FileButton : Button {
         public FileButton(File file) {
@@ -69,13 +69,13 @@ public class OverwriteDialog : AbstractDialog {
         check_button_box.add(apply_to_all_check);
         
         var hbox = new HBox(false, 12);
-        content.pack_start(hbox);
+        m_content.pack_start(hbox);
         
         hbox.pack_start(file_button_source);
         hbox.pack_start(arrow);
         hbox.pack_start(file_button_dest);
         
-        content.pack_start(check_button_box);
+        m_content.pack_start(check_button_box);
         
         // why this may be not null-terminated? and crash when it is?
         add_button(Stock.CANCEL, ResponseType.CANCEL);
