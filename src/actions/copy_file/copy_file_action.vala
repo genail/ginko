@@ -85,14 +85,13 @@ class CopyFileAction : GLib.Object {
                 op.m_destination = Files.rebase(
                     src_file, m_context.source_dir, m_context.target_dir);
                 
-                if (Config.debug) {
-                    
-                    progress_log_details_t(
-                        "dry copy: %s => %s".printf(
+                progress_log_details_t(
+                        "%s => %s".printf(
                             op.m_source.get_path(),
                             op.m_destination.get_path()
                         ));
-                    
+                
+                if (Config.debug) {
                     Posix.sleep(1);
                     bytes_copied += src_fileinfo.get_size();
                 } else {
@@ -107,13 +106,14 @@ class CopyFileAction : GLib.Object {
                             succeed = true;
                         } catch (IOError e) {
                             if (e is IOError.CANCELLED) {
-                                Messages.show_info(m_context,
+                                Messages.show_info_t(m_context,
                                     "Aborted",
                                     "Operation aborted by user."
                                     );
                                 cancel = true;
                             } else if (e is IOError.NOT_FOUND) {
-                                Messages.show_error(m_context,
+                                debug("file not found");
+                                Messages.show_error_t(m_context,
                                     "Source not found!",
                                     "Lost track of source file '%s'. I saw it! I swear!".printf(
                                         src_filename));
@@ -139,16 +139,25 @@ class CopyFileAction : GLib.Object {
                                 
                             } else if (e is IOError.IS_DIRECTORY) {
                                 // TODO: tried to overwrite a file over directory
-                                Messages.show_error(m_context, "Error", e.message);
+                                Messages.show_error_t(m_context, "Error", e.message);
+                                cancel = true;
                             } else if (e is IOError.WOULD_MERGE) {
                                 // TODO: tried to overwrite a directory with a directory
-                                Messages.show_error(m_context, "Error", e.message);
+                                Messages.show_error_t(m_context, "Error", e.message);
+                                cancel = true;
                             } else if (e is IOError.WOULD_RECURSE) {
                                 // TODO: source is directory and target doesn't exists
                                 // or m_overwrite = true and target is a file
-                                Messages.show_error(m_context, "Error", e.message);
+                                Messages.show_error_t(m_context, "Error", e.message);
+                                cancel = true;
                             }
                         }
+                        
+                        if (cancel) {
+                            debug("cancelling");
+                            return false;
+                        }
+                        
                     } while (!succeed && !skip_file);
                 }
                 

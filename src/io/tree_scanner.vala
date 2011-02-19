@@ -22,7 +22,9 @@ public class TreeScanner {
         compile_attribute_list();
         
         if (p_file.query_exists()) {
-            p_file_found_callback(p_file, info(p_file));
+            if (!p_file_found_callback(p_file, info(p_file))) {
+                return;
+            }
         }
         
         var type = p_file.query_file_type(
