@@ -8,7 +8,9 @@ public class OverwriteDialog : AbstractMessageDialog {
     
     public const int RESPONSE_CANCEL = ResponseType.CANCEL;
     public const int RESPONSE_RENAME = 1;
-    public const int RESPONSE_OVERWRITE = 2;
+    public const int RESPONSE_SKIP = 2;
+    public const int RESPONSE_OVERWRITE = 3;
+    
     
     private class FileButton : Button {
         public FileButton(File file) {

@@ -9,7 +9,8 @@ class Messages {
             0,
             MessageType.ERROR,
             ButtonsType.OK,
-            p_description);
+            p_description,
+            null);
         
         dialog.set_title(p_context.name + ": " + p_title);
         dialog.run();
@@ -28,7 +29,8 @@ class Messages {
             0,
             MessageType.INFO,
             ButtonsType.OK,
-            p_description);
+            p_description,
+            null);
         
         dialog.set_title(p_context.name + ": " + p_title);
         dialog.run();

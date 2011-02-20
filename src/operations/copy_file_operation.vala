@@ -10,7 +10,7 @@ class CopyFileOperation : Operation {
     public bool m_follow_symlinks = true;
     
     private Cancellable m_cancellable = new Cancellable();
-    public FileProgressCallback m_progress_callback { get; set; }
+    public FileProgressCallback m_progress_callback;
     
     public uint64 get_cost() {
         return Files.query_size(m_source);
@@ -41,6 +41,10 @@ class CopyFileOperation : Operation {
         }
         
         return flags;
+    }
+    
+    public void set_progress_callback(owned FileProgressCallback p_callback) {
+        m_progress_callback = (owned) p_callback;
     }
 }
 

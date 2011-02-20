@@ -68,6 +68,7 @@ vala_precompile(VALA_C
     "src/operations/copy_file_operation.vala"
 
     "src/util/async_task.vala"
+    "src/util/gui_executor.vala"
 PACKAGES
     gtk+-2.0
     gio-2.0

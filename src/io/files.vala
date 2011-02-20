@@ -35,6 +35,12 @@ public class Files {
         return null;
     }
     
+    public static bool is_directory(File p_file, bool p_follow_symlinks) {
+        var type = p_file.query_file_type(
+            p_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+        return type == FileType.DIRECTORY;
+    }
+    
     public static string query_content_type(File file) {
         var info = file.query_info(FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE, 0, null);
         return info.get_content_type();

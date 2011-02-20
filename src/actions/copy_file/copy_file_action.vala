@@ -19,6 +19,17 @@ class CopyFileAction : GLib.Object {
     private uint64 m_bytes_processed;
     private uint64 m_bytes_total;
     
+    private CopyFileOperation m_copy_op;
+    uint64 m_bytes_processed_before;
+    
+    private enum FileAction {
+        NONE,
+        SUCCEED,
+        SKIP,
+        CANCEL
+    }
+    
+    private FileAction m_file_action; 
     
     public void execute(ActionContext p_context) {
         if (!verify(p_context)) {
@@ -78,121 +89,93 @@ class CopyFileAction : GLib.Object {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
         }
         
-        scanner.scan(infile, (src_file, src_fileinfo) => {
-                var src_filename = src_fileinfo.get_name();
-                show_progress_copying_t(src_filename);
-                
-                // build copy file configuration
-                var op = new CopyFileOperation();
-                op.m_source = src_file;
-                var dst_file = Files.rebase(
-                    src_file, m_context.source_dir, m_context.target_dir);
-                op.m_destination = dst_file;
-                
-                
-                uint64 bytes_processed_until_now = m_bytes_processed;
-                op.m_progress_callback = (current, total) => {
-                    m_bytes_processed = bytes_processed_until_now + current;
-                    show_progress_copying_t(src_filename);
-                };
-                
-                progress_log_details_t(
-                        "%s => %s".printf(
-                            op.m_source.get_path(),
-                            op.m_destination.get_path()
-                        ));
-                
-                if (Config.debug) {
-                    Posix.sleep(1);
-                    m_bytes_processed += src_fileinfo.get_size();
-                } else {
-                    
-                    bool skip_file = false;
-                    bool succeed = false;
-                    bool cancel = false;
-                    
-                    do {
-                        var src_filetype = src_file.query_file_type(
-                            m_config.follow_symlinks ?
-                                FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
-                        
-                        if (src_filetype == FileType.DIRECTORY) {
-                            try {
-                                dst_file.make_directory();
-                                succeed = true;
-                            } catch (IOError e) {
-                                Messages.show_error_t(m_context, "Error", e.message);
-                                cancel = true;
-                            }
-                        } else {
-                            try {
-                                op.execute();
-                                succeed = true;
-                            } catch (IOError e) {
-                                if (e is IOError.CANCELLED) {
-                                    Messages.show_info_t(m_context,
-                                        "Aborted",
-                                        "Operation aborted by user."
-                                        );
-                                    cancel = true;
-                                } else if (e is IOError.NOT_FOUND) {
-                                    debug("file not found");
-                                    Messages.show_error_t(m_context,
-                                        "Source not found!",
-                                        "Lost track of source file '%s'. I saw it! I swear!".printf(
-                                            src_filename));
-                                    skip_file = true;
-                                } else if (e is IOError.EXISTS) {
-                                    var dialog = new OverwriteDialog(m_context,
-                                        op.m_source, op.m_destination);
-                                    var response = dialog.run();
-                                    
-                                    switch (response) {
-                                        case OverwriteDialog.RESPONSE_CANCEL:
-                                            cancel = true;
-                                            break;
-                                        case OverwriteDialog.RESPONSE_RENAME:
-                                            // TODO: rename dialog
-                                            break;
-                                        case OverwriteDialog.RESPONSE_OVERWRITE:
-                                            op.m_overwrite = true;
-                                            break;
-                                        default:
-                                            error("unknown response: %d", response);
-                                    }
-                                    
-                                } else if (e is IOError.IS_DIRECTORY) {
-                                    // TODO: tried to overwrite a file over directory
-                                    Messages.show_error_t(m_context, "Error", e.message);
-                                    cancel = true;
-                                } else if (e is IOError.WOULD_MERGE) {
-                                    // TODO: tried to overwrite a directory with a directory
-                                    Messages.show_error_t(m_context, "Error", e.message);
-                                    cancel = true;
-                                } else if (e is IOError.WOULD_RECURSE) {
-                                    // TODO: source is directory and target doesn't exists
-                                    // or m_overwrite = true and target is a file
-                                    Messages.show_error_t(m_context, "Error", e.message);
-                                    cancel = true;
-                                } else {
-                                    Messages.show_error_t(m_context, "Error", e.message);
-                                    cancel = true;
-                                }
-                            }
-                        }
-                        
-                        if (cancel) {
-                            debug("cancelling");
-                            return false;
-                        }
-                        
-                    } while (!succeed && !skip_file);
-                }
-                
-                return true;
-        });
+        scanner.scan(infile, copy_t);
         
         show_progress_finished_t();
+        
+        Posix.sleep(2);
+        m_progress_dialog.close();
+    }
+    
+    private bool copy_t(File p_src_file, FileInfo p_src_fileinfo) {
+        var src_filename = p_src_fileinfo.get_name();
+        show_progress_copying_t(src_filename);
+
+        var dst_file = Files.rebase(p_src_file, m_context.source_dir, m_context.target_dir);
+        
+        create_copy_file_operation_t(p_src_file, dst_file);
+        
+        progress_log_details_t(
+                "%s => %s".printf(
+                    m_copy_op.m_source.get_path(),
+                    m_copy_op.m_destination.get_path()
+                ));
+        
+        if (Config.debug) {
+            Posix.sleep(1);
+            m_bytes_processed += p_src_fileinfo.get_size();
+        } else {
+            
+            m_file_action = FileAction.NONE;
+            
+            do {
+                if (Files.is_directory(p_src_file, m_config.follow_symlinks)) {
+                    try {
+                        dst_file.make_directory();
+                        m_file_action = FileAction.SUCCEED;
+                    } catch (IOError e) {
+                        Messages.show_error_t(m_context, "Error", e.message);
+                        m_file_action = FileAction.CANCEL;
+                    }
+                } else {
+                    try {
+                        m_copy_op.execute();
+                        m_file_action = FileAction.SUCCEED;
+                    } catch (IOError e) {
+                        if (e is IOError.CANCELLED) {
+                            Messages.show_info_t(m_context,
+                                "Aborted",
+                                "Operation aborted by user."
+                                );
+                            m_file_action = FileAction.CANCEL;
+                        } else if (e is IOError.NOT_FOUND) {
+                            debug("file not found");
+                            Messages.show_error_t(m_context,
+                                "Source not found!",
+                                "Lost track of source file '%s'. I saw it! I swear!".printf(
+                                    src_filename));
+                            m_file_action = FileAction.SKIP;
+                        } else if (e is IOError.EXISTS) {
+                            prompt_overwrite_t();
+                        } else if (e is IOError.IS_DIRECTORY) {
+                            // TODO: tried to overwrite a file over directory
+                            Messages.show_error_t(m_context, "Error", e.message);
+                            m_file_action = FileAction.CANCEL;
+                        } else if (e is IOError.WOULD_MERGE) {
+                            // TODO: tried to overwrite a directory with a directory
+                            Messages.show_error_t(m_context, "Error", e.message);
+                            m_file_action = FileAction.CANCEL;
+                        } else if (e is IOError.WOULD_RECURSE) {
+                            // TODO: source is directory and target doesn't exists
+                            // or m_overwrite = true and target is a file
+                            Messages.show_error_t(m_context, "Error", e.message);
+                            m_file_action = FileAction.CANCEL;
+                        } else {
+                            Messages.show_error_t(m_context, "Error", e.message);
+                            m_file_action = FileAction.CANCEL;
+                        }
+                    }
+                }
+                
+                if (m_file_action == FileAction.CANCEL) {
+                    debug("cancelling");
+                    return false;
+                }
+                
+            } while (m_file_action == FileAction.NONE); // retry until action is done
+        }
+        
+        return true;
     }
     
     private void show_progress_preparing_t() {
@@ -231,6 +214,45 @@ class CopyFileAction : GLib.Object {
         Idle.add(() => {
                 m_progress_dialog.log_details(p_text);
                 return false;
+        });
+    }
+    
+    private void create_copy_file_operation_t(File p_source, File p_dest) {
+        m_copy_op = new CopyFileOperation();
+        m_copy_op.m_source = p_source;
+        m_copy_op.m_destination = p_dest;
+        m_bytes_processed_before = m_bytes_processed;
+        
+        m_copy_op.set_progress_callback((current, total) => {
+            m_bytes_processed = m_bytes_processed_before + current;
+            show_progress_copying_t(p_source.get_basename());
+        });
+    }
+    
+    private void prompt_overwrite_t() {
+        GuiExecutor.run_and_wait(() => {
+                var dialog = new OverwriteDialog(m_context,
+                    m_copy_op.m_source, m_copy_op.m_destination);
+                var response = dialog.run();
+                
+                switch (response) {
+                    case OverwriteDialog.RESPONSE_CANCEL:
+                        m_file_action = FileAction.CANCEL;
+                        break;
+                    case OverwriteDialog.RESPONSE_RENAME:
+                        // TODO: rename dialog
+                        break;
+                    case OverwriteDialog.RESPONSE_OVERWRITE:
+                        m_copy_op.m_overwrite = true;
+                        break;
+                    case OverwriteDialog.RESPONSE_SKIP:
+                        m_file_action = FileAction.SKIP;
+                        break;
+                    default:
+                        error("unknown response: %d", response);
+                }
+                
+                dialog.close();
         });
     }
 }
