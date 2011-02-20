@@ -229,12 +229,16 @@ class CopyFileAction : GLib.Object {
                 var dialog = new OverwriteDialog(m_context,
                     m_copy_op.m_source, m_copy_op.m_destination);
                 var response = dialog.run();
+                dialog.close();
                 
                 switch (response) {
                     case OverwriteDialog.RESPONSE_CANCEL:
                         m_file_action = FileAction.CANCEL;
                         break;
                     case OverwriteDialog.RESPONSE_RENAME:
+                        var basename = m_copy_op.m_source.get_basename();
+                        var rename_dialog = new RenameDialog(m_context, basename);
+                        rename_dialog.run();
                         // TODO: rename dialog
                         break;
                     case OverwriteDialog.RESPONSE_OVERWRITE:
@@ -246,8 +250,6 @@ class CopyFileAction : GLib.Object {
                     default:
                         error("unknown response: %d", response);
                 }
-                
-                dialog.close();
         });
     }
 }
