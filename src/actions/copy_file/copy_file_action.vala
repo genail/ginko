@@ -12,7 +12,12 @@ class CopyFileAction : GLib.Object {
     private ActionContext m_context;
     private CopyFileConfig m_config;
     private int m_config_return_code;
+    
+    private bool m_progress_dialog_visible;
     private ProgressDialog m_progress_dialog;
+    
+    private uint64 m_bytes_processed;
+    private uint64 m_bytes_total;
     
     
     public void execute(ActionContext p_context) {
@@ -62,11 +67,9 @@ class CopyFileAction : GLib.Object {
         show_progress_preparing_t();
         
         var infile = m_context.source_selected_files.data;
-        double progress_f = 0.0;
         
         // calculate used space first
-        uint64 bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
-        uint64 bytes_copied = 0;
+        m_bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
         
         var scanner = new TreeScanner();
         scanner.m_follow_symlinks = m_config.follow_symlinks;
@@ -77,7 +80,7 @@ class CopyFileAction : GLib.Object {
         
         scanner.scan(infile, (src_file, src_fileinfo) => {
                 var src_filename = src_fileinfo.get_name();
-                show_progress_copying_t(src_filename, progress_f);
+                show_progress_copying_t(src_filename);
                 
                 // build copy file configuration
                 var op = new CopyFileOperation();
@@ -85,6 +88,13 @@ class CopyFileAction : GLib.Object {
                 var dst_file = Files.rebase(
                     src_file, m_context.source_dir, m_context.target_dir);
                 op.m_destination = dst_file;
+                
+                
+                uint64 bytes_processed_until_now = m_bytes_processed;
+                op.m_progress_callback = (current, total) => {
+                    m_bytes_processed = bytes_processed_until_now + current;
+                    show_progress_copying_t(src_filename);
+                };
                 
                 progress_log_details_t(
                         "%s => %s".printf(
@@ -94,7 +104,7 @@ class CopyFileAction : GLib.Object {
                 
                 if (Config.debug) {
                     Posix.sleep(1);
-                    bytes_copied += src_fileinfo.get_size();
+                    m_bytes_processed += src_fileinfo.get_size();
                 } else {
                     
                     bool skip_file = false;
@@ -179,7 +189,6 @@ class CopyFileAction : GLib.Object {
                     } while (!succeed && !skip_file);
                 }
                 
-                progress_f = bytes_copied / (double) bytes_total;
                 return true;
         });
         
@@ -189,15 +198,22 @@ class CopyFileAction : GLib.Object {
     private void show_progress_preparing_t() {
         Idle.add(() => {
                 m_progress_dialog.set_status_text_1("Preparing...");
-                m_progress_dialog.show_all();
+                
+                if (!m_progress_dialog_visible) {
+                    m_progress_dialog.show_all();
+                    m_progress_dialog_visible = true;
+                }
+                
                 return false;
         });
     }
     
-    private void show_progress_copying_t(string p_filename, double p_value) {
+    private void show_progress_copying_t(string p_filename) {
+        double value = m_bytes_processed / (double) m_bytes_total;
+        
         Idle.add(() => {
                 m_progress_dialog.set_status_text_1("Copying %s".printf(p_filename));
-                m_progress_dialog.set_progress(p_value);
+                m_progress_dialog.set_progress(value);
                 return false;
         });
     }
