@@ -179,41 +179,36 @@ class CopyFileAction : GLib.Object {
     }
     
     private void show_progress_preparing_t() {
-        Idle.add(() => {
+        GuiExecutor.run(() => {
                 m_progress_dialog.set_status_text_1("Preparing...");
                 
                 if (!m_progress_dialog_visible) {
                     m_progress_dialog.show_all();
                     m_progress_dialog_visible = true;
                 }
-                
-                return false;
         });
     }
     
     private void show_progress_copying_t(string p_filename) {
         double value = m_bytes_processed / (double) m_bytes_total;
         
-        Idle.add(() => {
+        GuiExecutor.run(() => {
                 m_progress_dialog.set_status_text_1("Copying %s".printf(p_filename));
                 m_progress_dialog.set_progress(value);
-                return false;
         });
     }
     
     private void show_progress_finished_t() {
-        Idle.add(() => {
+        GuiExecutor.run(() => {
                 m_progress_dialog.set_status_text_1("Operation finished!");
                 m_progress_dialog.set_progress(1);
                 m_progress_dialog.set_done();
-                return false;
         });
     }
     
     private void progress_log_details_t(string p_text) {
-        Idle.add(() => {
+        GuiExecutor.run(() => {
                 m_progress_dialog.log_details(p_text);
-                return false;
         });
     }
     
