@@ -11,7 +11,6 @@ public class DirectoryView : TreeView {
     
     private DirectoryModel model;
     private TreePath cursor_path_last;
-    private bool cursor_hidden = false;
     
     
     public DirectoryView(DirectoryModel model) {
@@ -105,26 +104,21 @@ public class DirectoryView : TreeView {
         set_cursor(path, null, false);
     }
     
-    public void cursor_show() {
-        if (cursor_hidden) {
+    public void show_cursor() {
+        if (cursor_path_last != null) {
             set_cursor(cursor_path_last, null, false);
-            cursor_hidden = false;
-        } else if (cursor_path_last == null) {
+        } else {
             cursor_set_at_top();
         }
     }
     
-    public void cursor_hide() {
-        if (!cursor_hidden) {
+    public void hide_cursor() {
+        get_cursor(out cursor_path_last, null);
         
-            get_cursor(out cursor_path_last, null);
-            
-            var selection = get_selection();
-            selection.unselect_all();
-            
-            cursor_hidden = true;
-        }
+        var selection = get_selection();
+        selection.unselect_all();
     }
+    
 }
 
 } // namespace

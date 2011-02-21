@@ -6,12 +6,11 @@ class RefreshActionDescriptor : ActionDescriptor {
         base(
             "Refresh directory view",
             new string[] { "refresh", "reload", "show" },
-            new Accelerator("R", new string[] { "CTRL" }));
+            new Accelerator("R", new string[] { "ctrl" }));
     }
     
     public override void execute(ActionContext context) {
-        var action = new CopyFileAction();
-        action.execute(context);
+        context.m_active_controller.refresh();
     }
 }
 

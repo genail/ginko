@@ -41,12 +41,12 @@ public class DirectoryController : GLib.Object {
     }
     
     public void make_active() {
-        view.cursor_show();
+        view.show_cursor();
         view.grab_focus();
     }
     
     public void make_unactive() {
-        view.cursor_hide();
+        view.hide_cursor();
     }
     
     public GLib.List<File> get_selected_files() {
@@ -63,6 +63,7 @@ public class DirectoryController : GLib.Object {
     
     public void refresh() {
         load_path(current_file.get_path());
+        view.show_cursor(); // because after path loading it's hidden
     }
     
     private bool on_button_press(EventButton e) {
