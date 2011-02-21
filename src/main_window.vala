@@ -27,8 +27,8 @@ class MainWindow : Window {
     
     private void build_panels() {
         navigator_controller = new NavigatorController();
-        var view = navigator_controller.view;
-        var widget = view.widget;
+        var view = navigator_controller.m_view;
+        var widget = view.m_widget;
         
         main_vbox.pack_start(widget);
     }
