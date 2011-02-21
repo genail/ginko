@@ -5,7 +5,7 @@ using Ginko.Format;
 
 namespace Ginko {
 
-class DirectoryController : GLib.Object {
+public class DirectoryController : GLib.Object {
     private const string DEFAULT_FILE_QUERY_ATTR =
                 FILE_ATTRIBUTE_STANDARD_TYPE + "," +
                 FILE_ATTRIBUTE_STANDARD_NAME + "," +
@@ -59,6 +59,10 @@ class DirectoryController : GLib.Object {
         }
         
         return list;
+    }
+    
+    public void refresh() {
+        load_path(current_file.get_path());
     }
     
     private bool on_button_press(EventButton e) {

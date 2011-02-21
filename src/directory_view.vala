@@ -4,7 +4,7 @@ using Gee;
 
 namespace Ginko {
 
-class DirectoryView : TreeView {
+public class DirectoryView : TreeView {
     
     public signal void entry_activated(DirectoryModel.Entry entry);
     public signal void navigate_up_requested();

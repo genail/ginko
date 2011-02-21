@@ -48,6 +48,7 @@ vala_precompile(VALA_C
     "src/actions/accelerator.vala"
     "src/actions/action_descriptor.vala"
     "src/actions/action_context.vala"
+    "src/actions/basic_actions.vala"
 
     "src/actions/copy_file/copy_file_action.vala"
     "src/actions/copy_file/copy_file_config.vala"

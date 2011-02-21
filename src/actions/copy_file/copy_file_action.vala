@@ -93,8 +93,11 @@ class CopyFileAction : GLib.Object {
         
         show_progress_finished_t();
         
+        var dircontroller = m_context.m_unactive_controller;
+        GuiExecutor.run(() => dircontroller.refresh());
+        
         Posix.sleep(2);
-        m_progress_dialog.close();
+        GuiExecutor.run(() => m_progress_dialog.close());
     }
     
     private bool copy_t(File p_src_file, FileInfo p_src_fileinfo) {

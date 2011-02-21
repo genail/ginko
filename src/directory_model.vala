@@ -3,7 +3,7 @@ using Gee;
 
 namespace Ginko {
 
-class DirectoryModel  {
+public class DirectoryModel  {
     public static const int STORE_FULLNAME = 0;
     public static const int STORE_ICON = 1;
     public static const int STORE_NAME = 2;

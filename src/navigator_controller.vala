@@ -56,6 +56,9 @@ class NavigatorController {
         
         p_context.source_selected_files = m_active_controller.get_selected_files();
         p_context.target_selected_files = m_unactive_controller.get_selected_files();
+        
+        p_context.m_active_controller = m_active_controller;
+        p_context.m_unactive_controller = m_unactive_controller;
     }
 }
 
