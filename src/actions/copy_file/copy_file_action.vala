@@ -236,10 +236,9 @@ class CopyFileAction : GLib.Object {
                         m_file_action = FileAction.CANCEL;
                         break;
                     case OverwriteDialog.RESPONSE_RENAME:
-                        var basename = m_copy_op.m_source.get_basename();
-                        var rename_dialog = new RenameDialog(m_context, basename);
-                        rename_dialog.run();
-                        // TODO: rename dialog
+                        if (!prompt_rename()) {
+                            m_file_action = FileAction.CANCEL;
+                        }
                         break;
                     case OverwriteDialog.RESPONSE_OVERWRITE:
                         m_copy_op.m_overwrite = true;
@@ -250,7 +249,29 @@ class CopyFileAction : GLib.Object {
                     default:
                         error("unknown response: %d", response);
                 }
+                
         });
+    }
+    
+    private bool prompt_rename() {
+        var basename = m_copy_op.m_destination.get_basename();
+        var rename_dialog = new RenameDialog(m_context, basename);
+        var response = rename_dialog.run();
+        
+        try {
+            if (response == RenameDialog.RESPONSE_OK) {
+                var new_filename = rename_dialog.get_filename();
+                
+                var parent = m_copy_op.m_destination.get_parent();
+                m_copy_op.m_destination = parent.get_child(new_filename);
+                
+                return true;
+            }
+            
+            return false;
+        } finally {
+            rename_dialog.close();
+        }
     }
 }
 
