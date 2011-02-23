@@ -65,10 +65,10 @@ class MainWindow : Window {
         m_accel_buttons[accel] = button;
     }
     
-    public void register_action_accelerators(ActionDescriptor[] actions) {
+    public void register_action_accelerators(ActionDescriptor[] p_actions) {
         var accel_group = new AccelGroup();
         
-        foreach (var action in actions) {
+        foreach (var action in p_actions) {
             var accel = action.accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
@@ -82,10 +82,17 @@ class MainWindow : Window {
             if (m_accel_buttons.has_key(accel)) {
                 var function_button = m_accel_buttons[accel];
                 function_button.clicked.connect(() => action_invoked(action_clos));
+                
+                m_accel_buttons.unset(accel);
             }
         }
         
         add_accel_group(accel_group);
+        
+        // check and warning about missing connections
+        foreach (var button in m_accel_buttons.values) {
+            warning("missing connection for function button: '%s'", button.get_label());
+        }
     }
 }
 
