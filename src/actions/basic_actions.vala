@@ -9,8 +9,8 @@ class RefreshActionDescriptor : ActionDescriptor {
             new Accelerator("R", new string[] { "ctrl" }));
     }
     
-    public override void execute(ActionContext context) {
-        context.m_active_controller.refresh();
+    public override void execute(ActionContext p_context) {
+        p_context.m_active_controller.refresh();
     }
 }
 

@@ -7,14 +7,13 @@ class MainWindow : Window {
     
     public signal void action_invoked(ActionDescriptor action_descriptor);
     
-    public NavigatorController navigator_controller {get; private set;}
-    private VBox main_vbox;
+    public NavigatorController m_navigator_controller {get; private set;}
+    private VBox m_main_vbox;
     private HBox m_button_box;
     
     private HashMap<Accelerator, Button> m_accel_buttons = new HashMap<Accelerator, Button>(
         (a) => Accelerator.hash(a as Accelerator),
-        (a, b) => Accelerator.equal(a as Accelerator, b as Accelerator)
-        );
+        (a, b) => Accelerator.equal(a as Accelerator, b as Accelerator));
 
     public MainWindow() {
         title = "Ginko File Manager";
@@ -22,22 +21,22 @@ class MainWindow : Window {
             title += " (DEBUG MODE)";
         }
         
-        set_default_size (800, 600);
+        set_default_size(800, 600);
         
-        main_vbox = new VBox(false, 0);
+        m_main_vbox = new VBox(false, 0);
         
         build_panels();
         build_function_buttons();
         
-        add(main_vbox);
+        add(m_main_vbox);
     }
     
     private void build_panels() {
-        navigator_controller = new NavigatorController();
-        var view = navigator_controller.m_view;
+        m_navigator_controller = new NavigatorController();
+        var view = m_navigator_controller.m_view;
         var widget = view.m_widget;
         
-        main_vbox.pack_start(widget);
+        m_main_vbox.pack_start(widget);
     }
     
     private void build_function_buttons() {
@@ -52,7 +51,7 @@ class MainWindow : Window {
         add_button("Terminal", "F9");
         add_button("Exit", "F10");
         
-        main_vbox.pack_start(m_button_box, false);
+        m_main_vbox.pack_start(m_button_box, false);
     }
     
     private void add_button(string p_name, string p_accel_str) {
@@ -69,11 +68,11 @@ class MainWindow : Window {
         var accel_group = new AccelGroup();
         
         foreach (var action in p_actions) {
-            var accel = action.accelerator;
+            var accel = action.m_accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
                                       //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133
-            accel_group.connect(accel.keyval, accel.modifier_type, 0, () => {
+            accel_group.connect(accel.m_keyval, accel.m_modifier_type, 0, () => {
                 action_invoked(action_clos);
                 return true;
             });

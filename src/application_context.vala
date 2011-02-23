@@ -3,10 +3,8 @@ using Gtk;
 namespace Ginko {
 
 class ApplicationContext : Context {
-    public List<ActionDescriptor> action_descriptors = new List<ActionDescriptor>();
-    
-    public ApplicationContext(string name, Window main_window) {
-        base(name, main_window);
+    public ApplicationContext(string p_name, Window p_main_window) {
+        base(p_name, p_main_window);
     }
 }
 

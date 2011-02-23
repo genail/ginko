@@ -3,15 +3,15 @@ using Gtk;
 namespace Ginko {
 
 class BreadCrumbs : Box {
-    private Entry entry;
+    private Entry m_entry;
     
     public BreadCrumbs() {
-        entry = new Entry();
-        add(entry); 
+        m_entry = new Entry();
+        add(m_entry); 
     }
     
-    public void set_path(string path) {
-        entry.set_text(path);
+    public void set_path(string p_path) {
+        m_entry.set_text(p_path);
     }
 }
 

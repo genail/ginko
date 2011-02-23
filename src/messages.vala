@@ -5,14 +5,14 @@ namespace Ginko {
 class Messages {
     public static void show_error(Context p_context, string p_title, string p_description) {
         var dialog = new MessageDialog(
-            p_context.main_window,
+            p_context.m_main_window,
             0,
             MessageType.ERROR,
             ButtonsType.OK,
             p_description,
             null);
         
-        dialog.set_title(p_context.name + ": " + p_title);
+        dialog.set_title(p_context.m_name + ": " + p_title);
         dialog.run();
         dialog.close();
     }
@@ -25,14 +25,14 @@ class Messages {
     
     public static void show_info(Context p_context, string p_title, string p_description) {
         var dialog = new MessageDialog(
-            p_context.main_window,
+            p_context.m_main_window,
             0,
             MessageType.INFO,
             ButtonsType.OK,
             p_description,
             null);
         
-        dialog.set_title(p_context.name + ": " + p_title);
+        dialog.set_title(p_context.m_name + ": " + p_title);
         dialog.run();
         dialog.close();
     }

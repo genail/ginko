@@ -48,7 +48,7 @@ class CopyFileAction : GLib.Object {
     }
     
     private bool verify(ActionContext context) {
-        if (context.source_selected_files.length() == 0) {
+        if (context.m_source_selected_files.length() == 0) {
             Messages.show_error(context, "Nothing to copy", "You must select at least one file.");
             return false;
         }
@@ -77,13 +77,13 @@ class CopyFileAction : GLib.Object {
     private void execute_async_t(AsyncTask p_async_task) {
         show_progress_preparing_t();
         
-        var infile = m_context.source_selected_files.data;
+        var infile = m_context.m_source_selected_files.data;
         
         // calculate used space first
-        m_bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
+        m_bytes_total = Files.calculate_space_recurse(infile, m_config.m_follow_symlinks);
         
         var scanner = new TreeScanner();
-        scanner.m_follow_symlinks = m_config.follow_symlinks;
+        scanner.m_follow_symlinks = m_config.m_follow_symlinks;
         
         if (Config.debug) {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
@@ -104,7 +104,8 @@ class CopyFileAction : GLib.Object {
         var src_filename = p_src_fileinfo.get_name();
         show_progress_copying_t(src_filename);
 
-        var dst_file = Files.rebase(p_src_file, m_context.source_dir, m_context.target_dir);
+        var dst_file = Files.rebase(p_src_file,
+            m_context.m_source_dir, m_context.m_destination_dir);
         
         create_copy_file_operation_t(p_src_file, dst_file);
         
@@ -122,7 +123,7 @@ class CopyFileAction : GLib.Object {
             m_file_action = FileAction.NONE;
             
             do {
-                if (Files.is_directory(p_src_file, m_config.follow_symlinks)) {
+                if (Files.is_directory(p_src_file, m_config.m_follow_symlinks)) {
                     try {
                         dst_file.make_directory();
                         m_file_action = FileAction.SUCCEED;

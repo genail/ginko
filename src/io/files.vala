@@ -21,13 +21,14 @@ public class Files {
         return total;
     }
     
-    public static Pixbuf find_icon_for_file(File file, IconTheme theme, int size=64) throws Error {
-        var info = file.query_info(FILE_ATTRIBUTE_STANDARD_ICON, 0, null);
+    public static Pixbuf find_icon_for_file(File p_file, IconTheme p_theme, int p_size = 64)
+    throws Error {
+        var info = p_file.query_info(FILE_ATTRIBUTE_STANDARD_ICON, 0, null);
         
         var icon = (ThemedIcon) info.get_icon();
         var icon_names = icon.get_names();
         
-        var icon_info = theme.choose_icon(icon_names, size, 0);
+        var icon_info = p_theme.choose_icon(icon_names, p_size, 0);
         if (icon_info != null) {
             return icon_info.load_icon();
         }
@@ -41,20 +42,20 @@ public class Files {
         return type == FileType.DIRECTORY;
     }
     
-    public static string query_content_type(File file) {
-        var info = file.query_info(FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE, 0, null);
+    public static string query_content_type(File p_file) {
+        var info = p_file.query_info(FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE, 0, null);
         return info.get_content_type();
     }
     
-    public static uint64 query_size(File file) {
-        var info = file.query_info(FILE_ATTRIBUTE_STANDARD_SIZE, 0, null);
+    public static uint64 query_size(File p_file) {
+        var info = p_file.query_info(FILE_ATTRIBUTE_STANDARD_SIZE, 0, null);
         return info.get_size();
     }
     
-    public static TimeVal query_modification_time(File file) {
+    public static TimeVal query_modification_time(File p_file) {
         TimeVal time;
         
-        var info = file.query_info(FILE_ATTRIBUTE_TIME_MODIFIED, 0, null);
+        var info = p_file.query_info(FILE_ATTRIBUTE_TIME_MODIFIED, 0, null);
         info.get_modification_time(out time);
         
         return time;
@@ -70,21 +71,21 @@ public class Files {
      *
      * return value: /root/docs/file
      */
-    public static File rebase(File file, File old_base, File new_base) {
+    public static File rebase(File p_file, File p_old_base, File p_new_base) {
         List<string> stack = new List<string>();
-        stack.append(file.get_basename());
-        File tmpfile = file;
+        stack.append(p_file.get_basename());
+        File tmpfile = p_file;
         
         // build stack until found base for file
         while (true) {
             if (!tmpfile.has_parent(null)) {
                 error("rebase of '%s' with old_base='%s' and new_base='%s' failed",
-                    file.get_path(), old_base.get_path(), new_base.get_path());
+                    p_file.get_path(), p_old_base.get_path(), p_new_base.get_path());
             } 
             
             var parent = tmpfile.get_parent();
             
-            if (parent.get_path() == old_base.get_path()) {
+            if (parent.get_path() == p_old_base.get_path()) {
                 break;
             } else {
                 tmpfile = parent;
@@ -93,7 +94,7 @@ public class Files {
         }
         
         // use stack to build new file
-        tmpfile = new_base;
+        tmpfile = p_new_base;
         foreach (var el in stack) {
             tmpfile = tmpfile.get_child(el);
         }

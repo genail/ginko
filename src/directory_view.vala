@@ -9,13 +9,13 @@ public class DirectoryView : TreeView {
     public signal void entry_activated(DirectoryModel.Entry entry);
     public signal void navigate_up_requested();
     
-    private DirectoryModel model;
-    private TreePath cursor_path_last;
+    private DirectoryModel m_model;
+    private TreePath m_cursor_path_last;
     
     
-    public DirectoryView(DirectoryModel model) {
-        this.model = model;
-        set_model(model.store);
+    public DirectoryView(DirectoryModel p_model) {
+        m_model = p_model;
+        set_model(m_model.m_store);
         
         var size_renderer = new CellRendererText();
         size_renderer.xalign = 1.0f;
@@ -44,18 +44,18 @@ public class DirectoryView : TreeView {
         row_activated.connect(on_row_activated);
         key_press_event.connect(on_key_press);
         cursor_changed.connect(() => {
-            get_cursor(out cursor_path_last, null);
+            get_cursor(out m_cursor_path_last, null);
         });
         
     }
     
-    private void on_row_activated(TreePath path, TreeViewColumn column) {
-        var entry = model.path_to_entry(path);
+    private void on_row_activated(TreePath p_path, TreeViewColumn p_column) {
+        var entry = m_model.path_to_entry(p_path);
         entry_activated(entry);
     }
     
-    private bool on_key_press(EventKey e) {
-        string key = Gdk.keyval_name(e.keyval);
+    private bool on_key_press(EventKey p_event) {
+        string key = Gdk.keyval_name(p_event.keyval);
 //~         debug("%s\n", key);
     
         switch (key) {
@@ -91,7 +91,7 @@ public class DirectoryView : TreeView {
             return null;
         }
         
-        return model.path_to_entry(path);
+        return m_model.path_to_entry(path);
     }
     
     public void cursor_set_at_top() {
@@ -105,15 +105,15 @@ public class DirectoryView : TreeView {
     }
     
     public void show_cursor() {
-        if (cursor_path_last != null) {
-            set_cursor(cursor_path_last, null, false);
+        if (m_cursor_path_last != null) {
+            set_cursor(m_cursor_path_last, null, false);
         } else {
             cursor_set_at_top();
         }
     }
     
     public void hide_cursor() {
-        get_cursor(out cursor_path_last, null);
+        get_cursor(out m_cursor_path_last, null);
         
         var selection = get_selection();
         selection.unselect_all();

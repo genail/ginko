@@ -1,34 +1,34 @@
 namespace Ginko {
 
 public class Application {
-    private MainWindow main_window;
-    private ApplicationContext context;
+    private MainWindow m_main_window;
+    private ApplicationContext m_context;
     
-    public Application(string[] args) {
-        if ("--debug" in args) {
+    public Application(string[] p_args) {
+        if ("--debug" in p_args) {
             stdout.printf("!!! Running in debug mode !!!\n");
             Config.debug = true;
         }
         
-        Gtk.init (ref args);
+        Gtk.init (ref p_args);
         
-        main_window = new MainWindow();
+        m_main_window = new MainWindow();
         
-        main_window.destroy.connect(Gtk.main_quit);
-        main_window.action_invoked.connect(invoke_action);
+        m_main_window.destroy.connect(Gtk.main_quit);
+        m_main_window.action_invoked.connect(invoke_action);
         
-        main_window.show_all();
+        m_main_window.show_all();
     }
     
-    private void invoke_action(ActionDescriptor action_descriptor) {
-        var action_context = create_action_context(action_descriptor);
-        action_descriptor.execute(action_context);
+    private void invoke_action(ActionDescriptor p_action_descriptor) {
+        var p_action_context = create_action_context(p_action_descriptor);
+        p_action_descriptor.execute(p_action_context);
     }
     
-    private ActionContext create_action_context(ActionDescriptor action_descriptor) {
-        var context = new ActionContext(action_descriptor.name, main_window);
+    private ActionContext create_action_context(ActionDescriptor p_action_descriptor) {
+        var context = new ActionContext(p_action_descriptor.m_name, m_main_window);
         
-        main_window.navigator_controller.accept_action_context(context);
+        m_main_window.m_navigator_controller.accept_action_context(context);
         
         return context;
     }
@@ -43,7 +43,7 @@ public class Application {
         action_descriptors += new Actions.RefreshActionDescriptor();
         action_descriptors += new Actions.CopyFileDescriptor();
         
-        main_window.register_action_accelerators(action_descriptors);
+        m_main_window.register_action_accelerators(action_descriptors);
     }
     
     

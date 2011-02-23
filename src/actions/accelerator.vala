@@ -8,11 +8,11 @@ public class Accelerator {
     private const int VoidSymbol = 0xffffff;
     
     public static bool equal(Accelerator p_a, Accelerator p_b) {
-        if (p_a.keyval != p_b.keyval) {
+        if (p_a.m_keyval != p_b.m_keyval) {
             return false;
         }
         
-        if (p_a.modifier_type != p_b.modifier_type) {
+        if (p_a.m_modifier_type != p_b.m_modifier_type) {
             return false;
         }
         
@@ -21,17 +21,17 @@ public class Accelerator {
     
     public static uint hash(Accelerator p_obj) {
         uint h = 1;
-        h = h * 31 + p_obj.keyval;
-        h = h * 31 + p_obj.modifier_type;
+        h = h * 31 + p_obj.m_keyval;
+        h = h * 31 + p_obj.m_modifier_type;
         return h;
     }
     
-    public uint keyval;
-    public ModifierType modifier_type;
+    public uint m_keyval;
+    public ModifierType m_modifier_type;
     
     public Accelerator(string keystr, string[]? mods = null) {
-        keyval = Gdk.keyval_from_name(keystr);
-        if (keyval == VoidSymbol) {
+        m_keyval = Gdk.keyval_from_name(keystr);
+        if (m_keyval == VoidSymbol) {
             error("unknown key symbol: %s", keystr);
         }
         
@@ -42,7 +42,7 @@ public class Accelerator {
             }
         }
         
-        modifier_type = modifier;
+        m_modifier_type = modifier;
         
     }
     

@@ -15,42 +15,39 @@ public class DirectoryController : GLib.Object {
                 FILE_ATTRIBUTE_TIME_MODIFIED + "," +
                 FILE_ATTRIBUTE_UNIX_MODE;
 
-    public DirectoryView view { get; private set; }
-    public DirectoryModel model { get; private set; }
+    public DirectoryView m_view { get; private set; }
+    public DirectoryModel m_model { get; private set; }
     
-    private BreadCrumbs breadcrumbs;
+    public File m_current_file { get; private set; }
     
-    public File current_file { get; private set; }
-    
-    private IconTheme default_icon_theme = IconTheme.get_default();
-    private HashMap<string, Pixbuf> icon_cache = new HashMap<string, Pixbuf>();
+    private IconTheme m_default_icon_theme = IconTheme.get_default();
+    private HashMap<string, Pixbuf> m_icon_cache = new HashMap<string, Pixbuf>();
     
     // current entry name to file info
-    private HashMap<string, FileInfo> fileinfos = new HashMap<string, FileInfo>();
+    private HashMap<string, FileInfo> m_fileinfos = new HashMap<string, FileInfo>();
         
     public DirectoryController() {
-        this.model = new DirectoryModel();
-        this.view = new DirectoryView(model);
-        this.breadcrumbs = new BreadCrumbs();
+        m_model = new DirectoryModel();
+        m_view = new DirectoryView(m_model);
 
-        view.button_press_event.connect(on_button_press);
-        view.entry_activated.connect(on_entry_activated);
-        view.navigate_up_requested.connect(on_navigate_up_request);
+        m_view.button_press_event.connect(on_button_press);
+        m_view.entry_activated.connect(on_entry_activated);
+        m_view.navigate_up_requested.connect(on_navigate_up_request);
         
         load_path(".");
     }
     
     public void make_active() {
-        view.show_cursor();
-        view.grab_focus();
+        m_view.show_cursor();
+        m_view.grab_focus();
     }
     
     public void make_unactive() {
-        view.hide_cursor();
+        m_view.hide_cursor();
     }
     
     public GLib.List<File> get_selected_files() {
-        var entry = view.get_highlighted_entry();
+        var entry = m_view.get_highlighted_entry();
         
         var list = new GLib.List<File>();
         
@@ -62,21 +59,21 @@ public class DirectoryController : GLib.Object {
     }
     
     public void refresh() {
-        load_path(current_file.get_path());
-        view.show_cursor(); // because after path loading it's hidden
+        load_path(m_current_file.get_path());
+        m_view.show_cursor(); // because after path loading it's hidden
     }
     
-    private bool on_button_press(EventButton e) {
-        if (e.type == EventType.2BUTTON_PRESS) {
+    private bool on_button_press(EventButton p_event) {
+        if (p_event.type == EventType.2BUTTON_PRESS) {
             return true;
         }
         
         return false;
     }
     
-    private void on_entry_activated(DirectoryModel.Entry entry) {
+    private void on_entry_activated(DirectoryModel.Entry p_entry) {
         try {
-            var child = entry.file;
+            var child = p_entry.file;
             
             if (child.query_exists()) {
                 var info = child.query_info(FILE_ATTRIBUTE_STANDARD_TYPE, 0);
@@ -84,7 +81,7 @@ public class DirectoryController : GLib.Object {
                 
                 if (type == FileType.DIRECTORY) {
                     load_path(child.get_path());
-                    view.cursor_set_at_top();
+                    m_view.cursor_set_at_top();
                 } else {
                     execute_app_on_file(child);
                 }
@@ -94,11 +91,11 @@ public class DirectoryController : GLib.Object {
         }
     }
     
-    private void execute_app_on_file(File file) {
+    private void execute_app_on_file(File p_file) {
         try {
-            AppInfo app_info = file.query_default_handler(null);
+            AppInfo app_info = p_file.query_default_handler(null);
             var file_list = new GLib.List<File>();
-            file_list.append(file);
+            file_list.append(p_file);
             app_info.launch(file_list, null);
         } catch (Error e) {
             debug(e.message);
@@ -106,23 +103,23 @@ public class DirectoryController : GLib.Object {
     }
     
     private void on_navigate_up_request() {
-        if (current_file.has_parent(null)) {
-            var parent = current_file.get_parent();
+        if (m_current_file.has_parent(null)) {
+            var parent = m_current_file.get_parent();
             var parent_path = parent.get_path();
             load_path(parent_path);
             
-            view.cursor_set_at_top();
+            m_view.cursor_set_at_top();
         }
     }
     
-    private void load_path(string path) {
-        model.start_editing();
-        model.clear();
+    private void load_path(string p_path) {
+        m_model.start_editing();
+        m_model.clear();
         try {
-            fileinfos.clear();
+            m_fileinfos.clear();
             FileInfo fileinfo;
         
-            var directory = File.new_for_path(path);
+            var directory = File.new_for_path(p_path);
             if (directory.has_parent(null)) {
                 // put ".." entry at top
                 var parent = directory.get_parent();
@@ -137,46 +134,46 @@ public class DirectoryController : GLib.Object {
             var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
             while ((fileinfo = enumerator.next_file()) != null) {
                 load_file_info(directory, fileinfo);
-                fileinfos[fileinfo.get_name()] = fileinfo;
+                m_fileinfos[fileinfo.get_name()] = fileinfo;
             }
             
-            current_file = directory;
-            breadcrumbs.set_path(current_file.get_path());
+            m_current_file = directory;
+            //breadcrumbs.set_path(current_file.get_path());
         } catch (Error e) {
             debug(e.message);
         } finally {
-            model.stop_editing();
+            m_model.stop_editing();
         }
     }
     
-    private void load_file_info(File parent, FileInfo fileinfo, bool special=false) {
+    private void load_file_info(File p_parent, FileInfo p_fileinfo, bool p_special = false) {
         var entry = new DirectoryModel.Entry();
         
-        entry.file = parent.get_child(fileinfo.get_name());
-        entry.icon = load_file_icon(parent, fileinfo);
-        entry.name = format_file_name(fileinfo);
-        entry.extension = format_file_extension(fileinfo);
-        entry.size = format_file_size(fileinfo);
-        entry.mod_time = format_time(fileinfo);
-        entry.special = special;
+        entry.file = p_parent.get_child(p_fileinfo.get_name());
+        entry.icon = load_file_icon(p_parent, p_fileinfo);
+        entry.name = format_file_name(p_fileinfo);
+        entry.extension = format_file_extension(p_fileinfo);
+        entry.size = format_file_size(p_fileinfo);
+        entry.mod_time = format_time(p_fileinfo);
+        entry.special = p_special;
         
-        model.add_entry(entry);
+        m_model.add_entry(entry);
     }
     
-    private Pixbuf load_file_icon(File parent, FileInfo fileinfo) {
-        var content_type = fileinfo.get_content_type();
+    private Pixbuf load_file_icon(File p_parent, FileInfo p_fileinfo) {
+        var content_type = p_fileinfo.get_content_type();
         assert(content_type != null);
 
         Pixbuf icon_pixbuf = null;
 
-        if (icon_cache.has_key(content_type)) {
-            icon_pixbuf = icon_cache[content_type];
+        if (m_icon_cache.has_key(content_type)) {
+            icon_pixbuf = m_icon_cache[content_type];
         } else {
             try {
-                var icon = (ThemedIcon) fileinfo.get_icon();
+                var icon = (ThemedIcon) p_fileinfo.get_icon();
                 var icon_names = icon.get_names();
                 
-                var icon_info = default_icon_theme.choose_icon(icon_names, 16, 0);
+                var icon_info = m_default_icon_theme.choose_icon(icon_names, 16, 0);
                 if (icon_info != null) {
                     icon_pixbuf = icon_info.load_icon();
                 }
@@ -188,48 +185,48 @@ public class DirectoryController : GLib.Object {
         return icon_pixbuf;
     }
     
-    private string format_file_name(FileInfo fileinfo) {
-        var filename = fileinfo.get_name();
+    private string format_file_name(FileInfo p_fileinfo) {
+        var filename = p_fileinfo.get_name();
         var parts = split_extension(filename);
         return parts[0];
     }
     
-    private string format_file_extension(FileInfo fileinfo) {
-        var filename = fileinfo.get_name();
+    private string format_file_extension(FileInfo p_fileinfo) {
+        var filename = p_fileinfo.get_name();
         var parts = split_extension(filename);
         return parts[1];
     }
     
-    private string[] split_extension(string filename) {
-        var parts = filename.split(".");
+    private string[] split_extension(string p_filename) {
+        var parts = p_filename.split(".");
         
         string shortname;
         string extension;
         
-        if (has_extension(filename)) {
+        if (has_extension(p_filename)) {
             var shortname_arr = parts[0:parts.length-1];
             shortname = string.joinv(".", shortname_arr);
             extension = parts[parts.length - 1];
         } else {
-            shortname = filename;
+            shortname = p_filename;
             extension = "";
         }
         
         return new string[] {shortname, extension};
     }
     
-    private bool has_extension(string filename) {
-        var parts = filename.split(".");
+    private bool has_extension(string p_filename) {
+        var parts = p_filename.split(".");
         
         if (parts.length < 2) {
             return false;
         }
         
-        if (parts.length == 2 && filename[0] == '.') { // hidden file
+        if (parts.length == 2 && p_filename[0] == '.') { // hidden file
             return false;
         }
         
-        if (parts.length >= 2 && filename[filename.length - 1] == '.') { // dot at the end? oh well...
+        if (parts.length >= 2 && p_filename[p_filename.length - 1] == '.') { // dot at the end? oh well...
             return false;
         }
         
@@ -237,20 +234,20 @@ public class DirectoryController : GLib.Object {
     }
     
     
-    private string format_file_size(FileInfo fileinfo) {
-        FileType file_type = fileinfo.get_file_type();
+    private string format_file_size(FileInfo p_fileinfo) {
+        FileType file_type = p_fileinfo.get_file_type();
         if (file_type == FileType.DIRECTORY) {
             return "<DIR>";
         }
         
-        int64 file_size = fileinfo.get_size();
+        int64 file_size = p_fileinfo.get_size();
         var size_formatter = new SizeFormat();
         return size_formatter.format(file_size);
     }
     
-    private string format_time(FileInfo fileinfo) {
+    private string format_time(FileInfo p_fileinfo) {
         TimeVal time;
-        fileinfo.get_modification_time(out time);
+        p_fileinfo.get_modification_time(out time);
         
         var formatter = new TimeFormat();
         return formatter.format(time);

@@ -8,9 +8,9 @@ public class CopyFileDescriptor : ActionDescriptor {
             new Accelerator("F5", null));
     }
     
-    public override void execute(ActionContext context) {
+    public override void execute(ActionContext p_context) {
         var action = new CopyFileAction();
-        action.execute(context);
+        action.execute(p_context);
     }
 }
 

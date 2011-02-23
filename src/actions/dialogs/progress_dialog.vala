@@ -6,22 +6,20 @@ public class ProgressDialog : Dialog {
     public static const int RESPONSE_PAUSE = 1;
     
     private static const int DIALOG_WIDTH = 300;
-    private static const string MORE_LABEL = "More ↓";
-    private static const string LESS_LABEL = "Less ↑";
 
-    private Label status_label_1;
-    private Label status_label_2;
+    private Label m_status_label_1;
+    private Label m_status_label_2;
     
-    private Adjustment progress_bar_adjustment;
-    private ProgressBar progress_bar;
+    private Adjustment m_progress_bar_adjustment;
+    private ProgressBar m_progress_bar;
     
-    private Button cancel_button;
-    private Expander more_expander;
+    private Button m_cancel_button;
+    private Expander m_more_expander;
     
-    private TreeView details_tree_view;
-    private ListStore details_tree_view_store;
+    private TreeView m_details_tree_view;
+    private ListStore m_details_tree_view_store;
     
-    private bool details_visible = true;
+    private bool m_details_visible = true;
     
     public ProgressDialog() {
         build_ui();
@@ -29,7 +27,7 @@ public class ProgressDialog : Dialog {
         
         // sizes from GtkMessageDialog
         set_border_width(5);
-        this.vbox.set_spacing(5);
+        vbox.set_spacing(5);
         (get_action_area() as Container).set_border_width(5);
         (get_action_area() as Box).set_spacing(6);
     }
@@ -42,10 +40,10 @@ public class ProgressDialog : Dialog {
         build_ui_statuses();
         build_ui_details();
         
-        vbox.pack_start(status_label_1, false, false);
-        vbox.pack_start(progress_bar, false, false);
-        vbox.pack_start(status_label_2, false, false);
-        vbox.pack_start(more_expander, true, true);
+        vbox.pack_start(m_status_label_1, false, false);
+        vbox.pack_start(m_progress_bar, false, false);
+        vbox.pack_start(m_status_label_2, false, false);
+        vbox.pack_start(m_more_expander, true, true);
     }
     
     private void build_ui_buttons() {
@@ -57,65 +55,65 @@ public class ProgressDialog : Dialog {
         //button_box.pack_start(details_button);
         add_buttons("Pause", RESPONSE_PAUSE, Stock.CANCEL, ResponseType.CANCEL, 0);
         
-        cancel_button = get_widget_for_response(ResponseType.CANCEL) as Button;
+        m_cancel_button = get_widget_for_response(ResponseType.CANCEL) as Button;
     }
     
     private void build_ui_statuses() {
         
-        status_label_1 = new Label("use set_status_text_1()");
-        status_label_1.set_alignment(0, 0);
+        m_status_label_1 = new Label("use set_status_text_1()");
+        m_status_label_1.set_alignment(0, 0);
         
-        progress_bar_adjustment = new Adjustment(0.0, 0.0, 1.0, 0.1, 1.0, 0.1);
+        m_progress_bar_adjustment = new Adjustment(0.0, 0.0, 1.0, 0.1, 1.0, 0.1);
         
-        progress_bar = new ProgressBar();
-        progress_bar.adjustment = progress_bar_adjustment;
+        m_progress_bar = new ProgressBar();
+        m_progress_bar.adjustment = m_progress_bar_adjustment;
         
-        status_label_2 = new Label("");
-        status_label_2.set_alignment(1, 0);
+        m_status_label_2 = new Label("");
+        m_status_label_2.set_alignment(1, 0);
     }
     
     private void build_ui_details() {
-        more_expander = new Expander.with_mnemonic("M_ore");
+        m_more_expander = new Expander.with_mnemonic("M_ore");
         
         var details_frame = new Frame("Details");
         details_frame.set_size_request(-1, 150);
         
         var scrolls = new ScrolledWindow(null, null);
         
-        details_tree_view = new TreeView();
+        m_details_tree_view = new TreeView();
         
-        scrolls.add(details_tree_view);
+        scrolls.add(m_details_tree_view);
         details_frame.add(scrolls);
-        more_expander.add(details_frame);
+        m_more_expander.add(details_frame);
         
         // model
-        details_tree_view_store = new ListStore(1, typeof(string));
-        details_tree_view.set_model(details_tree_view_store);
+        m_details_tree_view_store = new ListStore(1, typeof(string));
+        m_details_tree_view.set_model(m_details_tree_view_store);
         
-        details_tree_view.insert_column_with_attributes(
+        m_details_tree_view.insert_column_with_attributes(
             -1, "List", new CellRendererText(), "text", 0, null);
     }
 
-    public void log_details(string message) {
+    public void log_details(string p_message) {
         TreeIter iter;
-        details_tree_view_store.append(out iter);
-        details_tree_view_store.set(iter, 0, message, -1);
+        m_details_tree_view_store.append(out iter);
+        m_details_tree_view_store.set(iter, 0, p_message, -1);
     }
     
-    public void set_progress(double val) {
-        progress_bar_adjustment.set_value(val);
+    public void set_progress(double p_val) {
+        m_progress_bar_adjustment.set_value(p_val);
     }
     
-    public void set_status_text_1(string status_text) {
-        status_label_1.set_text(status_text);
+    public void set_status_text_1(string p_status_text) {
+        m_status_label_1.set_text(p_status_text);
     }
     
-    public void set_status_text_2(string status_text) {
-        status_label_2.set_text(status_text);
+    public void set_status_text_2(string p_status_text) {
+        m_status_label_2.set_text(p_status_text);
     }
     
     public void set_done() {
-        cancel_button.set_label("Close");
+        m_cancel_button.set_label("Close");
     }
 }
 

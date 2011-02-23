@@ -16,9 +16,9 @@ class CopyFileConfigureDialog : Dialog {
     public CopyFileConfig get_config() {
         var config = new CopyFileConfig();
         
-        config.destination = destination_entry.get_text();
-        config.preserve_attrs = preserve_attrs_check.get_active();
-        config.follow_symlinks = follow_symlinks_check.get_active();
+        config.m_destination = destination_entry.get_text();
+        config.m_preserve_attrs = preserve_attrs_check.get_active();
+        config.m_follow_symlinks = follow_symlinks_check.get_active();
         
         return config;
     }
@@ -39,7 +39,7 @@ class CopyFileConfigureDialog : Dialog {
         destination_entry = new Entry();
         prepare_entry(destination_entry);
         
-        var target_path = context.target_dir.get_path() + "/";
+        var target_path = context.m_destination_dir.get_path() + "/";
         destination_entry.set_text(target_path);
         
         

@@ -1,9 +1,9 @@
 namespace Ginko.Actions {
 
 class CopyFileConfig {
-    public string destination;
-    public bool preserve_attrs;
-    public bool follow_symlinks;
+    public string m_destination;
+    public bool m_preserve_attrs;
+    public bool m_follow_symlinks;
 }
 
 } // namespace

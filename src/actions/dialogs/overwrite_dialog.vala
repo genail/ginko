@@ -13,28 +13,28 @@ public class OverwriteDialog : AbstractMessageDialog {
     
     
     private class FileButton : Button {
-        public FileButton(File file) {
+        public FileButton(File p_file) {
             set_relief(ReliefStyle.NONE);
             
             var hbox = new HBox(false, 2);
             add(hbox);
             
             var default_icon_theme = IconTheme.get_default();
-            var icon = Files.find_icon_for_file(file, default_icon_theme, 64);
+            var icon = Files.find_icon_for_file(p_file, default_icon_theme, 64);
             var image_widget = new Image.from_pixbuf(icon);
             hbox.pack_start(image_widget);
             
             var vbox = new VBox(false, 0);
             hbox.pack_start(vbox);
             
-            var file_path = file.get_path();
+            var file_path = p_file.get_path();
             
-            var size = Files.query_size(file);
+            var size = Files.query_size(p_file);
             var size_formatter = new SizeFormat();
-            size_formatter.method = SizeFormat.Method.HUMAN_READABLE;
+            size_formatter.m_method = SizeFormat.Method.HUMAN_READABLE;
             var formatted_size = size_formatter.format(size);
             
-            var modtime = Files.query_modification_time(file);
+            var modtime = Files.query_modification_time(p_file);
             var time_formatter = new TimeFormat();
             var formatted_time = time_formatter.format(modtime);
             
@@ -48,25 +48,25 @@ public class OverwriteDialog : AbstractMessageDialog {
         }
     }
     
-    private File source;
-    private File target;
+    private File m_source;
+    private File m_target;
     
-    public OverwriteDialog(ActionContext context, File source, File target) {
-        this.source = source;
-        this.target = target;
+    public OverwriteDialog(ActionContext p_context, File p_source, File p_target) {
+        m_source = p_source;
+        m_target = p_target;
         
-        set_title(context.name + ": Overwrite file?");
+        set_title(p_context.m_name + ": Overwrite file?");
         build_ui();
     }
     
     private void build_ui() {
-        var basename = target.get_basename();
+        var basename = m_target.get_basename();
         
         set_primary_label_text("Overwrite file \"<b>%s</b>\"?".printf(basename));
         
-        var file_button_source = new FileButton(source);
+        var file_button_source = new FileButton(m_source);
         var arrow = new Arrow(ArrowType.RIGHT, ShadowType.NONE);
-        var file_button_dest = new FileButton(target);
+        var file_button_dest = new FileButton(m_target);
         
         var check_button_box = new HButtonBox();
         check_button_box.set_layout(ButtonBoxStyle.START);

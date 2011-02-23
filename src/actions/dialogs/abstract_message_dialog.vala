@@ -40,13 +40,13 @@ public abstract class AbstractMessageDialog : Dialog {
         (get_action_area() as Box).set_spacing(6);
     }
     
-    public void set_primary_label_text(string text) {
-        m_primary_label.set_markup(@"<big>$text</big>");
+    public void set_primary_label_text(string p_text) {
+        m_primary_label.set_markup(@"<big>$p_text</big>");
     }
     
-    public void set_stock_icon(string stock_icon) {
+    public void set_stock_icon(string p_stock_icon) {
         m_hbox.remove(m_image_widget);
-        m_image_widget = new Image.from_stock(stock_icon, IconSize.DIALOG);
+        m_image_widget = new Image.from_stock(p_stock_icon, IconSize.DIALOG);
         m_hbox.pack_start(m_image_widget);
     }
 }
