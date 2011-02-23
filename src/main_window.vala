@@ -1,4 +1,5 @@
 using Gtk;
+using Gee;
 
 namespace Ginko {
 
@@ -8,6 +9,12 @@ class MainWindow : Window {
     
     public NavigatorController navigator_controller {get; private set;}
     private VBox main_vbox;
+    private HBox m_button_box;
+    
+    private HashMap<Accelerator, Button> m_accel_buttons = new HashMap<Accelerator, Button>(
+        (a) => Accelerator.hash(a as Accelerator),
+        (a, b) => Accelerator.equal(a as Accelerator, b as Accelerator)
+        );
 
     public MainWindow() {
         title = "Ginko File Manager";
@@ -34,40 +41,28 @@ class MainWindow : Window {
     }
     
     private void build_function_buttons() {
-        var hbox = new HBox(true, 0);
+        m_button_box = new HBox(true, 0);
         
-        Button[] buttons = {};
+        add_button("View", "F3");
+        add_button("Edit", "F4");
+        add_button("Copy", "F5");
+        add_button("Move", "F6");
+        add_button("New Folder", "F7");
+        add_button("Delete", "F8");
+        add_button("Terminal", "F9");
+        add_button("Exit", "F10");
         
-        var button_view = new Button.with_label("F3 View");
-        buttons += button_view;
+        main_vbox.pack_start(m_button_box, false);
+    }
+    
+    private void add_button(string p_name, string p_accel_str) {
+        var button = new Button.with_label(p_accel_str + " " + p_name);
+        button.set_relief(ReliefStyle.NONE);
         
-        var button_edit = new Button.with_label("F4 Edit");
-        buttons += button_edit;
+        m_button_box.pack_start(button);
         
-        var button_copy = new Button.with_label("F5 Copy");
-        buttons += button_copy;
-        
-        var button_move = new Button.with_label("F6 Move");
-        buttons += button_move;
-        
-        var button_new = new Button.with_label("F7 New Folder");
-        buttons += button_new;
-        
-        var button_del = new Button.with_label("F8 Delete");
-        buttons += button_del;
-        
-        var button_terminal = new Button.with_label("F9 Terminal");
-        buttons += button_terminal;
-        
-        var button_exit = new Button.with_label("F10 Exit");
-        buttons += button_exit;
-        
-        foreach (var button in buttons) {
-            button.set_relief(ReliefStyle.NONE);
-            hbox.pack_start(button);
-        }
-        
-        main_vbox.pack_start(hbox, false);
+        var accel = new Accelerator(p_accel_str);
+        m_accel_buttons[accel] = button;
     }
     
     public void register_action_accelerators(ActionDescriptor[] actions) {
@@ -78,9 +73,16 @@ class MainWindow : Window {
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
                                       //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133
-            accel_group.connect(accel.keyval, accel.modifier_type, 0, () =>
-                {action_invoked(action_clos); return true;}
-            );
+            accel_group.connect(accel.keyval, accel.modifier_type, 0, () => {
+                action_invoked(action_clos);
+                return true;
+            });
+            
+            // connect to function button if exists
+            if (m_accel_buttons.has_key(accel)) {
+                var function_button = m_accel_buttons[accel];
+                function_button.clicked.connect(() => action_invoked(action_clos));
+            }
         }
         
         add_accel_group(accel_group);
