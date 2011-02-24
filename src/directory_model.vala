@@ -5,12 +5,14 @@ namespace Ginko {
 
 public class DirectoryModel  {
     public static const int STORE_ENTRY = 0;
-    public static const int STORE_ICON = 1;
-    public static const int STORE_NAME = 2;
-    public static const int STORE_EXT = 3;
-    public static const int STORE_SIZE = 4;
-    public static const int STORE_MOD_TIME = 5;
-    public static const int STORE_ATTR = 6;
+    public static const int STORE_HIGHLIGHTED = 1;
+    public static const int STORE_HIGHLIGHT_COLOR = 2;
+    public static const int STORE_ICON = 3;
+    public static const int STORE_NAME = 4;
+    public static const int STORE_EXT = 5;
+    public static const int STORE_SIZE = 6;
+    public static const int STORE_MOD_TIME = 7;
+    public static const int STORE_ATTR = 8;
     
     private static const int UNSORTED_SORT_COLUMN_ID = -2;
     
@@ -23,16 +25,21 @@ public class DirectoryModel  {
         public string mod_time;
         public string attr;
         
+        public bool highlighted;
+        
         public bool special; // special entry is visible always at top
     }
     
     public ListStore m_store { get; private set; }
     
     private bool m_editing = false;
+    private Gdk.Color m_highlight_color;
     
     public DirectoryModel() {
-        m_store = new ListStore(7,
+        m_store = new ListStore(9,
             typeof(Entry),
+            typeof(bool),
+            typeof(string),
             typeof(Gdk.Pixbuf),
             typeof(string),
             typeof(string),
@@ -43,6 +50,10 @@ public class DirectoryModel  {
         // default sorting
         TreeSortable sortable = (TreeSortable) m_store;
         sortable.set_sort_func(1, file_name_compare);
+        
+        Gdk.Color red;
+        Gdk.Color.parse("#FF0000", out red);
+        m_highlight_color = red;
     }
     
     // (start/stop)_editing makes sure that model is safe to edit
@@ -69,12 +80,21 @@ public class DirectoryModel  {
         m_store.append(out iter);
         m_store.set(iter,
             STORE_ENTRY, p_entry,
+            STORE_HIGHLIGHTED, false,
+            STORE_HIGHLIGHT_COLOR, "#FF0000",
             STORE_ICON, p_entry.icon,
             STORE_NAME, p_entry.name,
             STORE_EXT, p_entry.extension,
             STORE_SIZE, p_entry.size,
             STORE_MOD_TIME, p_entry.mod_time,
             STORE_ATTR, p_entry.attr,
+            -1);
+    }
+    
+    public void set_entry_highlighted(TreePath p_path, bool p_highlighted) {
+        var iter = path_to_iter(p_path);
+        m_store.set(iter,
+            STORE_HIGHLIGHTED, p_highlighted,
             -1);
     }
     

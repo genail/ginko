@@ -30,9 +30,7 @@ public class DirectoryController : GLib.Object {
         m_model = new DirectoryModel();
         m_view = new DirectoryView(m_model);
 
-        m_view.button_press_event.connect(on_button_press);
-        m_view.entry_activated.connect(on_entry_activated);
-        m_view.navigate_up_requested.connect(on_navigate_up_request);
+        connect_signals();
         
         load_path(".");
     }
@@ -47,7 +45,7 @@ public class DirectoryController : GLib.Object {
     }
     
     public GLib.List<File> get_selected_files() {
-        var entry = m_view.get_highlighted_entry();
+        var entry = m_view.get_selected_entry();
         
         var list = new GLib.List<File>();
         
@@ -63,6 +61,31 @@ public class DirectoryController : GLib.Object {
         m_view.show_cursor(); // because after path loading it's hidden
     }
     
+    private void connect_signals() {
+        
+        m_view.key_pressed.connect(on_key_pressed);
+        m_view.button_press_event.connect(on_button_press);
+        
+        m_view.entry_activation_request.connect(activate_entry);
+        m_view.entry_highlight_toggle_request.connect(toggle_entry_highlight);
+    }
+    
+    private bool on_key_pressed(string p_key) {
+        switch (p_key) {
+            case "Return":
+                var entry = m_view.get_selected_entry();
+                if (entry != null) {
+                    activate_entry(entry);
+                }
+                return true;
+            case "BackSpace":
+                on_navigate_up_request();
+                return true;
+            default:
+                return false;
+        }
+    }
+    
     private bool on_button_press(EventButton p_event) {
         if (p_event.type == EventType.2BUTTON_PRESS) {
             return true;
@@ -71,7 +94,18 @@ public class DirectoryController : GLib.Object {
         return false;
     }
     
-    private void on_entry_activated(DirectoryModel.Entry p_entry) {
+    private void toggle_entry_highlight(TreePath path) {
+        var entry = m_model.path_to_entry(path);
+        
+        entry.highlighted = !entry.highlighted;
+        m_model.set_entry_highlighted(path, entry.highlighted);
+        
+        if (!m_view.move_cursor_down()) {
+            m_view.hide_cursor();
+        }
+    }
+    
+    private void activate_entry(DirectoryModel.Entry p_entry) {
         try {
             var child = p_entry.file;
             
@@ -81,7 +115,7 @@ public class DirectoryController : GLib.Object {
                 
                 if (type == FileType.DIRECTORY) {
                     load_path(child.get_path());
-                    m_view.cursor_set_at_top();
+                    m_view.set_cursor_at_top();
                 } else {
                     execute_app_on_file(child);
                 }
@@ -108,7 +142,7 @@ public class DirectoryController : GLib.Object {
             var parent_path = parent.get_path();
             load_path(parent_path);
             
-            m_view.cursor_set_at_top();
+            m_view.set_cursor_at_top();
         }
     }
     
