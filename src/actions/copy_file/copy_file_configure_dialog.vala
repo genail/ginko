@@ -2,7 +2,7 @@ using Gtk;
 
 namespace Ginko.Actions {
 
-class CopyFileConfigureDialog : Dialog {
+class CopyFileConfigureDialog : AbstractDialog {
     private const ResponseType DEFAULT_RESPONSE = ResponseType.OK;
     
     private Entry destination_entry;
@@ -30,7 +30,8 @@ class CopyFileConfigureDialog : Dialog {
         add_buttons(Stock.OK, ResponseType.OK, Stock.CANCEL, ResponseType.CANCEL); // why this may be not null-terminated?
         set_default_response(DEFAULT_RESPONSE);
         
-        var box = new VBox(false, 0);
+        var box = new VBox(false, Sizes.BOX_SPACING_SMALL);
+        box.set_border_width(Sizes.BOX_BORDER_WIDTH_SMALL);
         (get_content_area() as Container).add(box);
         
         var copy_files_label = new Label("Copy x files to:");

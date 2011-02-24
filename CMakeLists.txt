@@ -60,6 +60,8 @@ vala_precompile(VALA_C
     "src/actions/dialogs/progress_dialog.vala"
     "src/actions/dialogs/rename_dialog.vala"
 
+    "src/dialogs/abstract_dialog.vala"
+
     "src/format/size_format.vala"
     "src/format/time_format.vala"
 
