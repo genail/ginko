@@ -87,7 +87,9 @@ public class DirectoryView : TreeView {
                 return true;
             case "Insert":
                 var path = get_selected_tree_path();
-                entry_highlight_toggle_request(path);
+                if (path != null) {
+                    entry_highlight_toggle_request(path);
+                }
                 return true;
             default:
                 return key_pressed(key);
@@ -130,10 +132,17 @@ public class DirectoryView : TreeView {
     
     public bool move_cursor_down() {
         var path = get_selected_tree_path();
-        path.next();
+        TreeIter iter;
+        model.get_iter(out iter, path);
         
-        set_cursor(path, null, false);
-        return true;
+        if (model.iter_next(ref iter)) {
+            var npath = model.get_path(iter);
+            set_cursor(npath, null, false);
+            return true;
+        } else {
+            hide_cursor();
+            return false;
+        }
     }
     
     public void show_cursor() {
