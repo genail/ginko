@@ -42,6 +42,7 @@ public class Application {
         ActionDescriptor[] action_descriptors = {};
         action_descriptors += new Actions.RefreshActionDescriptor();
         action_descriptors += new Actions.CopyFileDescriptor();
+        action_descriptors += new Actions.OpenTerminalActionDescriptor();
         
         m_main_window.register_action_accelerators(action_descriptors);
     }
