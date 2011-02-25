@@ -51,14 +51,14 @@ class NavigatorController {
     }
     
     public void accept_action_context(ActionContext p_context) {
-        p_context.m_source_dir = m_active_controller.m_current_file;
-        p_context.m_destination_dir = m_unactive_controller.m_current_file;
+        p_context.source_dir = m_active_controller.m_current_file;
+        p_context.destination_dir = m_unactive_controller.m_current_file;
         
-        p_context.m_source_selected_files = m_active_controller.get_selected_files();
-        p_context.m_destination_selected_files = m_unactive_controller.get_selected_files();
+        p_context.source_selected_files = m_active_controller.get_selected_files();
+        p_context.destination_selected_files = m_unactive_controller.get_selected_files();
         
-        p_context.m_active_controller = m_active_controller;
-        p_context.m_unactive_controller = m_unactive_controller;
+        p_context.active_controller = m_active_controller;
+        p_context.unactive_controller = m_unactive_controller;
     }
 }
 

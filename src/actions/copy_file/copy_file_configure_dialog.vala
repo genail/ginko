@@ -40,7 +40,7 @@ class CopyFileConfigureDialog : AbstractDialog {
         destination_entry = new Entry();
         prepare_entry(destination_entry);
         
-        var target_path = context.m_destination_dir.get_path() + "/";
+        var target_path = context.destination_dir.get_path() + "/";
         destination_entry.set_text(target_path);
         
         

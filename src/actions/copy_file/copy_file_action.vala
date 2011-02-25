@@ -48,7 +48,7 @@ class CopyFileAction : GLib.Object {
     }
     
     private bool verify(ActionContext context) {
-        if (context.m_source_selected_files.length() == 0) {
+        if (context.source_selected_files.length == 0) {
             Messages.show_error(context, "Nothing to copy", "You must select at least one file.");
             return false;
         }
@@ -77,7 +77,7 @@ class CopyFileAction : GLib.Object {
     private void execute_async_t(AsyncTask p_async_task) {
         show_progress_preparing_t();
         
-        var infile = m_context.m_source_selected_files.data;
+        var infile = m_context.source_selected_files[0];
         
         // calculate used space first
         m_bytes_total = Files.calculate_space_recurse(infile, m_config.m_follow_symlinks);
@@ -93,7 +93,7 @@ class CopyFileAction : GLib.Object {
         
         show_progress_finished_t();
         
-        var dircontroller = m_context.m_unactive_controller;
+        var dircontroller = m_context.unactive_controller;
         GuiExecutor.run(() => dircontroller.refresh());
         
         Posix.sleep(2);
@@ -105,7 +105,7 @@ class CopyFileAction : GLib.Object {
         show_progress_copying_t(src_filename);
 
         var dst_file = Files.rebase(p_src_file,
-            m_context.m_source_dir, m_context.m_destination_dir);
+            m_context.source_dir, m_context.destination_dir);
         
         create_copy_file_operation_t(p_src_file, dst_file);
         

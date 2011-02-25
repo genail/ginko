@@ -91,6 +91,11 @@ public class DirectoryModel  {
             -1);
     }
     
+    public void clear() {
+        assert(m_editing);
+        m_store.clear();
+    }
+    
     public void set_entry_highlighted(TreePath p_path, bool p_highlighted) {
         var iter = path_to_iter(p_path);
         m_store.set(iter,
@@ -98,10 +103,22 @@ public class DirectoryModel  {
             -1);
     }
     
-    public void clear() {
-        assert(m_editing);
-        m_store.clear();
+    public Entry[] get_highlighted_entries() {
+        Entry[] result = {};
+        
+        TreeIter iter;
+        m_store.get_iter_first(out iter);
+        
+        do {
+            var entry = iter_to_entry(iter);
+            if (entry.highlighted) {
+                result += entry;
+            }
+        } while (m_store.iter_next(ref iter));
+        
+        return result;
     }
+    
     
     public Entry path_to_entry(TreePath p_path) {
         var iter = path_to_iter(p_path);

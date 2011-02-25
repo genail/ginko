@@ -44,16 +44,26 @@ public class DirectoryController : GLib.Object {
         m_view.hide_cursor();
     }
     
-    public GLib.List<File> get_selected_files() {
-        var entry = m_view.get_selected_entry();
+    /**
+     * @return list of highlighted files (using INSERT key) or currently selected file or
+     * empty array if there's no highlighted nor selected files.
+     */
+    public File[] get_selected_files() {
+        File[] result_files = {};
         
-        var list = new GLib.List<File>();
-        
-        if (entry != null) {
-            list.append(entry.file);
+        var highlighted_entries = m_model.get_highlighted_entries();
+        if (highlighted_entries.length > 0) {
+            foreach (var entry in highlighted_entries) {
+                result_files += entry.file;
+            }
+        } else {
+            var entry = m_view.get_selected_entry();
+            if (entry != null) {
+                result_files += entry.file;
+            }
         }
         
-        return list;
+        return result_files;
     }
     
     public void refresh() {

@@ -10,7 +10,7 @@ class RefreshActionDescriptor : ActionDescriptor {
     }
     
     public override void execute(ActionContext p_context) {
-        p_context.m_active_controller.refresh();
+        p_context.active_controller.refresh();
     }
 }
 
