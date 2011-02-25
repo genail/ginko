@@ -37,14 +37,26 @@ public class DirectoryView : TreeView {
             "foreground", DirectoryModel.STORE_HIGHLIGHT_COLOR,
             null);
         insert_column_with_attributes(-1, "Ext", new CellRendererText(),
-            "text", DirectoryModel.STORE_EXT, null);
+            "text", DirectoryModel.STORE_EXT,
+            "foreground-set", DirectoryModel.STORE_HIGHLIGHTED,
+            "foreground", DirectoryModel.STORE_HIGHLIGHT_COLOR,
+            null);
         
         insert_column_with_attributes(-1, "Size", size_renderer,
-            "text", DirectoryModel.STORE_SIZE, null);
+            "text", DirectoryModel.STORE_SIZE,
+            "foreground-set", DirectoryModel.STORE_HIGHLIGHTED,
+            "foreground", DirectoryModel.STORE_HIGHLIGHT_COLOR,
+            null);
         insert_column_with_attributes(-1, "Date", new CellRendererText(), "text",
-            DirectoryModel.STORE_MOD_TIME, null);
+            DirectoryModel.STORE_MOD_TIME,
+            "foreground-set", DirectoryModel.STORE_HIGHLIGHTED,
+            "foreground", DirectoryModel.STORE_HIGHLIGHT_COLOR,
+            null);
         insert_column_with_attributes(-1, "Attr", new CellRendererText(), "text",
-            DirectoryModel.STORE_ATTR, null);
+            DirectoryModel.STORE_ATTR,
+            "foreground-set", DirectoryModel.STORE_HIGHLIGHTED,
+            "foreground", DirectoryModel.STORE_HIGHLIGHT_COLOR,
+            null);
 
         for (var i = 1; i <= 5; ++i) {
             unowned TreeViewColumn column = get_column(i);
