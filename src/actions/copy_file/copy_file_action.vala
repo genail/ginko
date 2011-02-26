@@ -77,10 +77,10 @@ class CopyFileAction : GLib.Object {
     private void execute_async_t(AsyncTask p_async_task) {
         show_progress_preparing_t();
         
-        var infile = m_context.source_selected_files[0];
-        
         // calculate used space first
-        m_bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
+        foreach (var infile in m_context.source_selected_files) {
+            m_bytes_total += Files.calculate_space_recurse(infile, m_config.follow_symlinks);
+        }
         
         var scanner = new TreeScanner();
         scanner.m_follow_symlinks = m_config.follow_symlinks;
@@ -89,7 +89,9 @@ class CopyFileAction : GLib.Object {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
         }
         
-        scanner.scan(infile, copy_t);
+        foreach (var infile in m_context.source_selected_files) {
+            scanner.scan(infile, copy_t);
+        }
         
         show_progress_finished_t();
         
