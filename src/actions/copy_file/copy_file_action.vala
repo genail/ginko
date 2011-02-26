@@ -22,6 +22,9 @@ class CopyFileAction : GLib.Object {
     private CopyFileOperation m_copy_op;
     uint64 m_bytes_processed_before;
     
+    private bool m_overwrite_all;
+    private bool m_skip_all;
+    
     private enum FileAction {
         NONE,
         SUCCEED,
@@ -91,6 +94,11 @@ class CopyFileAction : GLib.Object {
         
         foreach (var infile in m_context.source_selected_files) {
             scanner.scan(infile, copy_t);
+            
+            // stop scanning if cancelled any operation
+            if (m_file_action == FileAction.CANCEL) {
+                break;
+            }
         }
         
         show_progress_finished_t();
@@ -151,7 +159,13 @@ class CopyFileAction : GLib.Object {
                                     src_filename));
                             m_file_action = FileAction.SKIP;
                         } else if (e is IOError.EXISTS) {
-                            prompt_overwrite_t();
+                            if (m_skip_all) {
+                                m_file_action = FileAction.SKIP;
+                            } else if (m_overwrite_all) {
+                                m_copy_op.m_overwrite = true;
+                            } else {
+                                prompt_overwrite_t();
+                            }
                         } else if (e is IOError.IS_DIRECTORY) {
                             // TODO: tried to overwrite a file over directory
                             Messages.show_error_t(m_context, "Error", e.message);
@@ -247,9 +261,11 @@ class CopyFileAction : GLib.Object {
                         break;
                     case OverwriteDialog.RESPONSE_OVERWRITE:
                         m_copy_op.m_overwrite = true;
+                        m_overwrite_all = dialog.is_apply_to_all();
                         break;
                     case OverwriteDialog.RESPONSE_SKIP:
                         m_file_action = FileAction.SKIP;
+                        m_skip_all = dialog.is_apply_to_all();
                         break;
                     case ResponseType.DELETE_EVENT:
                         m_file_action = FileAction.CANCEL;

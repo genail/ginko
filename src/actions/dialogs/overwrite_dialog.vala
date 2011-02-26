@@ -51,6 +51,8 @@ public class OverwriteDialog : AbstractMessageDialog {
     private File m_source;
     private File m_target;
     
+    private CheckButton m_apply_to_all_check;
+    
     public OverwriteDialog(ActionContext p_context, File p_source, File p_target) {
         m_source = p_source;
         m_target = p_target;
@@ -71,8 +73,8 @@ public class OverwriteDialog : AbstractMessageDialog {
         var check_button_box = new HButtonBox();
         check_button_box.set_layout(ButtonBoxStyle.START);
         
-        var apply_to_all_check = new CheckButton.with_mnemonic("Apply to _all");
-        check_button_box.add(apply_to_all_check);
+        m_apply_to_all_check = new CheckButton.with_mnemonic("Apply to _all");
+        check_button_box.add(m_apply_to_all_check);
         
         var hbox = new HBox(false, 12);
         m_content.pack_start(hbox);
@@ -85,10 +87,15 @@ public class OverwriteDialog : AbstractMessageDialog {
         
         // why this may be not null-terminated? and crash when it is?
         add_button(Stock.CANCEL, RESPONSE_CANCEL);
+        add_button("Skip", RESPONSE_SKIP);
         add_button("Rename", RESPONSE_RENAME);
         add_button("Overwrite", RESPONSE_OVERWRITE).grab_focus();
         
         show_all();
+    }
+    
+    public bool is_apply_to_all() {
+        return m_apply_to_all_check.get_active();
     }
 }
     
