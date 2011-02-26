@@ -65,6 +65,8 @@ public class DirectoryView : TreeView {
 //~             column.set_min_width(50);
         }
         
+        set_search_column(DirectoryModel.STORE_NAME);
+        
         row_activated.connect(on_row_activated);
         key_press_event.connect(on_key_press);
         cursor_changed.connect(() => {

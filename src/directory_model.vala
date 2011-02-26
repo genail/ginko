@@ -49,7 +49,7 @@ public class DirectoryModel  {
         
         // default sorting
         TreeSortable sortable = (TreeSortable) m_store;
-        sortable.set_sort_func(1, file_name_compare);
+        sortable.set_sort_func(STORE_NAME, file_name_compare);
         
         Gdk.Color red;
         Gdk.Color.parse("#FF0000", out red);
@@ -66,7 +66,7 @@ public class DirectoryModel  {
     
     public void stop_editing() {
         TreeSortable sortable = (TreeSortable) m_store;
-        sortable.set_sort_column_id(1, SortType.ASCENDING);
+        sortable.set_sort_column_id(STORE_NAME, SortType.ASCENDING);
         m_editing = false;
     }
     
