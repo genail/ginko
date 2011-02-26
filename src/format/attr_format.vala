@@ -29,8 +29,8 @@ class AttrFormat {
         return result;
     }
     
-    private string get_if(string p_str, bool condition) {
-        if (condition) {
+    private string get_if(string p_str, bool p_condition) {
+        if (p_condition) {
             return p_str;
         } else {
             return "-";
