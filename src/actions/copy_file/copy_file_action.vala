@@ -80,10 +80,10 @@ class CopyFileAction : GLib.Object {
         var infile = m_context.source_selected_files[0];
         
         // calculate used space first
-        m_bytes_total = Files.calculate_space_recurse(infile, m_config.m_follow_symlinks);
+        m_bytes_total = Files.calculate_space_recurse(infile, m_config.follow_symlinks);
         
         var scanner = new TreeScanner();
-        scanner.m_follow_symlinks = m_config.m_follow_symlinks;
+        scanner.m_follow_symlinks = m_config.follow_symlinks;
         
         if (Config.debug) {
             scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
@@ -123,7 +123,7 @@ class CopyFileAction : GLib.Object {
             m_file_action = FileAction.NONE;
             
             do {
-                if (Files.is_directory(p_src_file, m_config.m_follow_symlinks)) {
+                if (Files.is_directory(p_src_file, m_config.follow_symlinks)) {
                     try {
                         dst_file.make_directory();
                         m_file_action = FileAction.SUCCEED;

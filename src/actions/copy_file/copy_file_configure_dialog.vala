@@ -5,25 +5,25 @@ namespace Ginko.Actions {
 class CopyFileConfigureDialog : AbstractDialog {
     private const ResponseType DEFAULT_RESPONSE = ResponseType.OK;
     
-    private Entry destination_entry;
-    private CheckButton preserve_attrs_check;
-    private CheckButton follow_symlinks_check;
+    private Entry m_destination_entry;
+    private CheckButton m_preserve_attrs_check;
+    private CheckButton m_follow_symlinks_check;
     
-    public CopyFileConfigureDialog(ActionContext context) {
-        build_ui(context);
+    public CopyFileConfigureDialog(ActionContext p_context) {
+        build_ui(p_context);
     }
     
     public CopyFileConfig get_config() {
         var config = new CopyFileConfig();
         
-        config.m_destination = destination_entry.get_text();
-        config.m_preserve_attrs = preserve_attrs_check.get_active();
-        config.m_follow_symlinks = follow_symlinks_check.get_active();
+        config.destination = m_destination_entry.get_text();
+        config.preserve_attrs = m_preserve_attrs_check.get_active();
+        config.follow_symlinks = m_follow_symlinks_check.get_active();
         
         return config;
     }
     
-    private void build_ui(ActionContext context) {
+    private void build_ui(ActionContext p_context) {
         set_title("Copy files");
         set_size_request(Sizes.SUGGESTED_DIALOG_WIDTH, -1);
         
@@ -37,26 +37,26 @@ class CopyFileConfigureDialog : AbstractDialog {
         var copy_files_label = new Label("Copy x files to:");
         copy_files_label.set_alignment(0, 0);
         
-        destination_entry = new Entry();
-        prepare_entry(destination_entry);
+        m_destination_entry = new Entry();
+        prepare_entry(m_destination_entry);
         
-        var target_path = context.destination_dir.get_path() + "/";
-        destination_entry.set_text(target_path);
+        var target_path = p_context.destination_dir.get_path() + "/";
+        m_destination_entry.set_text(target_path);
         
         
-        preserve_attrs_check = new CheckButton.with_label("Preserve attributes");
-        follow_symlinks_check = new CheckButton.with_label("Follow symlinks");
+        m_preserve_attrs_check = new CheckButton.with_label("Preserve attributes");
+        m_follow_symlinks_check = new CheckButton.with_label("Follow symlinks");
         
         box.pack_start(copy_files_label);
-        box.pack_start(destination_entry);
-        box.pack_start(preserve_attrs_check);
-        box.pack_start(follow_symlinks_check);
+        box.pack_start(m_destination_entry);
+        box.pack_start(m_preserve_attrs_check);
+        box.pack_start(m_follow_symlinks_check);
         
         show_all();
     }
     
-    private void prepare_entry(Entry entry) {
-        entry.activate.connect(() => { response(DEFAULT_RESPONSE); });
+    private void prepare_entry(Entry p_entry) {
+        p_entry.activate.connect(() => { response(DEFAULT_RESPONSE); });
     }
 }
 
