@@ -80,7 +80,6 @@ PACKAGES
     gee-1.0
     posix
 OPTIONS
-    -g
     --save-temps
     --disable-warnings
     --thread
