@@ -1,0 +1,11 @@
+<schemalist>
+    <schema id="ginko" path="/ginko/">
+        <key name="left-pane-path" type="s">
+            <default>''</default>
+        </key>
+        
+        <key name="right-pane-path" type="s">
+            <default>''</default>
+        </key>
+    </schema>
+</schemalist>

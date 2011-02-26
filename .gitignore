@@ -1,8 +1,9 @@
 CMakeFiles
 CMakeCache.txt
 cmake_install.cmake
-ginko
+ginko.bin
 Makefile
 *.c
 *.proj
 *~
+*.swp

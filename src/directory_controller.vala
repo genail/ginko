@@ -15,6 +15,8 @@ public class DirectoryController : GLib.Object {
                 FILE_ATTRIBUTE_TIME_MODIFIED + "," +
                 FILE_ATTRIBUTE_UNIX_MODE;
 
+    public signal void dir_changed(File p_file);
+                
     public DirectoryView m_view { get; private set; }
     public DirectoryModel m_model { get; private set; }
     
@@ -32,7 +34,7 @@ public class DirectoryController : GLib.Object {
 
         connect_signals();
         
-        load_path(".");
+        //load_path(".");
     }
     
     public void make_active() {
@@ -156,7 +158,7 @@ public class DirectoryController : GLib.Object {
         }
     }
     
-    private void load_path(string p_path) {
+    public void load_path(string p_path) {
         m_model.start_editing();
         m_model.clear();
         try {
@@ -183,6 +185,8 @@ public class DirectoryController : GLib.Object {
             
             m_current_file = directory;
             //breadcrumbs.set_path(current_file.get_path());
+            
+            dir_changed(directory);
         } catch (Error e) {
             debug(e.message);
         } finally {

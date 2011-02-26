@@ -43,6 +43,7 @@ vala_precompile(VALA_C
     "src/messages.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
+    "src/settings.vala"
     "src/sizes.vala"
 
     "src/actions/accelerator.vala"
@@ -87,4 +88,13 @@ CUSTOM_VAPIS
     "vapi/config.vapi"
 )
 
-add_executable("ginko" ${VALA_C})
+add_executable(
+    "ginko.bin"
+    ${VALA_C} glib-2.0/schemas/gschemas.compiled
+)
+
+add_custom_command(
+    OUTPUT glib-2.0/schemas/gschemas.compiled
+    COMMAND glib-compile-schemas ARGS glib-2.0/schemas
+    DEPENDS glib-2.0/schemas/ginko.gschema.xml
+)

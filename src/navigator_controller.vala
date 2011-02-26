@@ -23,6 +23,15 @@ class NavigatorController {
         
         var widget = m_view.m_widget;
         widget.key_press_event.connect(on_key_press);
+        
+        // connect path settings
+        m_left_controller.load_path(Settings.get().get_left_pane_path());
+        m_left_controller.dir_changed.connect((p_dir) =>
+            Settings.get().set_left_pane_path(p_dir.get_path()));
+        
+        m_right_controller.load_path(Settings.get().get_right_pane_path());
+        m_right_controller.dir_changed.connect((p_dir) =>
+            Settings.get().set_right_pane_path(p_dir.get_path()));
     }
     
     private bool on_key_press(EventKey p_event) {
