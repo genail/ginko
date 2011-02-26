@@ -17,6 +17,7 @@ public class DirectoryController : GLib.Object {
                 FILE_ATTRIBUTE_UNIX_MODE;
 
     public signal void dir_changed(File p_file);
+    public signal void user_focused();
                 
     public DirectoryView m_view { get; private set; }
     public DirectoryModel m_model { get; private set; }
@@ -28,6 +29,8 @@ public class DirectoryController : GLib.Object {
     
     // current entry name to file info
     private HashMap<string, FileInfo> m_fileinfos = new HashMap<string, FileInfo>();
+    
+    private bool m_focus_sensitive = true;
         
     public DirectoryController() {
         m_model = new DirectoryModel();
@@ -38,7 +41,10 @@ public class DirectoryController : GLib.Object {
     
     public void make_active() {
         m_view.show_cursor();
+        
+        m_focus_sensitive = false;
         m_view.grab_focus();
+        m_focus_sensitive = true;
     }
     
     public void make_unactive() {
@@ -82,6 +88,12 @@ public class DirectoryController : GLib.Object {
         
         var settings = Settings.get();
         settings.set_show_hidden_files_changed_callback(() => refresh());
+        
+        m_view.grab_focus.connect(() => {
+                if (m_focus_sensitive) {
+                    user_focused();
+                }
+        });
     }
     
     private bool on_key_pressed(string p_key) {
