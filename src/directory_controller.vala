@@ -12,6 +12,7 @@ public class DirectoryController : GLib.Object {
                 FILE_ATTRIBUTE_STANDARD_SIZE + "," +
                 FILE_ATTRIBUTE_STANDARD_ICON + "," +
                 FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE + "," +
+                FILE_ATTRIBUTE_STANDARD_IS_HIDDEN + "," +
                 FILE_ATTRIBUTE_TIME_MODIFIED + "," +
                 FILE_ATTRIBUTE_UNIX_MODE;
 
@@ -33,8 +34,6 @@ public class DirectoryController : GLib.Object {
         m_view = new DirectoryView(m_model);
 
         connect_signals();
-        
-        //load_path(".");
     }
     
     public void make_active() {
@@ -80,6 +79,9 @@ public class DirectoryController : GLib.Object {
         
         m_view.entry_activation_request.connect(activate_entry);
         m_view.entry_highlight_toggle_request.connect(toggle_entry_highlight);
+        
+        var settings = Settings.get();
+        settings.set_show_hidden_files_changed_callback(() => refresh());
     }
     
     private bool on_key_pressed(string p_key) {
@@ -159,6 +161,8 @@ public class DirectoryController : GLib.Object {
     }
     
     public void load_path(string p_path) {
+        var show_hidden = Settings.get().is_show_hidden_files();
+        
         m_model.start_editing();
         m_model.clear();
         try {
@@ -179,6 +183,10 @@ public class DirectoryController : GLib.Object {
             
             var enumerator = directory.enumerate_children(DEFAULT_FILE_QUERY_ATTR, 0);
             while ((fileinfo = enumerator.next_file()) != null) {
+                if (!show_hidden && fileinfo.get_is_hidden()) {
+                    continue;
+                }
+                
                 load_file_info(directory, fileinfo);
                 m_fileinfos[fileinfo.get_name()] = fileinfo;
             }

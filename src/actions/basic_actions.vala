@@ -1,6 +1,7 @@
 namespace Ginko.Actions {
 
 // set of very basic and quick actions (few lines of code)
+
 class RefreshActionDescriptor : ActionDescriptor {
     public RefreshActionDescriptor() {
         base(
@@ -11,6 +12,21 @@ class RefreshActionDescriptor : ActionDescriptor {
     
     public override void execute(ActionContext p_context) {
         p_context.active_controller.refresh();
+    }
+}
+
+class ToggleHiddenFilesActionDescriptor : ActionDescriptor {
+    public ToggleHiddenFilesActionDescriptor() {
+        base(
+            "Show / hide hidden files",
+            new string[] { "show", "hide", "hidden" },
+            new Accelerator("H", new string[] { "ctrl" }));
+    }
+    
+    public override void execute(ActionContext p_context) {
+        var settings = Settings.get();
+        var show_hidden_files = settings.is_show_hidden_files();
+        settings.set_show_hidden_files(!show_hidden_files);
     }
 }
 
