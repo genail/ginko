@@ -34,8 +34,25 @@ class CopyFileConfigureDialog : AbstractDialog {
         box.set_border_width(Sizes.BOX_BORDER_WIDTH_SMALL);
         (get_content_area() as Container).add(box);
         
-        var copy_files_label = new Label("Copy x files to:");
+        // title dependend of number of files
+        var selected_files = p_context.source_selected_files;
+        assert(selected_files.length >= 1);
+        
+        string copy_files_label_text = "";
+        if (selected_files.length == 1) {
+            var file = selected_files[0];
+            var file_basename = file.get_basename();
+            copy_files_label_text = "Copy \"%s\" to:".printf(file_basename);
+        } else if (selected_files.length > 1) {
+            var files_count = selected_files.length;
+            copy_files_label_text = "Copy %d files to:".printf(files_count);
+        } else {
+            assert(false);
+        }
+        
+        var copy_files_label = new Label(copy_files_label_text);
         copy_files_label.set_alignment(0, 0);
+        
         
         m_destination_entry = new Entry();
         prepare_entry(m_destination_entry);
