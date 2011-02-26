@@ -98,7 +98,6 @@ class CopyFileAction : GLib.Object {
         var dircontroller = m_context.unactive_controller;
         GuiExecutor.run(() => dircontroller.refresh());
         
-        Posix.sleep(2);
         GuiExecutor.run(() => m_progress_dialog.close());
     }
     
@@ -251,6 +250,9 @@ class CopyFileAction : GLib.Object {
                         break;
                     case OverwriteDialog.RESPONSE_SKIP:
                         m_file_action = FileAction.SKIP;
+                        break;
+                    case ResponseType.DELETE_EVENT:
+                        m_file_action = FileAction.CANCEL;
                         break;
                     default:
                         error("unknown response: %d", response);
