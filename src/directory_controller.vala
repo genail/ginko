@@ -223,6 +223,7 @@ public class DirectoryController : GLib.Object {
         entry.extension = format_file_extension(p_fileinfo);
         entry.size = format_file_size(p_fileinfo);
         entry.mod_time = format_time(p_fileinfo);
+        entry.attr = format_attr(p_fileinfo);
         entry.special = p_special;
         
         m_model.add_entry(entry);
@@ -319,6 +320,13 @@ public class DirectoryController : GLib.Object {
         
         var formatter = new TimeFormat();
         return formatter.format(time);
+    }
+    
+    private string format_attr(FileInfo p_fileinfo) {
+        var mode = p_fileinfo.get_attribute_uint32(FILE_ATTRIBUTE_UNIX_MODE);
+        
+        var formatter = new AttrFormat();
+        return formatter.format(mode);
     }
 }
 

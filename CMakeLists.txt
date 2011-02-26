@@ -63,6 +63,7 @@ vala_precompile(VALA_C
 
     "src/dialogs/abstract_dialog.vala"
 
+    "src/format/attr_format.vala"
     "src/format/size_format.vala"
     "src/format/time_format.vala"
 
