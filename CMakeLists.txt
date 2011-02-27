@@ -11,10 +11,12 @@ find_package(PkgConfig)
 pkg_check_modules(GTK REQUIRED gtk+-2.0)
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(GEE REQUIRED gee-1.0)
+pkg_check_modules(GCONF REQUIRED gconf-2.0)
 add_definitions(
     ${GTK_CFLAGS} ${GTK_CFLAGS_OTHER}
     ${GIO_CFLAGS} ${GIO_CFLAGS_OTHER}
     ${GEE_CFLAGS} ${GEE_CFLAGS_OTHER}
+    ${GCONF_CFLAGS} ${GCONF_CFLAGS_OTHER}
     -DGETTEXT_PACKAGE="ginko"
 #    --include config.h
 )
@@ -22,11 +24,13 @@ link_libraries(
     ${GTK_LIBRARIES}
     ${GIO_LIBRARIES}
     ${GEE_LIBRARIES}
+    ${GCONF_LIBRARIES}
 )
 link_directories(
     ${GTK_LIBRARY_DIRS}
     ${GIO_LIBRARY_DIRS}
     ${GEE_LIBRARY_DIRS}
+    ${GCONF_LIBRARY_DIRS}
 )
 
 vala_precompile(VALA_C
@@ -79,6 +83,7 @@ PACKAGES
     gtk+-2.0
     gio-2.0
     gee-1.0
+    gconf-2.0
     posix
 OPTIONS
     --save-temps
@@ -90,11 +95,5 @@ CUSTOM_VAPIS
 
 add_executable(
     "ginko.bin"
-    ${VALA_C} glib-2.0/schemas/gschemas.compiled
-)
-
-add_custom_command(
-    OUTPUT glib-2.0/schemas/gschemas.compiled
-    COMMAND glib-compile-schemas ARGS glib-2.0/schemas
-    DEPENDS glib-2.0/schemas/ginko.gschema.xml
+    ${VALA_C}
 )
