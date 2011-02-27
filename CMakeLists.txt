@@ -34,6 +34,7 @@ link_directories(
 )
 
 vala_precompile(VALA_C
+    "src/abstract_settings.vala"
     "src/application.vala"
     "src/application_context.vala"
     "src/breadcrumbs.vala"
@@ -47,6 +48,7 @@ vala_precompile(VALA_C
     "src/messages.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
+    "src/pane_settings.vala"
     "src/settings.vala"
     "src/sizes.vala"
 

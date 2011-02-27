@@ -31,13 +31,17 @@ class NavigatorController {
         widget.key_press_event.connect(on_key_press);
         
         // connect path settings
-        m_left_controller.load_path(Settings.get().get_left_pane_path());
-        m_left_controller.dir_changed.connect((p_dir) =>
-            Settings.get().set_left_pane_path(p_dir.get_path()));
+        var settings = Settings.get();
+        var left_pane_settings = settings.get_pane("left");
+        var right_pane_settings = settings.get_pane("right");
         
-        m_right_controller.load_path(Settings.get().get_right_pane_path());
+        m_left_controller.load_path(left_pane_settings.get_path());
+        m_left_controller.dir_changed.connect((p_dir) =>
+            left_pane_settings.set_path(p_dir.get_path()));
+        
+        m_right_controller.load_path(right_pane_settings.get_path());
         m_right_controller.dir_changed.connect((p_dir) =>
-            Settings.get().set_right_pane_path(p_dir.get_path()));
+            right_pane_settings.set_path(p_dir.get_path()));
         
         // connect focus grab
         m_left_controller.user_focused.connect(() => {
