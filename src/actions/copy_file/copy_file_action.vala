@@ -179,9 +179,16 @@ class CopyFileAction : GLib.Object {
                             // or m_overwrite = true and target is a file
                             Messages.show_error_t(m_context, "Error", e.message);
                             m_file_action = FileAction.CANCEL;
+                        } else if (e is IOError.PERMISSION_DENIED) {
+                            Messages.show_error_t(m_context, "Error",
+                                "Cannot copy %s to %s: permission denied".printf(
+                                    m_copy_op.m_source.get_path(),
+                                    m_copy_op.m_destination.get_path()));
+                            m_file_action = FileAction.CANCEL;
                         } else {
                             Messages.show_error_t(m_context, "Error", e.message);
                             m_file_action = FileAction.CANCEL;
+                            debug("aa");
                         }
                     }
                 }
