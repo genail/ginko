@@ -34,7 +34,6 @@ link_directories(
 )
 
 vala_precompile(VALA_C
-    "src/abstract_settings.vala"
     "src/application.vala"
     "src/application_context.vala"
     "src/breadcrumbs.vala"
@@ -48,8 +47,6 @@ vala_precompile(VALA_C
     "src/messages.vala"
     "src/navigator_controller.vala"
     "src/navigator_view.vala"
-    "src/pane_settings.vala"
-    "src/settings.vala"
     "src/sizes.vala"
 
     "src/actions/accelerator.vala"
@@ -78,6 +75,10 @@ vala_precompile(VALA_C
 
     "src/operations/operation.vala"
     "src/operations/copy_file_operation.vala"
+
+    "src/settings/abstract_settings.vala"
+    "src/settings/pane_settings.vala"
+    "src/settings/settings.vala"
 
     "src/util/async_task.vala"
     "src/util/gui_executor.vala"
