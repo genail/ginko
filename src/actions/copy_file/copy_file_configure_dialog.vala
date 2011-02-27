@@ -62,11 +62,11 @@ class CopyFileConfigureDialog : AbstractDialog {
         
         
         m_preserve_attrs_check = new CheckButton.with_label("Preserve attributes");
-        m_follow_symlinks_check = new CheckButton.with_label("Follow symlinks");
+        m_follow_symlinks_check = new CheckButton.with_mnemonic("Follow sym_links");
         
         box.pack_start(copy_files_label);
         box.pack_start(m_destination_entry);
-        box.pack_start(m_preserve_attrs_check);
+        // box.pack_start(m_preserve_attrs_check); TODO: in v0.2
         box.pack_start(m_follow_symlinks_check);
         
         show_all();

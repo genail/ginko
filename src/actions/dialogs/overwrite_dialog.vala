@@ -87,9 +87,9 @@ public class OverwriteDialog : AbstractMessageDialog {
         
         // why this may be not null-terminated? and crash when it is?
         add_button(Stock.CANCEL, RESPONSE_CANCEL);
-        add_button("Skip", RESPONSE_SKIP);
-        add_button("Rename", RESPONSE_RENAME);
-        add_button("Overwrite", RESPONSE_OVERWRITE).grab_focus();
+        add_button("_Skip", RESPONSE_SKIP);
+        add_button("_Rename", RESPONSE_RENAME);
+        add_button("_Overwrite", RESPONSE_OVERWRITE).grab_focus();
         
         show_all();
     }
