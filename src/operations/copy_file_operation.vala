@@ -7,7 +7,7 @@ class CopyFileOperation : Operation {
     public File m_destination;
     
     public bool m_overwrite;
-    public bool m_follow_symlinks = true;
+    public bool m_follow_symlinks = false;
     
     private Cancellable m_cancellable = new Cancellable();
     public FileProgressCallback m_progress_callback;
