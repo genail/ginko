@@ -32,9 +32,9 @@ public class DirectoryController : GLib.Object {
     
     private bool m_focus_sensitive = true;
         
-    public DirectoryController() {
+    public DirectoryController(PaneSettings p_settings) {
         m_model = new DirectoryModel();
-        m_view = new DirectoryView(m_model);
+        m_view = new DirectoryView(m_model, p_settings);
 
         connect_signals();
     }

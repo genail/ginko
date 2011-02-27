@@ -5,6 +5,9 @@ namespace Ginko {
 
 class MainWindow : Window {
     
+    public static const int DEFAULT_WIDTH = 800;
+    public static const int DEFAULT_HEIGHT = 600;
+    
     public signal void action_invoked(ActionDescriptor action_descriptor);
     
     public NavigatorController m_navigator_controller {get; private set;}
@@ -21,7 +24,7 @@ class MainWindow : Window {
             title += " (DEBUG MODE)";
         }
         
-        set_default_size(800, 600);
+        set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT);
         
         m_main_vbox = new VBox(false, 0);
         

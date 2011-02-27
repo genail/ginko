@@ -13,6 +13,13 @@ public class DirectoryView : TreeView {
     private static const int COL_TIME = 4;
     private static const int COL_ATTR = 5;
     
+    private static const int DEFAULT_ICON_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.025f);
+    private static const int DEFAULT_NAME_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.375f);
+    private static const int DEFAULT_EXT_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.1f);
+    private static const int DEFAULT_SIZE_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.12f);
+    private static const int DEFAULT_TIME_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.18f);
+    private static const int DEFAULT_ATTR_COL_SIZE = (int) (MainWindow.DEFAULT_WIDTH / 2 * 0.2f);
+    
     public signal bool key_pressed(string p_name);
     
     public signal void entry_activation_request(DirectoryModel.Entry entry);
@@ -22,7 +29,7 @@ public class DirectoryView : TreeView {
     private TreePath m_cursor_path_last;
     
     
-    public DirectoryView(DirectoryModel p_model) {
+    public DirectoryView(DirectoryModel p_model, PaneSettings p_settings) {
         m_model = p_model;
         set_model(m_model.m_store);
         
@@ -60,10 +67,24 @@ public class DirectoryView : TreeView {
 
         for (var i = 1; i <= 5; ++i) {
             unowned TreeViewColumn column = get_column(i);
-            column.set_sizing(TreeViewColumnSizing.AUTOSIZE);
+            column.set_sizing(TreeViewColumnSizing.FIXED);
             column.set_resizable(true);
-//~             column.set_min_width(50);
         }
+        
+        // set column sizes
+        configure_column_sizes(COL_ICON, DEFAULT_ICON_COL_SIZE,
+            p_settings.get_icon_column_size, p_settings.set_icon_column_size);
+        configure_column_sizes(COL_NAME, DEFAULT_NAME_COL_SIZE,
+            p_settings.get_name_column_size, p_settings.set_name_column_size);
+        configure_column_sizes(COL_EXT, DEFAULT_EXT_COL_SIZE,
+            p_settings.get_ext_column_size, p_settings.set_ext_column_size);
+        configure_column_sizes(COL_SIZE, DEFAULT_SIZE_COL_SIZE,
+            p_settings.get_size_column_size, p_settings.set_size_column_size);
+        configure_column_sizes(COL_TIME, DEFAULT_TIME_COL_SIZE,
+            p_settings.get_time_column_size, p_settings.set_time_column_size);
+        configure_column_sizes(COL_ATTR, DEFAULT_ATTR_COL_SIZE,
+            p_settings.get_attr_column_size, p_settings.set_attr_column_size);
+        
         
         set_search_column(DirectoryModel.STORE_NAME);
         
@@ -72,7 +93,21 @@ public class DirectoryView : TreeView {
         cursor_changed.connect(() => {
             get_cursor(out m_cursor_path_last, null);
         });
+    }
+    
+    private delegate int GetSizeFunc(int p_default);
+    private delegate void SetSizeFunc(int p_size);
+    
+    private void configure_column_sizes(int p_column_id, int p_default_size,
+        GetSizeFunc p_get_func, SetSizeFunc p_set_func) {
         
+        var column = get_column(p_column_id);
+        var width = p_get_func(p_default_size);
+        column.set_fixed_width(width);
+        column.notify["width"].connect(() => {
+                var nwidth = column.get_width();
+                p_set_func(nwidth);
+        });
     }
     
     private void on_row_activated(TreePath p_path, TreeViewColumn p_column) {

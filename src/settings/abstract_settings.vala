@@ -52,6 +52,14 @@ public abstract class AbstractSettings {
         }
     }
     
+    protected void set_boolean(string p_rel_key, bool p_value) {
+        try {
+            m_gconf.set_bool(to_abs(p_rel_key), p_value);
+        } catch (Error e) {
+            warning("cannot set gconf key '%s': %s", to_abs(p_rel_key), e.message);
+        }
+    }
+    
     protected void add_boolean_notify(string p_rel_key, BooleanChanged p_callback) {
         try {
             m_gconf.notify_add(to_abs(p_rel_key), () => {
@@ -63,9 +71,22 @@ public abstract class AbstractSettings {
         }
     }
     
-    protected void set_boolean(string p_rel_key, bool p_value) {
+    protected int get_integer(string p_rel_key, int p_default) {
         try {
-            m_gconf.set_bool(to_abs(p_rel_key), p_value);
+            if (is_set(p_rel_key)) {
+                return m_gconf.get_int(to_abs(p_rel_key));
+            } else {
+                return p_default;
+            }
+        } catch (Error e) {
+            warning("cannot get gconf key '%s': %s", to_abs(p_rel_key), e.message);
+            return p_default;
+        }
+    }
+    
+    protected void set_integer(string p_rel_key, int p_value) {
+        try {
+            m_gconf.set_int(to_abs(p_rel_key), p_value);
         } catch (Error e) {
             warning("cannot set gconf key '%s': %s", to_abs(p_rel_key), e.message);
         }

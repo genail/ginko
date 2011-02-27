@@ -20,8 +20,12 @@ class NavigatorController {
     //public DirectoryController m_unactive_controller { get; private set; }
 
     public NavigatorController() {
-        m_left_controller = new DirectoryController();
-        m_right_controller = new DirectoryController();
+        var settings = Settings.get();
+        var left_pane_settings = settings.get_pane("left");
+        var right_pane_settings = settings.get_pane("right");
+        
+        m_left_controller = new DirectoryController(left_pane_settings);
+        m_right_controller = new DirectoryController(right_pane_settings);
       
         m_active_pane = ActivePane.LEFT;
         
@@ -31,9 +35,6 @@ class NavigatorController {
         widget.key_press_event.connect(on_key_press);
         
         // connect path settings
-        var settings = Settings.get();
-        var left_pane_settings = settings.get_pane("left");
-        var right_pane_settings = settings.get_pane("right");
         
         m_left_controller.load_path(left_pane_settings.get_path());
         m_left_controller.dir_changed.connect((p_dir) =>
