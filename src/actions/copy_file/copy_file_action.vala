@@ -107,6 +107,7 @@ class CopyFileAction : GLib.Object {
         
         if (m_file_action == FileAction.SUCCEED) {
             show_progress_finished_t();
+            GuiExecutor.run(() => m_progress_dialog.close());
         } else if (m_file_action == FileAction.CANCEL) {
             show_progress_canceled_t();
         } else {
@@ -115,8 +116,6 @@ class CopyFileAction : GLib.Object {
         
         var dircontroller = m_context.unactive_controller;
         GuiExecutor.run(() => dircontroller.refresh());
-        
-        GuiExecutor.run(() => m_progress_dialog.close());
     }
     
     private bool copy_t(File p_src_file, FileInfo p_src_fileinfo) {
@@ -152,10 +151,6 @@ class CopyFileAction : GLib.Object {
                     m_file_action = FileAction.SUCCEED;
                 } catch (IOError e) {
                     if (e is IOError.CANCELLED) {
-                        Messages.show_info_t(m_context,
-                            "Aborted",
-                            "Operation aborted by user."
-                            );
                         m_file_action = FileAction.CANCEL;
                     } else if (e is IOError.NOT_FOUND) {
                         debug("file not found");
@@ -200,7 +195,6 @@ class CopyFileAction : GLib.Object {
             }
             
             if (m_file_action == FileAction.CANCEL) {
-                debug("cancelling");
                 return false;
             }
             

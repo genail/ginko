@@ -3,14 +3,18 @@ using Gtk;
 namespace Ginko.Dialogs {
 
 public class ProgressDialog : Dialog {
-    public static const int RESPONSE_PAUSE = 1;
-    public static const int RESPONSE_CANCEL = ResponseType.CANCEL;
-    public static const int RESPONSE_CLOSE = ResponseType.CLOSE;
-    
     private static const int DIALOG_WIDTH = 300;
+    
+    
+    public enum Response {
+        PAUSE = 1,
+        CANCEL = ResponseType.CANCEL,
+        CLOSE = ResponseType.CLOSE
+    }
     
     public signal void cancel_button_pressed();
 
+    
     private Label m_status_label_1;
     private Label m_status_label_2;
     
@@ -27,6 +31,7 @@ public class ProgressDialog : Dialog {
     private ListStore m_details_tree_view_store;
     
     private bool m_details_visible = true;
+    
     
     public ProgressDialog() {
         build_ui();
@@ -60,13 +65,13 @@ public class ProgressDialog : Dialog {
         //details_button.clicked.connect(toggle_details);
         
         //button_box.pack_start(details_button);
-        add_button("Pause", RESPONSE_PAUSE);
-        add_button(Stock.CANCEL, RESPONSE_CANCEL);
-        add_button(Stock.CLOSE, RESPONSE_CLOSE);
+        add_button("Pause", Response.PAUSE);
+        add_button(Stock.CANCEL, Response.CANCEL);
+        add_button(Stock.CLOSE, Response.CLOSE);
         
-        m_pause_button = (Button) get_widget_for_response(RESPONSE_PAUSE);
+        m_pause_button = (Button) get_widget_for_response(Response.PAUSE);
         
-        m_cancel_button = (Button) get_widget_for_response(RESPONSE_CANCEL);
+        m_cancel_button = (Button) get_widget_for_response(Response.CANCEL);
         m_cancel_button.clicked.connect(() => {
             cancel_button_pressed();
             m_cancel_button.set_label("Cancelling...");
@@ -76,7 +81,7 @@ public class ProgressDialog : Dialog {
             m_progress_bar.set_sensitive(false);
         });
         
-        m_close_button = (Button) get_widget_for_response(RESPONSE_CLOSE);
+        m_close_button = (Button) get_widget_for_response(Response.CLOSE);
         m_close_button.pressed.connect(() => destroy());
         m_close_button.hide();
     }
