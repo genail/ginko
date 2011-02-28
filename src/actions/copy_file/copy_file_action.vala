@@ -27,9 +27,11 @@ class CopyFileAction : GLib.Object {
     
     private enum FileAction {
         NONE,
+        TRY_AGAIN,
         SUCCEED,
         SKIP,
-        CANCEL
+        CANCEL,
+        ERROR
     }
     
     private FileAction m_file_action; 
@@ -163,6 +165,7 @@ class CopyFileAction : GLib.Object {
                                 m_file_action = FileAction.SKIP;
                             } else if (m_overwrite_all) {
                                 m_copy_op.m_overwrite = true;
+                                m_file_action = FileAction.TRY_AGAIN;
                             } else {
                                 prompt_overwrite_t();
                             }
@@ -198,8 +201,10 @@ class CopyFileAction : GLib.Object {
                     return false;
                 }
                 
-            } while (m_file_action == FileAction.NONE); // retry until action is done
+            } while (m_file_action == FileAction.TRY_AGAIN); // retry until action is done
         }
+        
+        assert(m_file_action != FileAction.NONE);
         
         return true;
     }
@@ -262,13 +267,16 @@ class CopyFileAction : GLib.Object {
                         m_file_action = FileAction.CANCEL;
                         break;
                     case OverwriteDialog.RESPONSE_RENAME:
-                        if (!prompt_rename()) {
+                        if (prompt_rename()) {
+                            m_file_action = FileAction.TRY_AGAIN;
+                        } else {
                             m_file_action = FileAction.CANCEL;
                         }
                         break;
                     case OverwriteDialog.RESPONSE_OVERWRITE:
                         m_copy_op.m_overwrite = true;
                         m_overwrite_all = dialog.is_apply_to_all();
+                        m_file_action = FileAction.TRY_AGAIN;
                         break;
                     case OverwriteDialog.RESPONSE_SKIP:
                         m_file_action = FileAction.SKIP;
