@@ -1,4 +1,5 @@
 namespace Ginko {
+    
 public class GuiExecutor {
     public delegate void Method();
     
@@ -29,4 +30,5 @@ public class GuiExecutor {
         m_mutex.unlock();
     }
 }
-}
+
+} // namespace

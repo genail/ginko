@@ -43,7 +43,7 @@ class CopyFileAction : GLib.Object {
         
         m_context = p_context;
         
-        m_progress_dialog = new ProgressDialog();
+        m_progress_dialog = new ProgressDialog(m_context);
         m_progress_dialog.set_title("Copy operation");
         
         m_progress_dialog.cancel_button_pressed.connect(() => m_copy_op.cancel());

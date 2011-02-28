@@ -15,6 +15,8 @@ public class ProgressDialog : Dialog {
     public signal void cancel_button_pressed();
 
     
+    private Context m_context;
+    
     private Label m_status_label_1;
     private Label m_status_label_2;
     
@@ -33,7 +35,9 @@ public class ProgressDialog : Dialog {
     private bool m_details_visible = true;
     
     
-    public ProgressDialog() {
+    public ProgressDialog(Context p_context) {
+        m_context = p_context;
+        
         build_ui();
         set_position(WindowPosition.NONE);
         
@@ -73,12 +77,17 @@ public class ProgressDialog : Dialog {
         
         m_cancel_button = (Button) get_widget_for_response(Response.CANCEL);
         m_cancel_button.clicked.connect(() => {
-            cancel_button_pressed();
-            m_cancel_button.set_label("Cancelling...");
-            
-            m_cancel_button.set_sensitive(false);
-            m_pause_button.set_sensitive(false);
-            m_progress_bar.set_sensitive(false);
+                bool cancelled = Messages.ask_yes_no(m_context, "Really cancel?",
+                    "Do you really want to cancel current operation?");
+                
+                if (cancelled) {
+                    cancel_button_pressed();
+                    m_cancel_button.set_label("Cancelling...");
+                    
+                    m_cancel_button.set_sensitive(false);
+                    m_pause_button.set_sensitive(false);
+                    m_progress_bar.set_sensitive(false);
+                }
         });
         
         m_close_button = (Button) get_widget_for_response(Response.CLOSE);

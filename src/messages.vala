@@ -42,6 +42,32 @@ class Messages {
                 show_info(p_context, p_title, p_description); return false;
         });
     }
+    
+    public static bool ask_yes_no(Context p_context, string p_title, string p_description) {
+        var dialog = new MessageDialog(
+            p_context.m_main_window,
+            0,
+            MessageType.QUESTION,
+            ButtonsType.YES_NO,
+            p_description,
+            null);
+        
+        dialog.set_title(p_context.m_name + ": " + p_title);
+        var response = dialog.run();
+        dialog.close();
+        
+        return response == ResponseType.YES;
+    }
+    
+    public static bool ask_yes_no_t(Context p_context, string p_title, string p_description) {
+        bool[] answer = {};
+        
+        GuiExecutor.run_and_wait(() => {
+                answer += ask_yes_no(p_context, p_title, p_description);
+        });
+        
+        return answer[0];
+    }
 }
 
 } // namespace
