@@ -46,6 +46,8 @@ class CopyFileAction : GLib.Object {
         m_progress_dialog = new ProgressDialog();
         m_progress_dialog.set_title("Copy operation");
         
+        m_progress_dialog.cancel_button_pressed.connect(() => m_copy_op.cancel());
+        
         prompt_configuration();
         if (configuration_done()) {
             execute_async();
@@ -103,7 +105,13 @@ class CopyFileAction : GLib.Object {
             }
         }
         
-        show_progress_finished_t();
+        if (m_file_action == FileAction.SUCCEED) {
+            show_progress_finished_t();
+        } else if (m_file_action == FileAction.CANCEL) {
+            show_progress_canceled_t();
+        } else {
+            show_progress_failed_t();
+        }
         
         var dircontroller = m_context.unactive_controller;
         GuiExecutor.run(() => dircontroller.refresh());
@@ -212,7 +220,7 @@ class CopyFileAction : GLib.Object {
                 m_progress_dialog.set_status_text_1("Preparing...");
                 
                 if (!m_progress_dialog_visible) {
-                    m_progress_dialog.show_all();
+                    m_progress_dialog.show();
                     m_progress_dialog_visible = true;
                 }
         });
@@ -231,6 +239,20 @@ class CopyFileAction : GLib.Object {
         GuiExecutor.run(() => {
                 m_progress_dialog.set_status_text_1("Operation finished!");
                 m_progress_dialog.set_progress(1);
+                m_progress_dialog.set_done();
+        });
+    }
+    
+    private void show_progress_canceled_t() {
+        GuiExecutor.run(() => {
+                m_progress_dialog.set_status_text_1("Operation canceled!");
+                m_progress_dialog.set_done();
+        });
+    }
+    
+    private void show_progress_failed_t() {
+        GuiExecutor.run(() => {
+                m_progress_dialog.set_status_text_1("Operation failed!");
                 m_progress_dialog.set_done();
         });
     }

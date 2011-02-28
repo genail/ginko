@@ -4,8 +4,12 @@ namespace Ginko.Dialogs {
 
 public class ProgressDialog : Dialog {
     public static const int RESPONSE_PAUSE = 1;
+    public static const int RESPONSE_CANCEL = ResponseType.CANCEL;
+    public static const int RESPONSE_CLOSE = ResponseType.CLOSE;
     
     private static const int DIALOG_WIDTH = 300;
+    
+    public signal void cancel_button_pressed();
 
     private Label m_status_label_1;
     private Label m_status_label_2;
@@ -13,7 +17,10 @@ public class ProgressDialog : Dialog {
     private Adjustment m_progress_bar_adjustment;
     private ProgressBar m_progress_bar;
     
+    private Button m_pause_button;
     private Button m_cancel_button;
+    private Button m_close_button;
+    
     private Expander m_more_expander;
     
     private TreeView m_details_tree_view;
@@ -53,23 +60,42 @@ public class ProgressDialog : Dialog {
         //details_button.clicked.connect(toggle_details);
         
         //button_box.pack_start(details_button);
-        add_buttons("Pause", RESPONSE_PAUSE, Stock.CANCEL, ResponseType.CANCEL, 0);
+        add_button("Pause", RESPONSE_PAUSE);
+        add_button(Stock.CANCEL, RESPONSE_CANCEL);
+        add_button(Stock.CLOSE, RESPONSE_CLOSE);
         
-        m_cancel_button = get_widget_for_response(ResponseType.CANCEL) as Button;
+        m_pause_button = (Button) get_widget_for_response(RESPONSE_PAUSE);
+        
+        m_cancel_button = (Button) get_widget_for_response(RESPONSE_CANCEL);
+        m_cancel_button.clicked.connect(() => {
+            cancel_button_pressed();
+            m_cancel_button.set_label("Cancelling...");
+            
+            m_cancel_button.set_sensitive(false);
+            m_pause_button.set_sensitive(false);
+            m_progress_bar.set_sensitive(false);
+        });
+        
+        m_close_button = (Button) get_widget_for_response(RESPONSE_CLOSE);
+        m_close_button.pressed.connect(() => destroy());
+        m_close_button.hide();
     }
     
     private void build_ui_statuses() {
         
         m_status_label_1 = new Label("use set_status_text_1()");
         m_status_label_1.set_alignment(0, 0);
+        m_status_label_1.show();
         
         m_progress_bar_adjustment = new Adjustment(0.0, 0.0, 1.0, 0.1, 1.0, 0.1);
         
         m_progress_bar = new ProgressBar();
         m_progress_bar.adjustment = m_progress_bar_adjustment;
+        m_progress_bar.show();
         
         m_status_label_2 = new Label("");
         m_status_label_2.set_alignment(1, 0);
+        m_status_label_2.show();
     }
     
     private void build_ui_details() {
@@ -85,6 +111,11 @@ public class ProgressDialog : Dialog {
         scrolls.add(m_details_tree_view);
         details_frame.add(scrolls);
         m_more_expander.add(details_frame);
+        
+        m_more_expander.show();
+        scrolls.show();
+        details_frame.show();
+        m_details_tree_view.show();
         
         // model
         m_details_tree_view_store = new ListStore(1, typeof(string));
@@ -113,7 +144,8 @@ public class ProgressDialog : Dialog {
     }
     
     public void set_done() {
-        m_cancel_button.set_label("Close");
+        m_cancel_button.hide();
+        m_close_button.show();
     }
 }
 
