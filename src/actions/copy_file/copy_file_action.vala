@@ -126,83 +126,81 @@ class CopyFileAction : GLib.Object {
                     m_copy_op.m_destination.get_path()
                 ));
         
-        if (Config.debug) {
-            Posix.sleep(1);
-            m_bytes_processed += p_src_fileinfo.get_size();
-        } else {
             
-            m_file_action = FileAction.NONE;
-            
-            do {
-                if (Files.is_directory(p_src_file, m_config.follow_symlinks)) {
-                    try {
-                        dst_file.make_directory();
-                        m_file_action = FileAction.SUCCEED;
-                    } catch (IOError e) {
+        m_file_action = FileAction.NONE;
+        
+        do {
+            if (Files.is_directory(p_src_file, m_config.follow_symlinks)) {
+                try {
+                    dst_file.make_directory();
+                    m_file_action = FileAction.SUCCEED;
+                } catch (IOError e) {
+                    Messages.show_error_t(m_context, "Error", e.message);
+                    m_file_action = FileAction.CANCEL;
+                }
+            } else {
+                try {
+                    m_copy_op.execute();
+                    m_file_action = FileAction.SUCCEED;
+                } catch (IOError e) {
+                    if (e is IOError.CANCELLED) {
+                        Messages.show_info_t(m_context,
+                            "Aborted",
+                            "Operation aborted by user."
+                            );
+                        m_file_action = FileAction.CANCEL;
+                    } else if (e is IOError.NOT_FOUND) {
+                        debug("file not found");
+                        Messages.show_error_t(m_context,
+                            "Source not found!",
+                            "Lost track of source file '%s'. I saw it! I swear!".printf(
+                                src_filename));
+                        m_file_action = FileAction.SKIP;
+                    } else if (e is IOError.EXISTS) {
+                        if (m_skip_all) {
+                            m_file_action = FileAction.SKIP;
+                        } else if (m_overwrite_all) {
+                            m_copy_op.m_overwrite = true;
+                            m_file_action = FileAction.TRY_AGAIN;
+                        } else {
+                            prompt_overwrite_t();
+                        }
+                    } else if (e is IOError.IS_DIRECTORY) {
+                        // TODO: tried to overwrite a file over directory
+                        Messages.show_error_t(m_context, "Error", e.message);
+                        m_file_action = FileAction.CANCEL;
+                    } else if (e is IOError.WOULD_MERGE) {
+                        // TODO: tried to overwrite a directory with a directory
+                        Messages.show_error_t(m_context, "Error", e.message);
+                        m_file_action = FileAction.CANCEL;
+                    } else if (e is IOError.WOULD_RECURSE) {
+                        // TODO: source is directory and target doesn't exists
+                        // or m_overwrite = true and target is a file
+                        Messages.show_error_t(m_context, "Error", e.message);
+                        m_file_action = FileAction.CANCEL;
+                    } else if (e is IOError.PERMISSION_DENIED) {
+                        Messages.show_error_t(m_context, "Error",
+                            "Cannot copy %s to %s: permission denied".printf(
+                                m_copy_op.m_source.get_path(),
+                                m_copy_op.m_destination.get_path()));
+                        m_file_action = FileAction.CANCEL;
+                    } else {
                         Messages.show_error_t(m_context, "Error", e.message);
                         m_file_action = FileAction.CANCEL;
                     }
-                } else {
-                    try {
-                        m_copy_op.execute();
-                        m_file_action = FileAction.SUCCEED;
-                    } catch (IOError e) {
-                        if (e is IOError.CANCELLED) {
-                            Messages.show_info_t(m_context,
-                                "Aborted",
-                                "Operation aborted by user."
-                                );
-                            m_file_action = FileAction.CANCEL;
-                        } else if (e is IOError.NOT_FOUND) {
-                            debug("file not found");
-                            Messages.show_error_t(m_context,
-                                "Source not found!",
-                                "Lost track of source file '%s'. I saw it! I swear!".printf(
-                                    src_filename));
-                            m_file_action = FileAction.SKIP;
-                        } else if (e is IOError.EXISTS) {
-                            if (m_skip_all) {
-                                m_file_action = FileAction.SKIP;
-                            } else if (m_overwrite_all) {
-                                m_copy_op.m_overwrite = true;
-                                m_file_action = FileAction.TRY_AGAIN;
-                            } else {
-                                prompt_overwrite_t();
-                            }
-                        } else if (e is IOError.IS_DIRECTORY) {
-                            // TODO: tried to overwrite a file over directory
-                            Messages.show_error_t(m_context, "Error", e.message);
-                            m_file_action = FileAction.CANCEL;
-                        } else if (e is IOError.WOULD_MERGE) {
-                            // TODO: tried to overwrite a directory with a directory
-                            Messages.show_error_t(m_context, "Error", e.message);
-                            m_file_action = FileAction.CANCEL;
-                        } else if (e is IOError.WOULD_RECURSE) {
-                            // TODO: source is directory and target doesn't exists
-                            // or m_overwrite = true and target is a file
-                            Messages.show_error_t(m_context, "Error", e.message);
-                            m_file_action = FileAction.CANCEL;
-                        } else if (e is IOError.PERMISSION_DENIED) {
-                            Messages.show_error_t(m_context, "Error",
-                                "Cannot copy %s to %s: permission denied".printf(
-                                    m_copy_op.m_source.get_path(),
-                                    m_copy_op.m_destination.get_path()));
-                            m_file_action = FileAction.CANCEL;
-                        } else {
-                            Messages.show_error_t(m_context, "Error", e.message);
-                            m_file_action = FileAction.CANCEL;
-                            debug("aa");
-                        }
-                    }
                 }
-                
-                if (m_file_action == FileAction.CANCEL) {
-                    debug("cancelling");
-                    return false;
-                }
-                
-            } while (m_file_action == FileAction.TRY_AGAIN); // retry until action is done
-        }
+            }
+            
+            if (m_file_action == FileAction.CANCEL) {
+                debug("cancelling");
+                return false;
+            }
+            
+            if (Config.debug) {
+                Posix.sleep(1);
+            }
+            
+        } while (m_file_action == FileAction.TRY_AGAIN); // retry until action is done
         
         assert(m_file_action != FileAction.NONE);
         
