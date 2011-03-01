@@ -59,6 +59,10 @@ vala_precompile(VALA_C
     "src/actions/copy_file/copy_file_configure_dialog.vala"
     "src/actions/copy_file/copy_file_descriptor.vala"
 
+    "src/actions/delete_file/delete_file_action.vala"
+    "src/actions/delete_file/delete_file_configure_dialog.vala"
+    "src/actions/delete_file/delete_file_descriptor.vala"
+
     "src/actions/dialogs/abstract_message_dialog.vala"
     "src/actions/dialogs/overwrite_dialog.vala"
     "src/actions/dialogs/progress_dialog.vala"
