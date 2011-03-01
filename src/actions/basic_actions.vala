@@ -39,8 +39,10 @@ class OpenTerminalActionDescriptor : ActionDescriptor {
     }
     
     public override void execute(ActionContext p_context) {
-        Process.spawn_command_line_async("gnome-terminal" + " --working-directory=" + 
-            p_context.source_dir.get_path());
+        string[] argv = { "gnome-terminal" };
+        Process.spawn_async(p_context.source_dir.get_path(), argv, null, 
+            SpawnFlags.SEARCH_PATH | SpawnFlags.STDOUT_TO_DEV_NULL | SpawnFlags.FILE_AND_ARGV_ZERO,
+            null, null);
     }
 }
 
