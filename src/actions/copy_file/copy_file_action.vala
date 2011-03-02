@@ -92,17 +92,8 @@ class CopyFileAction : GLib.Object {
         var scanner = new TreeScanner();
         scanner.m_follow_symlinks = m_config.follow_symlinks;
         
-        if (Config.debug) {
-            scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
-        }
-        
         foreach (var infile in m_context.source_selected_files) {
             scanner.scan(infile, copy_t);
-            
-            // stop scanning if cancelled any operation
-            if (m_file_action == FileAction.CANCEL) {
-                break;
-            }
         }
         
         if (m_file_action == FileAction.SUCCEED) {
@@ -206,7 +197,7 @@ class CopyFileAction : GLib.Object {
         
         assert(m_file_action != FileAction.NONE);
         
-        return true;
+        return m_file_action == FileAction.SUCCEED || m_file_action == FileAction.SKIP;
     }
     
     private void show_progress_preparing_t() {

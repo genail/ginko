@@ -21,6 +21,20 @@ public class Files {
         return total;
     }
     
+    // TODO: add cancellation
+    public static int calculate_file_count_recurse(File p_file, bool p_follow_symlinks) {
+        var scanner = new TreeScanner();
+        scanner.m_follow_symlinks = p_follow_symlinks;
+        
+        int total = 0;
+        scanner.scan(p_file, () => {
+                ++total;
+                return true;
+        });
+        
+        return total;
+    }
+    
     public static Pixbuf find_icon_for_file(File p_file, IconTheme p_theme, int p_size = 64)
     throws Error {
         var info = p_file.query_info(FILE_ATTRIBUTE_STANDARD_ICON, 0, null);

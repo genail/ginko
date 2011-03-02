@@ -4,6 +4,7 @@ public class TreeScanner {
     
     /** @return false if scanning should be stopped */
     public delegate bool FileFoundCallback(File p_file, FileInfo p_file_info);
+    public delegate void DirectoryLeftCallback(File p_dir);
     
     private string[] m_attributes;
     public bool m_follow_symlinks {get; set; default = true;}
@@ -18,7 +19,8 @@ public class TreeScanner {
         m_attributes = {};
     }
     
-    public void scan(File p_file, FileFoundCallback p_file_found_callback) {
+    public void scan(File p_file, FileFoundCallback p_file_found_callback,
+        DirectoryLeftCallback? p_directory_left_callback = null) {
         compile_attribute_list();
         
         if (p_file.query_exists()) {
@@ -30,12 +32,16 @@ public class TreeScanner {
         var type = p_file.query_file_type(
             m_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
         if (type == FileType.DIRECTORY) {
-            list_children_recurse(p_file, p_file_found_callback);
+            list_children_recurse(p_file, p_file_found_callback, p_directory_left_callback);
+            if (p_directory_left_callback != null) {
+                p_directory_left_callback(p_file);
+            }
         }
     }
     
     /** @return false if stop scanning */
-    public bool list_children_recurse(File p_dir, FileFoundCallback p_file_found_callback)
+    public bool list_children_recurse(File p_dir, FileFoundCallback p_file_found_callback,
+        DirectoryLeftCallback? p_directory_left_callback = null)
     throws Error {
         var enumerator = p_dir.enumerate_children(
             m_attr_list,
@@ -54,6 +60,10 @@ public class TreeScanner {
             if (file_type == FileType.DIRECTORY) {
                 if (!list_children_recurse(child_file, p_file_found_callback)) {
                     return false;
+                }
+                
+                if (p_directory_left_callback != null) {
+                    p_directory_left_callback(child_file);
                 }
             }
         }
