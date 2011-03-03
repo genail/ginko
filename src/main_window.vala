@@ -71,7 +71,7 @@ class MainWindow : Window {
         var accel_group = new AccelGroup();
         
         foreach (var action in p_actions) {
-            var accel = action.m_accelerator;
+            var accel = action.accelerator;
             
             var action_clos = action; // FIXME: Vala bug, without this null pointer will occur
                                       //*wait for https://bugzilla.gnome.org/show_bug.cgi?id=599133

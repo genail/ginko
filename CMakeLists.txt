@@ -49,6 +49,7 @@ vala_precompile(VALA_C
     "src/navigator_view.vala"
     "src/sizes.vala"
 
+    "src/actions/abstract_file_action.vala"
     "src/actions/accelerator.vala"
     "src/actions/action_descriptor.vala"
     "src/actions/action_context.vala"

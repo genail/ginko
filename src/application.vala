@@ -26,7 +26,7 @@ public class Application {
     }
     
     private ActionContext create_action_context(ActionDescriptor p_action_descriptor) {
-        var context = new ActionContext(p_action_descriptor.m_name, m_main_window);
+        var context = new ActionContext(p_action_descriptor.name, m_main_window);
         
         m_main_window.m_navigator_controller.accept_action_context(context);
         

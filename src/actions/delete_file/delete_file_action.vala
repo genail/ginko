@@ -119,6 +119,7 @@ public class DeleteFileAction : Object {
     private void delete_empty_directory_t(File p_dir) {
         debug("about to delete empty dir %s", p_dir.get_path());
         delete_file_t(p_dir);
+        m_file_action = FileAction.SUCCEED;
     }
     
     private bool delete_file_t(File p_file) {
@@ -126,6 +127,7 @@ public class DeleteFileAction : Object {
         
         //p_file.delete(null);
         m_file_count_processed++;
+        
         return true;
     }
     
