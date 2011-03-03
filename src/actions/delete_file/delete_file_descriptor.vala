@@ -9,7 +9,7 @@ class DeleteFileDescriptor : ActionDescriptor {
     }
     
     public override void execute(ActionContext p_context) {
-        var action = new DeleteFileAction();
+        var action = new DeleteFileAction(this);
         action.execute(p_context);
     }
 }
