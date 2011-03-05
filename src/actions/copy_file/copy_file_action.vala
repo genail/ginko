@@ -20,6 +20,8 @@ class CopyFileAction : AbstractFileAction {
     private bool m_overwrite_all;
     private bool m_skip_all;
     
+    private File m_rebase_base;
+    
     protected CopyFileAction(ActionDescriptor p_action_descriptor) {
         base(p_action_descriptor);
     }
@@ -58,27 +60,55 @@ class CopyFileAction : AbstractFileAction {
         AbstractFileAction.ProgressCallback p_callback) {
     
         
-        File dest_dir;
+        // if source is only one file/directory:
+        //   if destination exists copy source to destination/source
+        //   if destination doesn't exists copy and rename source to .../destination
+        // if source are many files/directories:
+        //   always copy to destination/source even if it doesn't exists
+        
+        File dest_file;
         if (!Files.is_relative(m_config.destination)) {
-            dest_dir = File.new_for_path(m_config.destination);
+            dest_file = File.new_for_path(m_config.destination);
         } else {
-            dest_dir = p_context.source_dir.resolve_relative_path(m_config.destination);
+            dest_file = p_context.source_dir.resolve_relative_path(m_config.destination);
         }
         
-        if (!dest_dir.query_exists()) {
-            try {
-                dest_dir.make_directory_with_parents();
-            } catch (Error e) {
-                show_error(e.message + "\n" + dest_dir.get_path());
-                set_status(Status.ERROR);
-                return false;
+        int source_files_count = p_context.source_selected_files.length;
+        if (source_files_count == 1) {
+            
+            // if this is first file in process treat is spiecially
+            if (p_file == p_context.source_selected_files[0]) {
+                if (dest_file.query_exists()) {
+                    dest_file = Files.rebase(p_file, p_context.source_dir, dest_file);
+                    m_rebase_base = p_context.source_dir;
+                } else {
+                    // write to .../destination directly
+                    // rebase one level down
+                    m_rebase_base = p_file;
+                }
+            } else {
+                dest_file = Files.rebase(p_file, m_rebase_base, dest_file);
             }
+            
+        } else {
+            if (!dest_file.query_exists()) {
+                try {
+                    dest_file.make_directory_with_parents();
+                    m_rebase_base = p_context.source_dir;
+                } catch (Error e) {
+                    show_error(e.message + "\n" + dest_file.get_path());
+                    set_status(Status.ERROR);
+                    return false;
+                }
+            }
+            
+            dest_file = Files.rebase(p_file, m_rebase_base, dest_file);
         }
-    
-        var dst_file = Files.rebase(p_file,
-            p_context.source_dir, dest_dir);
         
-        create_copy_file_operation_t(p_file, dst_file, p_callback);
+        debug("dest: %s", dest_file.get_path());
+        
+        
+        create_copy_file_operation_t(p_file, dest_file, p_callback);
         
         p_callback(get_progress_percent(), "Copying %s".printf(p_file.get_path()));
         
@@ -87,10 +117,10 @@ class CopyFileAction : AbstractFileAction {
         do {
             if (file_type == FileType.DIRECTORY) {
                 try {
-                    dst_file.make_directory();
+                    dest_file.make_directory();
                     set_status(Status.SUCCESS);
                 } catch (IOError e) {
-                    show_error(e.message + "\n" + dst_file.get_path());
+                    show_error(e.message + "\n" + dest_file.get_path());
                     set_status(Status.ERROR);
                 }
             } else {
@@ -114,7 +144,7 @@ class CopyFileAction : AbstractFileAction {
                         }
                     } else {
                         show_error(e.message + "\n" + p_file.get_path()
-                            + " to " + dst_file.get_path());
+                            + " to " + dest_file.get_path());
                         set_status(Status.ERROR);
                     }
                 }
