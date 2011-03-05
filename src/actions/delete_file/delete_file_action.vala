@@ -1,6 +1,6 @@
-using Ginko.Dialogs;
-using Ginko.Util;
 using Ginko.IO;
+using Ginko.Util;
+using Ginko.Operations;
 
 namespace Ginko.Actions {
 
@@ -43,7 +43,6 @@ public class DeleteFileAction : AbstractFileAction {
     
         var file_type = p_fileinfo.get_file_type();
         if (file_type != FileType.DIRECTORY) {
-            debug("about to delete %s", p_file.get_path());
             delete_file_t(p_file, p_callback);
         } else {
             set_status(Status.SKIP);
@@ -54,7 +53,6 @@ public class DeleteFileAction : AbstractFileAction {
     
     protected override void on_directory_leaved_t(File p_dir,
         AbstractFileAction.ProgressCallback p_callback) {
-        debug("about to delete empty dir %s", p_dir.get_path());
         delete_file_t(p_dir, p_callback);
     }
     
@@ -62,9 +60,26 @@ public class DeleteFileAction : AbstractFileAction {
         float percent = m_file_count_processed / (float)m_file_count_total;
         p_callback(percent, "Deleting %s".printf(p_file.get_path()));
         
-        //p_file.delete(null);
-        m_file_count_processed++;
-        set_status(Status.SUCCEED);
+        try {
+            var op = new DeleteFileOperation();
+            op.file = p_file;
+            op.execute();
+            
+            if (Config.debug) {
+                Posix.sleep(1);
+            }
+            
+            m_file_count_processed++;
+            
+            if (!is_cancel_requested()) {
+                set_status(Status.SUCCESS);
+            } else {
+                set_status(Status.CANCEL);
+            }
+        } catch (Error e) {
+            show_error("Error deleting file: " + e.message);
+            set_status(Status.ERROR);
+        }
     }
 }
 

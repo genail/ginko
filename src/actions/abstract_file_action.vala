@@ -4,13 +4,14 @@ using Ginko.Dialogs;
 
 namespace Ginko.Actions {
 
+
 public abstract class AbstractFileAction : Object {
     
     protected delegate void ProgressCallback(float p_percent, string p_stage);
     
     protected enum Status {
         NONE,
-        SUCCEED,
+        SUCCESS,
         TRY_AGAIN,
         SKIP,
         CANCEL,
@@ -22,6 +23,8 @@ public abstract class AbstractFileAction : Object {
     private Status m_status;
     private ProgressDialog m_progress_dialog;
     private TreeScanner m_tree_scanner;
+    
+    private bool m_cancel_requested;
     
     
     protected AbstractFileAction(ActionDescriptor p_action_descriptor) {
@@ -37,8 +40,17 @@ public abstract class AbstractFileAction : Object {
     
     protected abstract bool on_file_found_t(File p_file, FileInfo p_fileinfo,
         ProgressCallback p_callback);
+    
     protected virtual void on_directory_leaved_t(File p_dir, ProgressCallback p_callback) {
         // empty
+    }
+    
+    protected virtual void on_cancel_request() {
+        // empty
+    }
+    
+    protected bool is_cancel_requested() {
+        return m_cancel_requested;
     }
     
     
@@ -69,10 +81,17 @@ public abstract class AbstractFileAction : Object {
             m_progress_dialog = new ProgressDialog(m_context);
             m_progress_dialog.set_title(m_action_descriptor.name);
             
+            m_progress_dialog.cancel_button_pressed.connect(() => on_cancel_request_inner());
+            
             if (configure(m_context)) {
                 execute_async();
             }
         }
+    }
+    
+    private void on_cancel_request_inner() {
+        m_cancel_requested = true;
+        on_cancel_request();
     }
     
     private void execute_async() {
@@ -142,7 +161,7 @@ public abstract class AbstractFileAction : Object {
     }
     
     private void destroy_progress_with_delay_t() {
-        Posix.usleep(1000000);
+        Posix.sleep(1);
         GuiExecutor.run(() => {
                 m_progress_dialog.destroy();
         });

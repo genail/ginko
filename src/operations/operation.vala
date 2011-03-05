@@ -5,11 +5,11 @@ namespace Ginko.Operations {
  * Example of operation: move one file A to location B
  */
 public interface Operation {
+    
     /** @return cost of current operation usually in transfered bytes. */
     public abstract uint64 get_cost();
     
     /** Executes current operation
-      * @return true if it was finished with no errors, false when opposite.
       * @see check_fail_reason() */
     public abstract void execute() throws Error;
     

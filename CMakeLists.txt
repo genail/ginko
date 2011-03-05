@@ -78,6 +78,7 @@ vala_precompile(VALA_C
     "src/io/files.vala"
     "src/io/tree_scanner.vala"
 
+    "src/operations/delete_file_operation.vala"
     "src/operations/operation.vala"
     "src/operations/copy_file_operation.vala"
 
