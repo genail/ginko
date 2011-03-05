@@ -4,7 +4,7 @@ public class TreeScanner {
     
     /** @return false if scanning should be stopped */
     public delegate bool FileFoundCallback(File p_file, FileInfo p_file_info);
-    public delegate void DirectoryLeftCallback(File p_dir);
+    public delegate bool DirectoryLeftCallback(File p_dir);
     
     private string[] m_attributes;
     public bool m_follow_symlinks {get; set; default = true;}
@@ -32,7 +32,10 @@ public class TreeScanner {
         var type = p_file.query_file_type(
             m_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
         if (type == FileType.DIRECTORY) {
-            list_children_recurse(p_file, p_file_found_callback, p_directory_left_callback);
+            if (!list_children_recurse(p_file, p_file_found_callback, p_directory_left_callback)) {
+                return;
+            }
+            
             if (p_directory_left_callback != null) {
                 p_directory_left_callback(p_file);
             }
@@ -41,7 +44,7 @@ public class TreeScanner {
     
     /** @return false if stop scanning */
     public bool list_children_recurse(File p_dir, FileFoundCallback p_file_found_callback,
-        DirectoryLeftCallback? p_directory_left_callback = null)
+        DirectoryLeftCallback? p_directory_left_callback)
     throws Error {
         var enumerator = p_dir.enumerate_children(
             m_attr_list,
@@ -58,12 +61,15 @@ public class TreeScanner {
             
             var file_type = fileinfo.get_file_type();
             if (file_type == FileType.DIRECTORY) {
-                if (!list_children_recurse(child_file, p_file_found_callback)) {
+                if (!list_children_recurse(child_file, p_file_found_callback,
+                    p_directory_left_callback)) {
                     return false;
                 }
                 
                 if (p_directory_left_callback != null) {
-                    p_directory_left_callback(child_file);
+                    if (!p_directory_left_callback(child_file)) {
+                        return false;
+                    }
                 }
             }
         }

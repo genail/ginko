@@ -24,6 +24,8 @@ public abstract class AbstractFileAction : Object {
     private ProgressDialog m_progress_dialog;
     private TreeScanner m_tree_scanner;
     
+    //private unowned Thread m_async_thread;
+    
     private bool m_cancel_requested;
     
     
@@ -42,7 +44,7 @@ public abstract class AbstractFileAction : Object {
         ProgressCallback p_callback);
     
     protected virtual void on_directory_leaved_t(File p_dir, ProgressCallback p_callback) {
-        // empty
+        set_status(Status.SUCCESS);
     }
     
     protected virtual void on_cancel_request() {
@@ -67,7 +69,11 @@ public abstract class AbstractFileAction : Object {
     }
     
     protected void show_error(string p_message) {
-        Messages.show_error(m_context, m_action_descriptor.name, p_message);
+        if (Thread.self<void*>() == Application.gui_thread) {
+            Messages.show_error(m_context, m_action_descriptor.name, p_message);
+        } else {
+            show_error_t(p_message);
+        }
     }
     
     protected void show_error_t(string p_message) {
@@ -96,7 +102,7 @@ public abstract class AbstractFileAction : Object {
     
     private void execute_async() {
         var async_task = new AsyncTask();
-        async_task.run(execute_async_t, this);
+        /*m_async_thread = */async_task.run(execute_async_t, this);
     }
     
     private void execute_async_t(AsyncTask p_async_task) {
@@ -168,8 +174,12 @@ public abstract class AbstractFileAction : Object {
     }
     
     private bool on_file_found_inner_t(File p_file, FileInfo p_fileinfo) {
+        if (Config.debug) {
+            debug("file found %s", p_file.get_path());
+        }
+        
         m_status = Status.NONE;
-        bool result = on_file_found_t(p_file, p_fileinfo, on_progress_callback);
+        bool result = on_file_found_t(p_file, p_fileinfo, on_progress_callback_t);
         assert(m_status != Status.NONE);
         
         if (is_terminated()) {
@@ -179,11 +189,22 @@ public abstract class AbstractFileAction : Object {
         return result;
     }
     
-    private void on_directory_leaved_inner_t(File p_dir) {
-        on_directory_leaved_t(p_dir, on_progress_callback);
+    private bool on_directory_leaved_inner_t(File p_dir) {
+        if (Config.debug) {
+            debug("dir leaved %s", p_dir.get_path());
+        }
+        
+        on_directory_leaved_t(p_dir, on_progress_callback_t);
+        assert(m_status != Status.NONE);
+        
+        if (is_terminated()) {
+            return false;
+        }
+        
+        return true;
     }
     
-    private void on_progress_callback(float p_percent, string p_stage) {
+    private void on_progress_callback_t(float p_percent, string p_stage) {
         GuiExecutor.run(() => {
                 m_progress_dialog.set_status_text_1(p_stage);
                 m_progress_dialog.set_progress(p_percent);

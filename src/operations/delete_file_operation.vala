@@ -14,6 +14,11 @@ public class DeleteFileOperation : Operation {
     
     public void execute() throws Error {
         assert(file != null);
+        
+        if (Config.debug) {
+            debug("about to delete file %s", file.get_path());
+        }
+        
         file.delete(m_cancellable);
     }
     

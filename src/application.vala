@@ -1,6 +1,8 @@
 namespace Ginko {
 
 public class Application {
+    public static unowned Thread gui_thread;
+    
     private MainWindow m_main_window;
     private ApplicationContext m_context;
     
@@ -11,6 +13,8 @@ public class Application {
         }
         
         Gtk.init (ref p_args);
+        
+        gui_thread = Thread.self<void*>();
         
         m_main_window = new MainWindow();
         

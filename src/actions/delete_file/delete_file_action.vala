@@ -77,7 +77,7 @@ public class DeleteFileAction : AbstractFileAction {
                 set_status(Status.CANCEL);
             }
         } catch (Error e) {
-            show_error("Error deleting file: " + e.message);
+            show_error(e.message + "\n%s".printf(p_file.get_path()));
             set_status(Status.ERROR);
         }
     }

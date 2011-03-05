@@ -28,7 +28,7 @@ class AsyncTask {
         m_free_mutex.unlock();
     }
     
-    public void run(Runnable p_runnable, Object p_owner) {
+    public unowned Thread run(Runnable p_runnable, Object p_owner) {
         if (!Thread.supported()) {
             error("Threading not supported!");
         }
@@ -36,12 +36,14 @@ class AsyncTask {
         m_runnable_owner = p_owner;
         m_runnable = p_runnable;
         
-        Thread.create<void*> (this.thread_func, false);
+        unowned Thread thread = Thread.create<void*>(this.thread_func, false);
         
         m_free_mutex.lock();
         m_free_cond.wait(m_free_mutex); // wait to free_parent to be called
         m_parent_freed = true;
         m_free_mutex.unlock();
+        
+        return thread;
     }
     
     private void* thread_func() {
