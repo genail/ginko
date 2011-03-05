@@ -23,3 +23,15 @@ Compile + Runtime:
 cmake .
 make
 ./ginko
+
+
+Troubleshooting:
+
+>> Problem: After `make` all I get is:
+
+error: Package `gee-1.0' not found in specified Vala API directories or GObject-Introspection GIR directories
+Compilation failed: 1 error(s), 0 warning(s)
+
+>> Answer: In Ubuntu 10.10 gee.vapi is placed in wrong directory. Try doing this:
+sudo mkdir -p /usr/share/vala/vapi
+sudo ln -s /usr/share/vala-0.10/vapi/gee-1.0.vapi /usr/share/vala/vapi/gee-1.0.vapi
