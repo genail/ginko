@@ -10,7 +10,6 @@ namespace Ginko.Actions {
 class CopyFileAction : AbstractFileAction {
     
     private CopyFileConfig m_config;
-    
     private File m_dest_file;
     
     private uint64 m_bytes_processed;
@@ -25,8 +24,6 @@ class CopyFileAction : AbstractFileAction {
     /** Tells if first file should be saved exacly as m_dest_file points to */
     private bool m_first_file_as_dest;
     private bool m_first_file = true;
-    
-    private File m_rebase_base;
     
     protected CopyFileAction(ActionDescriptor p_action_descriptor) {
         base(p_action_descriptor);
