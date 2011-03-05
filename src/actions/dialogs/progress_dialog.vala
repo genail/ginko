@@ -126,10 +126,10 @@ public class ProgressDialog : Dialog {
         details_frame.add(scrolls);
         m_more_expander.add(details_frame);
         
-        m_more_expander.show();
-        scrolls.show();
-        details_frame.show();
-        m_details_tree_view.show();
+        //m_more_expander.show();
+        //scrolls.show();
+        //details_frame.show();
+        //m_details_tree_view.show();
         
         // model
         m_details_tree_view_store = new ListStore(1, typeof(string));

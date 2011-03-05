@@ -127,9 +127,10 @@ public abstract class AbstractFileAction : Object {
                     break;
                 default:
                     show_progress_suceed_t();
-                    destroy_progress_with_delay_t();
                     break;
             }
+            
+            destroy_progress_t();
         }
     }
     
@@ -166,8 +167,7 @@ public abstract class AbstractFileAction : Object {
         });
     }
     
-    private void destroy_progress_with_delay_t() {
-        Posix.sleep(1);
+    private void destroy_progress_t() {
         GuiExecutor.run(() => {
                 m_progress_dialog.destroy();
         });
