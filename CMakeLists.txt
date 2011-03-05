@@ -49,6 +49,7 @@ vala_precompile(VALA_C
     "src/navigator_view.vala"
     "src/sizes.vala"
 
+    "src/actions/abstract_action.vala"
     "src/actions/abstract_file_action.vala"
     "src/actions/accelerator.vala"
     "src/actions/action_descriptor.vala"
@@ -68,6 +69,9 @@ vala_precompile(VALA_C
     "src/actions/dialogs/overwrite_dialog.vala"
     "src/actions/dialogs/progress_dialog.vala"
     "src/actions/dialogs/rename_dialog.vala"
+
+    "src/actions/move_file/move_file_descriptor.vala"
+    "src/actions/move_file/move_file_action.vala"
 
     "src/dialogs/abstract_dialog.vala"
 

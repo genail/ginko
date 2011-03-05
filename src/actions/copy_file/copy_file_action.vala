@@ -111,7 +111,7 @@ class CopyFileAction : AbstractFileAction {
     
     protected override bool on_file_found_t(ActionContext p_context,
         File p_file, FileInfo p_fileinfo,
-        AbstractFileAction.ProgressCallback p_callback) {
+        AbstractAction.ProgressCallback p_callback) {
         
         File dest = null;
         
@@ -197,7 +197,7 @@ class CopyFileAction : AbstractFileAction {
     }
     
     private void create_copy_file_operation_t(File p_source, File p_dest,
-        AbstractFileAction.ProgressCallback p_callback) {
+        AbstractAction.ProgressCallback p_callback) {
         m_copy_op = new CopyFileOperation();
         m_copy_op.m_source = p_source;
         m_copy_op.m_destination = p_dest;

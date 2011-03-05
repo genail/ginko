@@ -40,7 +40,7 @@ public class DeleteFileAction : AbstractFileAction {
     
     protected override bool on_file_found_t(ActionContext p_context,
         File p_file, FileInfo p_fileinfo,
-        AbstractFileAction.ProgressCallback p_callback) {
+        AbstractAction.ProgressCallback p_callback) {
     
         var file_type = p_fileinfo.get_file_type();
         if (file_type != FileType.DIRECTORY) {
@@ -54,11 +54,11 @@ public class DeleteFileAction : AbstractFileAction {
     
     protected override void on_directory_leaved_t(ActionContext p_context,
         File p_dir,
-        AbstractFileAction.ProgressCallback p_callback) {
+        AbstractAction.ProgressCallback p_callback) {
         delete_file_t(p_dir, p_callback);
     }
     
-    private void delete_file_t(File p_file, AbstractFileAction.ProgressCallback p_callback) {
+    private void delete_file_t(File p_file, AbstractAction.ProgressCallback p_callback) {
         float percent = m_file_count_processed / (float)m_file_count_total;
         p_callback(percent, "Deleting %s".printf(p_file.get_path()));
         
@@ -73,7 +73,7 @@ public class DeleteFileAction : AbstractFileAction {
             
             m_file_count_processed++;
             
-            if (!is_cancel_requested()) {
+            if (!cancel_requested) {
                 set_status(Status.SUCCESS);
             } else {
                 set_status(Status.CANCEL);
