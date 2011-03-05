@@ -30,6 +30,10 @@ public class Settings : AbstractSettings {
         add_boolean_notify("show_hidden_files", p_callback);
     }
     
+    public bool is_debug_mode(bool p_default = false) {
+        return get_boolean("debug_mode", p_default);
+    }
+    
     
     
 }

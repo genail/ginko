@@ -7,7 +7,7 @@ public class Application {
     private ApplicationContext m_context;
     
     public Application(string[] p_args) {
-        if ("--debug" in p_args) {
+        if ("--debug" in p_args || Settings.get().is_debug_mode()) {
             stdout.printf("!!! Running in debug mode !!!\n");
             Config.debug = true;
         }
