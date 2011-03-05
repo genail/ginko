@@ -75,6 +75,7 @@ vala_precompile(VALA_C
     "src/format/size_format.vala"
     "src/format/time_format.vala"
 
+    "src/io/file_wrapper.vala"
     "src/io/files.vala"
     "src/io/tree_scanner.vala"
 

@@ -107,6 +107,12 @@ class CopyFileAction : AbstractFileAction {
         
         debug("dest: %s", dest_file.get_path());
         
+        if (Files.with(p_file).is_ancestor_to(dest_file)) {
+            show_error("Copying ancestor over child is disallowed.");
+            set_status(Status.ERROR);
+            return false;
+        }
+        
         
         create_copy_file_operation_t(p_file, dest_file, p_callback);
         

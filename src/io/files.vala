@@ -5,6 +5,10 @@ namespace Ginko.IO {
     
 public class Files {
     
+    public static FileWrapper with(File p_file) {
+        return new FileWrapper(p_file);
+    }
+    
     /** Calculates used space of file/directory with contents in bytes */
     // TODO: add cancellation
     public static uint64 calculate_space_recurse(File p_file, bool p_follow_symlinks) {
