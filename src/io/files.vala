@@ -115,6 +115,10 @@ public class Files {
         
         return tmpfile;
     }
+    
+    public static bool is_relative(string p_filename) {
+        return p_filename[0] != '/';
+    }
 }
 
 } // namespace

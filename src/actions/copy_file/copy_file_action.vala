@@ -35,11 +35,12 @@ class CopyFileAction : AbstractFileAction {
     
     protected override bool configure(ActionContext p_context) {
         var config_dialog = new CopyFileConfigureDialog(p_context);
-        int return_code = config_dialog.run();
-        config_dialog.close();
         
+        int return_code = config_dialog.run();
         m_config = config_dialog.get_config();
         set_follow_symlinks(m_config.follow_symlinks);
+        
+        config_dialog.close();
         
         return return_code == CopyFileConfigureDialog.Response.OK;
     }
@@ -56,8 +57,26 @@ class CopyFileAction : AbstractFileAction {
         File p_file, FileInfo p_fileinfo,
         AbstractFileAction.ProgressCallback p_callback) {
     
+        
+        File dest_dir;
+        if (!Files.is_relative(m_config.destination)) {
+            dest_dir = File.new_for_path(m_config.destination);
+        } else {
+            dest_dir = p_context.source_dir.resolve_relative_path(m_config.destination);
+        }
+        
+        if (!dest_dir.query_exists()) {
+            try {
+                dest_dir.make_directory_with_parents();
+            } catch (Error e) {
+                show_error(e.message + "\n" + dest_dir.get_path());
+                set_status(Status.ERROR);
+                return false;
+            }
+        }
+    
         var dst_file = Files.rebase(p_file,
-            p_context.source_dir, p_context.destination_dir);
+            p_context.source_dir, dest_dir);
         
         create_copy_file_operation_t(p_file, dst_file, p_callback);
         
@@ -108,9 +127,6 @@ class CopyFileAction : AbstractFileAction {
         } while (get_status() == Status.TRY_AGAIN); // retry until action is done
         
         return true;
-        
-        //var dircontroller = m_context.unactive_controller;
-        //GuiExecutor.run(() => dircontroller.refresh());
     }
     
     private void create_copy_file_operation_t(File p_source, File p_dest,

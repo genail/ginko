@@ -138,6 +138,9 @@ public abstract class AbstractFileAction : Object {
             }
             
             destroy_progress_t();
+            
+            refresh_active_directory_t();
+            refresh_unactive_directory_t();
         }
     }
     
@@ -219,6 +222,16 @@ public abstract class AbstractFileAction : Object {
                 
                 m_progress_dialog.set_progress(p_percent);
         });
+    }
+    
+    private void refresh_active_directory_t() {
+        var dircontroller = m_context.active_controller;
+        GuiExecutor.run(() => dircontroller.refresh());
+    }
+    
+    private void refresh_unactive_directory_t() {
+        var dircontroller = m_context.unactive_controller;
+        GuiExecutor.run(() => dircontroller.refresh());
     }
     
 }
