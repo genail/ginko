@@ -38,7 +38,8 @@ public class DeleteFileAction : AbstractFileAction {
         return true;
     }
     
-    protected override bool on_file_found_t(File p_file, FileInfo p_fileinfo,
+    protected override bool on_file_found_t(ActionContext p_context,
+        File p_file, FileInfo p_fileinfo,
         AbstractFileAction.ProgressCallback p_callback) {
     
         var file_type = p_fileinfo.get_file_type();
@@ -51,7 +52,8 @@ public class DeleteFileAction : AbstractFileAction {
         return true;
     }
     
-    protected override void on_directory_leaved_t(File p_dir,
+    protected override void on_directory_leaved_t(ActionContext p_context,
+        File p_dir,
         AbstractFileAction.ProgressCallback p_callback) {
         delete_file_t(p_dir, p_callback);
     }
@@ -77,7 +79,7 @@ public class DeleteFileAction : AbstractFileAction {
                 set_status(Status.CANCEL);
             }
         } catch (Error e) {
-            show_error(e.message + "\n%s".printf(p_file.get_path()));
+            show_error(e.message + "\n" + p_file.get_path());
             set_status(Status.ERROR);
         }
     }

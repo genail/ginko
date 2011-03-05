@@ -7,7 +7,7 @@ public class TreeScanner {
     public delegate bool DirectoryLeftCallback(File p_dir);
     
     private string[] m_attributes;
-    public bool m_follow_symlinks {get; set; default = true;}
+    public bool follow_symlinks {get; set; default = false;}
     
     private string m_attr_list;
     
@@ -30,7 +30,7 @@ public class TreeScanner {
         }
         
         var type = p_file.query_file_type(
-            m_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+            follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
         if (type == FileType.DIRECTORY) {
             if (!list_children_recurse(p_file, p_file_found_callback, p_directory_left_callback)) {
                 return;
@@ -48,7 +48,7 @@ public class TreeScanner {
     throws Error {
         var enumerator = p_dir.enumerate_children(
             m_attr_list,
-            m_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+            follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
             null);
         
         FileInfo fileinfo;
@@ -86,7 +86,7 @@ public class TreeScanner {
     
     private FileInfo info(File p_file) {
         return p_file.query_info(m_attr_list,
-            m_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+            follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
             null);
     }
     

@@ -9,7 +9,7 @@ public class CopyFileDescriptor : ActionDescriptor {
     }
     
     public override void execute(ActionContext p_context) {
-        var action = new CopyFileAction();
+        var action = new CopyFileAction(this);
         action.execute(p_context);
     }
 }

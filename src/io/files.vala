@@ -9,7 +9,7 @@ public class Files {
     // TODO: add cancellation
     public static uint64 calculate_space_recurse(File p_file, bool p_follow_symlinks) {
         var scanner = new TreeScanner();
-        scanner.m_follow_symlinks = p_follow_symlinks;
+        scanner.follow_symlinks = p_follow_symlinks;
         scanner.add_attribute(FILE_ATTRIBUTE_STANDARD_SIZE);
         
         uint64 total = 0;
@@ -24,7 +24,7 @@ public class Files {
     // TODO: add cancellation
     public static int calculate_file_count_recurse(File p_file, bool p_follow_symlinks) {
         var scanner = new TreeScanner();
-        scanner.m_follow_symlinks = p_follow_symlinks;
+        scanner.follow_symlinks = p_follow_symlinks;
         
         int total = 0;
         scanner.scan(p_file, () => {

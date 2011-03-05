@@ -7,7 +7,8 @@ namespace Ginko.Actions {
 
 public abstract class AbstractFileAction : Object {
     
-    protected delegate void ProgressCallback(float p_percent, string p_stage);
+    /** pass null to leave current stage unchanged */
+    protected delegate void ProgressCallback(float p_percent, string? p_stage=null);
     
     protected enum Status {
         NONE,
@@ -40,10 +41,12 @@ public abstract class AbstractFileAction : Object {
     
     protected abstract bool prepare_t(ActionContext p_context);
     
-    protected abstract bool on_file_found_t(File p_file, FileInfo p_fileinfo,
+    protected abstract bool on_file_found_t(ActionContext p_context,
+        File p_file, FileInfo p_fileinfo,
         ProgressCallback p_callback);
     
-    protected virtual void on_directory_leaved_t(File p_dir, ProgressCallback p_callback) {
+    protected virtual void on_directory_leaved_t(ActionContext p_context,
+        File p_dir, ProgressCallback p_callback) {
         set_status(Status.SUCCESS);
     }
     
@@ -58,6 +61,10 @@ public abstract class AbstractFileAction : Object {
     
     protected TreeScanner get_tree_scanner() {
         return m_tree_scanner;
+    }
+    
+    protected void set_follow_symlinks(bool p_follow_symlinks) {
+        m_tree_scanner.follow_symlinks = p_follow_symlinks;
     }
     
     protected Status get_status() {
@@ -179,7 +186,7 @@ public abstract class AbstractFileAction : Object {
         }
         
         m_status = Status.NONE;
-        bool result = on_file_found_t(p_file, p_fileinfo, on_progress_callback_t);
+        bool result = on_file_found_t(m_context, p_file, p_fileinfo, on_progress_callback_t);
         assert(m_status != Status.NONE);
         
         if (is_terminated()) {
@@ -194,7 +201,7 @@ public abstract class AbstractFileAction : Object {
             debug("dir leaved %s", p_dir.get_path());
         }
         
-        on_directory_leaved_t(p_dir, on_progress_callback_t);
+        on_directory_leaved_t(m_context, p_dir, on_progress_callback_t);
         assert(m_status != Status.NONE);
         
         if (is_terminated()) {
@@ -204,9 +211,12 @@ public abstract class AbstractFileAction : Object {
         return true;
     }
     
-    private void on_progress_callback_t(float p_percent, string p_stage) {
+    private void on_progress_callback_t(float p_percent, string? p_stage) {
         GuiExecutor.run(() => {
-                m_progress_dialog.set_status_text_1(p_stage);
+                if (p_stage != null) {
+                    m_progress_dialog.set_status_text_1(p_stage);
+                }
+                
                 m_progress_dialog.set_progress(p_percent);
         });
     }
