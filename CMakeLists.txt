@@ -83,6 +83,7 @@ vala_precompile(VALA_C
 
     "src/io/file_wrapper.vala"
     "src/io/files.vala"
+    "src/io/renamer.vala"
     "src/io/tree_scanner.vala"
 
     "src/operations/delete_file_operation.vala"

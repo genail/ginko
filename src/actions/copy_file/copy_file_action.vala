@@ -21,8 +21,7 @@ class CopyFileAction : AbstractFileAction {
     private bool m_overwrite_all;
     private bool m_skip_all;
     
-    /** Tells if first file should be saved exacly as m_dest_file points to */
-    private bool m_first_file_as_dest;
+    private Renamer m_renamer = new Renamer();
     private bool m_first_file = true;
     
     protected CopyFileAction(ActionDescriptor p_action_descriptor) {
@@ -47,52 +46,9 @@ class CopyFileAction : AbstractFileAction {
         
         config_dialog.close();
         
-        // prepare to copy
-        // and stick to these rules:
-        //
-        // if source is only one file/directory:
-        //   if destination exists copy source to destination/source
-        //   if destination doesn't exists copy and rename source to .../destination
-        // if source are many files/directories:
-        //   always copy to destination/source even if it doesn't exists
-        
-        // find File that user pointed to
-        if (!Files.is_relative(m_config.destination)) {
-            m_dest_file = File.new_for_path(m_config.destination);
-        } else {
-            m_dest_file = p_context.source_dir.resolve_relative_path(m_config.destination);
-        }
-        
-        try {
-            if (!has_many_input_files(p_context)) {
-                // only one file selected
-                if (m_dest_file.query_exists()) {
-                    // destination exists, copy to destination/source
-                    //File source_file = p_context.source_selected_files[0];
-                    //m_dest_file = Files.rebase(source_file, p_context.source_dir, m_dest_file);
-                } else {
-                    // destination doesn't exists, copy and rename source to .../destination
-                    // make directories for all parents
-                    if (m_dest_file.has_parent(null)) {
-                        var parent = m_dest_file.get_parent();
-                        if (!parent.query_exists()) {
-                            parent.make_directory_with_parents();
-                        }
-                    }
-                    
-                    m_first_file_as_dest = true;
-                }
-            } else {
-                // many files selected - ensure destination directory exists 
-                if (!m_dest_file.query_exists()) {
-                    m_dest_file.make_directory_with_parents();
-                }
-            }
-        } catch (Error e) {
-            show_error(e.message);
-            set_status(Status.ERROR);
-            return false;
-        }
+        m_renamer.source_base_directory = p_context.source_dir;
+        m_renamer.toplevel_source_file_count = p_context.source_selected_files.length;
+        m_renamer.rename_string = m_config.destination;
         
         return return_code == CopyFileConfigureDialog.Response.OK;
     }
@@ -113,27 +69,24 @@ class CopyFileAction : AbstractFileAction {
         File p_file, FileInfo p_fileinfo,
         AbstractAction.ProgressCallback p_callback) {
         
-        File dest = null;
+        File dest = m_renamer.rename(p_file);
         
-        // special case - save as destination
         if (m_first_file) {
-            if (m_first_file_as_dest) {
-                dest = m_dest_file;
-            }
-            m_first_file = false;
-        }
-        
-        if (dest == null) {
-            File rebase_base;
-            if (m_first_file_as_dest) {
-                // when first file is copied as dest then all files copied later must have
-                // slighty different path
-                rebase_base = p_context.source_selected_files[0];
-            } else {
-                rebase_base = p_context.source_dir;
+            // if this is first file then the parent may not exists
+            if (dest.has_parent(null)) {
+                var parent = dest.get_parent();
+                if (!parent.query_exists()) {
+                    try {
+                        parent.make_directory_with_parents();
+                    } catch (IOError e) {
+                        show_error(e.message);
+                        set_status(Status.ERROR);
+                        return false;
+                    }
+                }
             }
             
-            dest = Files.rebase(p_file, rebase_base, m_dest_file);
+            m_first_file = false;
         }
         
         debug("dest: %s", dest.get_path());
