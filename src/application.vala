@@ -47,6 +47,7 @@ public class Application {
         action_descriptors += new Actions.RefreshActionDescriptor();
         action_descriptors += new Actions.ToggleHiddenFilesActionDescriptor();
         action_descriptors += new Actions.CopyFileDescriptor();
+        action_descriptors += new Actions.MoveFileDescriptor();
         action_descriptors += new Actions.DeleteFileDescriptor();
         action_descriptors += new Actions.OpenTerminalActionDescriptor();
         

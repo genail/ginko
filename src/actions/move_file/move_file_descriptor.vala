@@ -9,8 +9,8 @@ class MoveFileDescriptor : ActionDescriptor {
     }
     
     public override void execute(ActionContext p_context) {
-        //var action = new MoveFileAction(this);
-        //action.execute(p_context);
+        var action = new MoveFileAction(this);
+        action.execute(p_context);
     }
 }
 

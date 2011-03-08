@@ -70,8 +70,10 @@ vala_precompile(VALA_C
     "src/actions/dialogs/progress_dialog.vala"
     "src/actions/dialogs/rename_dialog.vala"
 
-    "src/actions/move_file/move_file_descriptor.vala"
     "src/actions/move_file/move_file_action.vala"
+    "src/actions/move_file/move_file_descriptor.vala"
+    "src/actions/move_file/move_file_config.vala"
+    "src/actions/move_file/move_file_configure_dialog.vala"
 
     "src/dialogs/abstract_dialog.vala"
 
