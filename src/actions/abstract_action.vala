@@ -116,6 +116,16 @@ public abstract class AbstractAction : Object {
                 progress_dialog.destroy();
         });
     }
+    
+    protected void refresh_active_directory_t() {
+        var dircontroller = context.active_controller;
+        GuiExecutor.run(() => dircontroller.refresh());
+    }
+    
+    protected void refresh_unactive_directory_t() {
+        var dircontroller = context.unactive_controller;
+        GuiExecutor.run(() => dircontroller.refresh());
+    }
 }
     
 } // namespace

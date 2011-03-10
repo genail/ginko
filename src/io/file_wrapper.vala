@@ -20,6 +20,15 @@ public class FileWrapper {
         
         return false;
     }
+    
+    public void make_parents_if_not_exists() throws IOError {
+        if (m_file.has_parent(null)) {
+            var parent = m_file.get_parent();
+            if (!parent.query_exists()) {
+                parent.make_directory_with_parents();
+            }
+        }
+    }
 }
 
 } // namespace

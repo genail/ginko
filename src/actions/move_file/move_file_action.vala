@@ -1,3 +1,5 @@
+using Ginko.IO;
+
 namespace Ginko.Actions {
 
 // this shouldn't extend AbstractFileAction.
@@ -5,6 +7,9 @@ namespace Ginko.Actions {
 class MoveFileAction : AbstractAction {
     
     private MoveFileConfig m_config;
+    
+    private Renamer m_renamer = new Renamer();
+    private bool m_first_file = true;
     
     public MoveFileAction(ActionDescriptor p_action_descriptor) {
         base(p_action_descriptor);
@@ -28,6 +33,10 @@ class MoveFileAction : AbstractAction {
         
         config_dialog.close();
         
+        m_renamer.source_base_directory = p_context.source_dir;
+        m_renamer.toplevel_source_file_count = p_context.source_selected_files.length;
+        m_renamer.rename_string = m_config.destination;
+        
         return return_code == MoveFileConfigureDialog.Response.OK;
     }
     
@@ -36,7 +45,42 @@ class MoveFileAction : AbstractAction {
     }
     
     protected override void execute_t() {
+        bool error = false;
         
+        foreach (File source_file in context.source_selected_files) {
+            File destination_file = m_renamer.rename(source_file);
+            if (m_first_file) {
+                try {
+                    Files.with(destination_file).make_parents_if_not_exists();
+                } catch (IOError e) {
+                    show_error(e.message);
+                    error = true;
+                    break;
+                }
+                
+                m_first_file = false;
+            }
+            
+            try {
+                source_file.move(
+                    destination_file,
+                    FileCopyFlags.NOFOLLOW_SYMLINKS,
+                    null,
+                    null
+                    );
+            } catch (IOError e) {
+                if (e is IOError.WOULD_RECURSE) {
+                    // use copy fallback
+                }
+                debug("%d", e.code);
+                show_error(e.message);
+                error = true;
+                break;
+            }
+        }
+        
+        refresh_active_directory_t();
+        refresh_unactive_directory_t();
     }
 }
     

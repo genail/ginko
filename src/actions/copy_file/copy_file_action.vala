@@ -72,18 +72,12 @@ class CopyFileAction : AbstractFileAction {
         File dest = m_renamer.rename(p_file);
         
         if (m_first_file) {
-            // if this is first file then the parent may not exists
-            if (dest.has_parent(null)) {
-                var parent = dest.get_parent();
-                if (!parent.query_exists()) {
-                    try {
-                        parent.make_directory_with_parents();
-                    } catch (IOError e) {
-                        show_error(e.message);
-                        set_status(Status.ERROR);
-                        return false;
-                    }
-                }
+            try {
+                Files.with(dest).make_parents_if_not_exists();
+            } catch (IOError e) {
+                show_error(e.message);
+                set_status(Status.ERROR);
+                return false;
             }
             
             m_first_file = false;
