@@ -109,34 +109,24 @@ class CopyFileAction : AbstractFileAction {
                 }
             } else {
                 try {
-                    m_copy_op.execute();
-                    set_status(Status.SUCCESS);
-                } catch (IOError e) {
-                    if (e is IOError.CANCELLED) {
-                        set_status(Status.CANCEL);
-                    } else if (e is IOError.NOT_FOUND) {
-                        show_error(e.message + "\n" + p_file.get_path());
-                        set_status(Status.ERROR);
-                    } else if (e is IOError.EXISTS) {
-                        if (m_skip_all) {
-                            set_status(Status.SKIP);
-                        } else if (m_overwrite_all) {
-                            m_copy_op.m_overwrite = true;
-                            set_status(Status.TRY_AGAIN);
-                        } else {
-                            prompt_overwrite_t(p_context);
-                        }
+                    CopyFileOperation.Status copy_op_status = m_copy_op.execute();
+                    
+                    if (copy_op_status != CopyFileOperation.Status.CANCEL) {
+                        set_status(Status.SUCCESS);
                     } else {
-                        show_error(e.message + "\n" + p_file.get_path()
-                            + " to " + dest.get_path());
-                        set_status(Status.ERROR);
+                        set_status(Status.CANCEL);
                     }
+                } catch (IOError e) {
+                    show_error(e.message + "\n" + p_file.get_path()
+                        + " to " + dest.get_path());
+                    set_status(Status.ERROR);
                 }
             }
             
-            if (Config.debug) {
-                Posix.sleep(1);
+            if (cancel_requested) {
+                set_status(Status.CANCEL);
             }
+            
             
         } while (get_status() == Status.TRY_AGAIN); // retry until action is done
         
@@ -145,12 +135,14 @@ class CopyFileAction : AbstractFileAction {
     
     private void create_copy_file_operation_t(File p_source, File p_dest,
         AbstractAction.ProgressCallback p_callback) {
-        m_copy_op = new CopyFileOperation();
-        m_copy_op.m_source = p_source;
-        m_copy_op.m_destination = p_dest;
+        m_copy_op = new CopyFileOperation(context, m_copy_op);
+        m_copy_op.source = p_source;
+        m_copy_op.destination = p_dest;
         m_bytes_processed_before = m_bytes_processed;
-        
+     
+        // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=642899
         m_copy_op.set_progress_callback((current, total) => {
+                m_bytes_processed = m_bytes_processed_before + current;
                 p_callback(get_progress_percent());
         });
     }
@@ -159,63 +151,10 @@ class CopyFileAction : AbstractFileAction {
         return (float) (m_bytes_processed / (double) m_bytes_total);
     }
     
-    private void prompt_overwrite_t(ActionContext p_context) {
-        GuiExecutor.run_and_wait(() => {
-                var dialog = new OverwriteDialog(p_context,
-                    m_copy_op.m_source, m_copy_op.m_destination);
-                var response = dialog.run();
-                dialog.close();
-                
-                switch (response) {
-                    case OverwriteDialog.RESPONSE_CANCEL:
-                        set_status(Status.CANCEL);
-                        break;
-                    case OverwriteDialog.RESPONSE_RENAME:
-                        if (prompt_rename(p_context)) {
-                            set_status(Status.TRY_AGAIN);
-                        } else {
-                            set_status(Status.CANCEL);
-                        }
-                        break;
-                    case OverwriteDialog.RESPONSE_OVERWRITE:
-                        m_copy_op.m_overwrite = true;
-                        m_overwrite_all = dialog.is_apply_to_all();
-                        set_status(Status.TRY_AGAIN);
-                        break;
-                    case OverwriteDialog.RESPONSE_SKIP:
-                        set_status(Status.SKIP);
-                        m_skip_all = dialog.is_apply_to_all();
-                        break;
-                    case ResponseType.DELETE_EVENT:
-                        set_status(Status.CANCEL);
-                        break;
-                    default:
-                        error("unknown response: %d", response);
-                }
-                
-        });
+    protected override void on_cancel_request() {
+        m_copy_op.cancel();
     }
     
-    private bool prompt_rename(ActionContext p_context) {
-        var basename = m_copy_op.m_destination.get_basename();
-        var rename_dialog = new RenameDialog(p_context, basename);
-        var response = rename_dialog.run();
-        
-        try {
-            if (response == RenameDialog.RESPONSE_OK) {
-                var new_filename = rename_dialog.get_filename();
-                
-                var parent = m_copy_op.m_destination.get_parent();
-                m_copy_op.m_destination = parent.get_child(new_filename);
-                
-                return true;
-            }
-            
-            return false;
-        } finally {
-            rename_dialog.close();
-        }
-    }
 }
 
 } // namespace

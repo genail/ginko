@@ -9,10 +9,6 @@ public interface Operation {
     /** @return cost of current operation usually in transfered bytes. */
     public abstract uint64 get_cost();
     
-    /** Executes current operation
-      * @see check_fail_reason() */
-    public abstract void execute() throws Error;
-    
     /** Cancels current operation.
      * @return true if cancelled.
      */

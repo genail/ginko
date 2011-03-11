@@ -53,7 +53,7 @@ public class OverwriteDialog : AbstractMessageDialog {
     
     private CheckButton m_apply_to_all_check;
     
-    public OverwriteDialog(ActionContext p_context, File p_source, File p_target) {
+    public OverwriteDialog(Context p_context, File p_source, File p_target) {
         m_source = p_source;
         m_target = p_target;
         

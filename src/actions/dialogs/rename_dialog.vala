@@ -12,7 +12,7 @@ class RenameDialog {
     
     private string m_filename_orig;
     
-    public RenameDialog(ActionContext p_context, string p_filename) {
+    public RenameDialog(Context p_context, string p_filename) {
         // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=642899
         m_filename_orig = p_filename;
         
