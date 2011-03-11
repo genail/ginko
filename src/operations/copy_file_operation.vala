@@ -3,6 +3,10 @@ using Ginko.IO;
 using Ginko.Dialogs;
 
 namespace Ginko.Operations {
+    
+public errordomain CopyFileError {
+    IO_ERROR
+}
 
 class CopyFileOperation : Operation {
     
@@ -27,7 +31,6 @@ class CopyFileOperation : Operation {
     public bool follow_symlinks {get; set;}
     
     private FileProgressCallback m_progress_callback;
-    
     private Cancellable m_cancellable = new Cancellable();
     
     
@@ -53,7 +56,10 @@ class CopyFileOperation : Operation {
         return Files.query_size(source);
     }
     
-    public Status execute() throws IOError {
+    public Status execute() throws CopyFileError {
+        assert(source != null);
+        assert(destination != null);
+        
         do {
             m_try_again = false;
             
@@ -88,7 +94,7 @@ class CopyFileOperation : Operation {
                         prompt_overwrite();
                     }
                 } else {
-                    throw e;
+                    throw new CopyFileError.IO_ERROR(e.message);
                 }
             }
         } while (m_try_again);
@@ -114,6 +120,7 @@ class CopyFileOperation : Operation {
         return flags;
     }
     
+    // workaround for ownage bug?
     public void set_progress_callback(owned FileProgressCallback p_callback) {
         m_progress_callback = (owned) p_callback;
     }

@@ -86,9 +86,10 @@ vala_precompile(VALA_C
     "src/io/renamer.vala"
     "src/io/tree_scanner.vala"
 
-    "src/operations/delete_file_operation.vala"
-    "src/operations/operation.vala"
     "src/operations/copy_file_operation.vala"
+    "src/operations/delete_file_operation.vala"
+    "src/operations/move_file_operation.vala"
+    "src/operations/operation.vala"
 
     "src/settings/abstract_settings.vala"
     "src/settings/pane_settings.vala"

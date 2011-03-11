@@ -57,7 +57,7 @@ public abstract class AbstractFileAction : AbstractAction {
         m_status = p_status;
     }
     
-    protected override void execute_t() {
+    protected override void execute_t(AbstractAction.ProgressCallback p_progress_callback) {
         foreach (var infile in context.source_selected_files) {
             m_tree_scanner.scan(infile, on_file_found_inner_t, on_directory_leaved_inner_t);
             
@@ -117,16 +117,6 @@ public abstract class AbstractFileAction : AbstractAction {
         }
         
         return true;
-    }
-    
-    private void on_progress_callback_t(float p_percent, string? p_stage) {
-        GuiExecutor.run(() => {
-                if (p_stage != null) {
-                    progress_dialog.set_status_text_1(p_stage);
-                }
-                
-                progress_dialog.set_progress(p_percent);
-        });
     }
     
 }

@@ -24,7 +24,7 @@ public abstract class AbstractAction : Object {
     protected abstract bool verify(ActionContext p_context);
     protected abstract bool configure(ActionContext p_context);
     protected abstract bool prepare_t(ActionContext p_context);
-    protected abstract void execute_t();
+    protected abstract void execute_t(ProgressCallback p_progress_callback);
  
     
     public void execute(ActionContext p_context) {
@@ -53,7 +53,7 @@ public abstract class AbstractAction : Object {
         }
         
         if (prepare_t(context)) {
-            execute_t();
+            execute_t(on_progress_callback_t);
             
             if (show_progress_dialog) {
                 destroy_progress_t();
@@ -108,6 +108,16 @@ public abstract class AbstractAction : Object {
         GuiExecutor.run(() => {
                 progress_dialog.set_status_text_1("Operation failed!");
                 progress_dialog.show();
+        });
+    }
+    
+    protected void on_progress_callback_t(float p_percent, string? p_stage) {
+        GuiExecutor.run(() => {
+                if (p_stage != null) {
+                    progress_dialog.set_status_text_1(p_stage);
+                }
+                
+                progress_dialog.set_progress(p_percent);
         });
     }
     

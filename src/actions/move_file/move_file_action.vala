@@ -1,4 +1,5 @@
 using Ginko.IO;
+using Ginko.Operations;
 
 namespace Ginko.Actions {
 
@@ -44,10 +45,13 @@ class MoveFileAction : AbstractAction {
         return true;
     }
     
-    protected override void execute_t() {
+    protected override void execute_t(AbstractAction.ProgressCallback p_progress_callback) {
         bool error = false;
         
-        foreach (File source_file in context.source_selected_files) {
+        for (int i = 0; i < context.source_selected_files.length; ++i) {
+            // bug: it won't work with foreach
+            
+            File source_file = context.source_selected_files[0];
             File destination_file = m_renamer.rename(source_file);
             if (m_first_file) {
                 try {
@@ -62,12 +66,14 @@ class MoveFileAction : AbstractAction {
             }
             
             try {
-                source_file.move(
-                    destination_file,
-                    FileCopyFlags.NOFOLLOW_SYMLINKS,
-                    null,
-                    null
-                    );
+                var move = new MoveFileOperation(context);
+                move.source = source_file;
+                move.destination = destination_file;
+                move.set_progress_callback((bytes, total) => {
+                        p_progress_callback(bytes / (float) total, source_file.get_path());
+                });
+                
+                move.execute();
             } catch (IOError e) {
                 if (e is IOError.WOULD_RECURSE) {
                     // use copy fallback

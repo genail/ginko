@@ -111,7 +111,7 @@ class CopyFileAction : AbstractFileAction {
                 if (cancel_requested) {
                     set_status(Status.CANCEL);
                 }
-            } catch (IOError e) {
+            } catch (Error e) {
                 show_error(e.message + "\n" + p_file.get_path()
                     + " to " + dest.get_path());
                 set_status(Status.ERROR);
@@ -128,7 +128,6 @@ class CopyFileAction : AbstractFileAction {
         m_copy_op.destination = p_dest;
         m_bytes_processed_before = m_bytes_processed;
      
-        // workaround for https://bugzilla.gnome.org/show_bug.cgi?id=642899
         m_copy_op.set_progress_callback((current, total) => {
                 m_bytes_processed = m_bytes_processed_before + current;
                 p_callback(get_progress_percent());
