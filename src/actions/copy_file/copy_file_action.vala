@@ -99,35 +99,23 @@ class CopyFileAction : AbstractFileAction {
         var file_type = p_fileinfo.get_file_type();
         
         do {
-            if (file_type == FileType.DIRECTORY) {
-                try {
-                    dest.make_directory();
+            try {
+                CopyFileOperation.Status copy_op_status = m_copy_op.execute();
+                
+                if (copy_op_status != CopyFileOperation.Status.CANCEL) {
                     set_status(Status.SUCCESS);
-                } catch (IOError e) {
-                    show_error(e.message + "\n" + dest.get_path());
-                    set_status(Status.ERROR);
+                } else {
+                    set_status(Status.CANCEL);
                 }
-            } else {
-                try {
-                    CopyFileOperation.Status copy_op_status = m_copy_op.execute();
-                    
-                    if (copy_op_status != CopyFileOperation.Status.CANCEL) {
-                        set_status(Status.SUCCESS);
-                    } else {
-                        set_status(Status.CANCEL);
-                    }
-                } catch (IOError e) {
-                    show_error(e.message + "\n" + p_file.get_path()
-                        + " to " + dest.get_path());
-                    set_status(Status.ERROR);
+                
+                if (cancel_requested) {
+                    set_status(Status.CANCEL);
                 }
+            } catch (IOError e) {
+                show_error(e.message + "\n" + p_file.get_path()
+                    + " to " + dest.get_path());
+                set_status(Status.ERROR);
             }
-            
-            if (cancel_requested) {
-                set_status(Status.CANCEL);
-            }
-            
-            
         } while (get_status() == Status.TRY_AGAIN); // retry until action is done
         
         return true;

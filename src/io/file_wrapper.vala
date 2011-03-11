@@ -21,6 +21,12 @@ public class FileWrapper {
         return false;
     }
     
+    public bool is_directory(bool p_follow_symlinks) {
+        var type = m_file.query_file_type(
+            p_follow_symlinks ? FileQueryInfoFlags.NONE : FileQueryInfoFlags.NOFOLLOW_SYMLINKS);
+        return type == FileType.DIRECTORY;
+    }
+    
     public void make_parents_if_not_exists() throws IOError {
         if (m_file.has_parent(null)) {
             var parent = m_file.get_parent();

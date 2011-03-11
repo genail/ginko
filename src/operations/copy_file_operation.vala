@@ -62,12 +62,22 @@ class CopyFileOperation : Operation {
                     Posix.sleep(1);
                 }
                 
-                source.copy(
-                    destination,
-                    gen_copy_flags(),
-                    m_cancellable,
-                    m_progress_callback
-                    );
+                if (Files.with(source).is_directory(follow_symlinks)) {
+                    if (!destination.query_exists()) {
+                        // source is directory, destination doesn't exists
+                        destination.make_directory();
+                    } else if (Files.with(destination).is_directory(follow_symlinks)) {
+                        // source is directory, destination is not
+                        // FIXME: wrap exception
+                    }
+                } else {
+                    source.copy(
+                        destination,
+                        gen_copy_flags(),
+                        m_cancellable, m_progress_callback);
+                }
+                
+                m_return_status = Status.OK;
             } catch (IOError e) {
                 if (e is IOError.CANCELLED) {
                     m_return_status = Status.CANCEL;
