@@ -8,11 +8,13 @@ find_package(Vala)
 ensure_vala_version("0.11.5" MINIMUM)
 
 find_package(PkgConfig)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
 pkg_check_modules(GTK REQUIRED gtk+-2.0)
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(GEE REQUIRED gee-1.0)
 pkg_check_modules(GCONF REQUIRED gconf-2.0)
 add_definitions(
+    ${GLIB_CFLAGS} ${GLIB_CFLAGS_OTHER}
     ${GTK_CFLAGS} ${GTK_CFLAGS_OTHER}
     ${GIO_CFLAGS} ${GIO_CFLAGS_OTHER}
     ${GEE_CFLAGS} ${GEE_CFLAGS_OTHER}
@@ -21,12 +23,14 @@ add_definitions(
 #    --include config.h
 )
 link_libraries(
+    ${GLIB_LIBRARIES}
     ${GTK_LIBRARIES}
     ${GIO_LIBRARIES}
     ${GEE_LIBRARIES}
     ${GCONF_LIBRARIES}
 )
 link_directories(
+    ${GLIB_LIBRARY_DIRS}
     ${GTK_LIBRARY_DIRS}
     ${GIO_LIBRARY_DIRS}
     ${GEE_LIBRARY_DIRS}
@@ -98,6 +102,7 @@ vala_precompile(VALA_C
     "src/util/async_task.vala"
     "src/util/gui_executor.vala"
 PACKAGES
+    glib-2.0
     gtk+-2.0
     gio-2.0
     gee-1.0

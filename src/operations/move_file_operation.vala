@@ -66,7 +66,7 @@ public class MoveFileOperation : Operation {
         } catch (IOError e) {
             if (e is IOError.WOULD_RECURSE) {
                 try {
-                    debug("Cannot move - using copy fallback");
+                    debug("Cannot move - using copy/remove fallback");
                     execute_copy_fallback();
                 } catch (CopyFileError e) {
                     throw new MoveFileError.IO_ERROR(e.message);
